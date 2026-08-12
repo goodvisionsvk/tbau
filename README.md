@@ -29,6 +29,29 @@ _Zatiaľ neurčené – doplní sa pri založení základnej štruktúry apliká
 Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a čo je na rade.
 
 - **2026-08-12** – Založené repo, prvotná štruktúra a README (popis projektu + sekcie Bezpečnosť a ISO 27000).
+- **2026-08-12** – Nastavený prístup na produkčný VPS (TBAU-Server): SSH kľúčová autentifikácia, vytvorený admin účet `tbau` (sudo).
+
+---
+
+## 🖥️ Prístupy na server
+
+Produkčný VPS, na ktorom pobeží portál.
+
+| Parameter | Hodnota |
+|-----------|---------|
+| Názov | TBAU-Server |
+| IPv4 | 80.211.202.23 |
+| OS | Ubuntu 24.04.4 LTS |
+
+### Používateľské účty
+
+| Účet | Práva | Prihlásenie | Poznámka |
+|------|-------|-------------|----------|
+| `tbau` | sudo (admin) | SSH kľúč | Hlavný správcovský účet |
+| `tomas` (Tomáš Kuriak) | bez sudo | SSH kľúč | 🔲 čaká na verejný kľúč |
+
+> Prihlásenie je **len cez SSH kľúč**, každý používateľ má vlastný účet (účtovateľnosť).
+> Súkromné kľúče sa nikdy nezdieľajú – zdieľa sa iba verejný `.pub` kľúč.
 
 ---
 
@@ -39,6 +62,11 @@ Zoznam sa aktualizuje po každej práci na projekte.
 
 ### Čo treba dorobiť
 
+- [ ] **Zmeniť root heslo servera** – bolo zdieľané v plaintexte, treba rotovať (`passwd`).
+- [ ] **Zakázať prihlásenie heslom cez SSH** – povoliť len kľúče (`PasswordAuthentication no`).
+- [ ] **Obmedziť/zakázať root SSH login** – po overení admin účtu (`PermitRootLogin no`).
+- [ ] **Nahradiť NOPASSWD sudo** pri účte `tbau` za sudo s heslom (aktuálne passwordless).
+- [ ] **Firewall (ufw)** – povoliť len potrebné porty (SSH, HTTP/HTTPS).
 - [ ] **Autentifikácia** – prihlasovanie používateľov (silné heslá, hashovanie napr. bcrypt/argon2).
 - [ ] **Autorizácia / role** – rozdelenie prístupu podľa rolí (admin, účtovník, zamestnanec…).
 - [ ] **Šifrovanie prenosu** – vynútené HTTPS/TLS na celom portáli.
@@ -53,7 +81,8 @@ Zoznam sa aktualizuje po každej práci na projekte.
 
 ### Hotové
 
-_(zatiaľ nič – projekt v úvodnej fáze)_
+- [x] **SSH kľúčová autentifikácia** – prístup na server cez kľúče (nie heslá).
+- [x] **Samostatné účty s vlastným kľúčom** – účtovateľnosť (kto sa prihlásil).
 
 ---
 
