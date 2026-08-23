@@ -1,0 +1,14 @@
+<p class="muted" style="margin-top:-6px;">Aplikácie, ktoré postupne automatizujú procesy firmy TBAU.</p>
+
+<div class="grid cards">
+  <% apps.forEach(function(a){ %>
+    <div class="card">
+      <div style="font-size:1.8rem;"><%= a.icon %></div>
+      <h2 style="margin:10px 0 6px;"><%= a.name %></h2>
+      <p class="muted" style="font-size:.9rem; margin:0 0 14px;"><%= a.description %></p>
+      <span class="pill <%= a.status %>">
+        <%= a.status === 'planned' ? 'plánované' : (a.status === 'in_progress' ? 'vo vývoji' : 'aktívne') %>
+      </span>
+    </div>
+  <% }) %>
+</div>

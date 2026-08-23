@@ -1,0 +1,22 @@
+[Unit]
+Description=TBAU firemný portál (Node.js)
+After=network.target
+
+[Service]
+Type=simple
+User=tbau
+WorkingDirectory=/opt/tbau-portal
+EnvironmentFile=/opt/tbau-portal/.env
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+
+# Bezpečnostné obmedzenia (systemd hardening)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/tbau-portal/data
+
+[Install]
+WantedBy=multi-user.target

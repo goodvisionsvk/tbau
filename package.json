@@ -1,0 +1,30 @@
+{
+  "name": "tbau-portal",
+  "version": "0.1.0",
+  "description": "Firemný portál pre stavebnú firmu TBAU, s. r. o.",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "init-db": "node src/db/seed.js",
+    "create-user": "node src/db/create-user.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.3.0",
+    "better-sqlite3-session-store": "^0.1.0",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.1",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}

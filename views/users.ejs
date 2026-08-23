@@ -1,0 +1,50 @@
+<% if (typeof error !== 'undefined' && error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<% if (tempInfo) { %>
+  <div class="alert alert-info">
+    <%= tempInfo.reset ? 'Heslo bolo resetované' : 'Používateľ vytvorený' %>:
+    <b><%= tempInfo.email %></b> — dočasné heslo: <code><%= tempInfo.password %></code><br>
+    <span class="muted">Odovzdaj heslo bezpečne. Používateľ si ho po prvom prihlásení musí zmeniť. Zobrazuje sa iba teraz.</span>
+  </div>
+<% } %>
+
+<div class="grid" style="grid-template-columns: 1fr; gap:24px;">
+  <div class="card">
+    <h2 style="margin-top:0;">Nový používateľ</h2>
+    <form method="post" action="/users">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" required></div>
+        <div class="field"><label for="full_name">Celé meno</label><input id="full_name" name="full_name" type="text"></div>
+        <div class="field"><label for="role">Rola</label>
+          <select id="role" name="role"><option value="user">Používateľ</option><option value="admin">Administrátor</option></select>
+        </div>
+      </div>
+      <button class="btn btn-primary">Vytvoriť</button>
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>E-mail</th><th>Meno</th><th>Rola</th><th>Stav</th><th>Posledné prihlásenie</th><th></th></tr></thead>
+      <tbody>
+        <% users.forEach(function(u){ %>
+          <tr>
+            <td><%= u.email %></td>
+            <td class="muted"><%= u.full_name || '—' %></td>
+            <td><% if (u.role==='admin'){ %><span class="badge">admin</span><% } else { %>používateľ<% } %></td>
+            <td><span class="pill <%= u.active ? 'active':'paused' %>"><%= u.active ? 'aktívny':'neaktívny' %></span></td>
+            <td class="muted"><%= u.last_login || '—' %></td>
+            <td class="actions">
+              <form class="inline" method="post" action="/users/<%= u.id %>/reset"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-ghost btn-sm">Reset hesla</button></form>
+              <% if (u.id !== currentUser.id) { %>
+                <form class="inline" method="post" action="/users/<%= u.id %>/toggle"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-ghost btn-sm"><%= u.active ? 'Deaktivovať':'Aktivovať' %></button></form>
+                <form class="inline" method="post" action="/users/<%= u.id %>/delete" onsubmit="return confirm('Zmazať používateľa <%= u.email %>?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

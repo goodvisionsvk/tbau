@@ -15,7 +15,11 @@ Thumbs.db
 .env.*
 !.env.example
 
-# Dependencies / build (uncomment as needed)
-# node_modules/
-# dist/
-# build/
+# Dependencies
+node_modules/
+
+# Databáza / dáta (nikdy necommitovať produkčné dáta)
+data/
+*.db
+*.sqlite
+*.sqlite3

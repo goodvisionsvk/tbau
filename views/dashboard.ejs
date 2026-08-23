@@ -1,0 +1,50 @@
+<div class="grid stats">
+  <div class="card stat"><span class="ico">👥</span><span class="num"><%= stats.users %></span><span class="lbl">Aktívni používatelia</span></div>
+  <div class="card stat"><span class="ico">🧩</span><span class="num"><%= stats.apps %></span><span class="lbl">Aplikácie</span></div>
+  <div class="card stat"><span class="ico">🏗️</span><span class="num"><%= stats.projects %></span><span class="lbl">Prebiehajúce projekty</span></div>
+  <div class="card stat"><span class="ico">✅</span><span class="num"><%= stats.tasks %></span><span class="lbl">Otvorené úlohy</span></div>
+</div>
+
+<div class="section">
+  <h2>Posledné úlohy</h2>
+  <% if (recentTasks.length === 0) { %>
+    <div class="card muted">Zatiaľ žiadne úlohy. <a href="/tasks">Pridať úlohu &rarr;</a></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Úloha</th><th>Priorita</th><th>Stav</th></tr></thead>
+        <tbody>
+          <% recentTasks.forEach(function(t){ %>
+            <tr>
+              <td><%= t.title %></td>
+              <td><span class="pill <%= t.priority %>"><%= t.priority %></span></td>
+              <td><span class="pill <%= t.status %>"><%= t.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<div class="section">
+  <h2>Posledné projekty</h2>
+  <% if (recentProjects.length === 0) { %>
+    <div class="card muted">Zatiaľ žiadne projekty. <a href="/projects">Vytvoriť projekt &rarr;</a></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Projekt</th><th>Klient</th><th>Stav</th></tr></thead>
+        <tbody>
+          <% recentProjects.forEach(function(p){ %>
+            <tr>
+              <td><%= p.name %></td>
+              <td class="muted"><%= p.client || '—' %></td>
+              <td><span class="pill <%= p.status %>"><%= p.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

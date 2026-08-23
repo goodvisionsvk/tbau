@@ -1,0 +1,21 @@
+<div class="public-wrap">
+  <div class="auth-card">
+    <img class="logo" src="/static/img/logo.png" alt="TBAU">
+    <div class="sub">Firemný portál — prihlásenie</div>
+
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+    <form method="post" action="/login">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" autocomplete="username" required value="<%= email %>" autofocus>
+      </div>
+      <div class="field">
+        <label for="password">Heslo</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary" style="width:100%; justify-content:center;">Prihlásiť sa</button>
+    </form>
+  </div>
+</div>

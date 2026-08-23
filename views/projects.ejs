@@ -1,0 +1,66 @@
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="grid" style="grid-template-columns: 1fr; gap:24px;">
+  <div class="card">
+    <h2 style="margin-top:0;">Nový projekt</h2>
+    <form method="post" action="/projects">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field"><label for="name">Názov *</label><input id="name" name="name" required></div>
+        <div class="field"><label for="code">Kód / číslo</label><input id="code" name="code"></div>
+        <div class="field"><label for="client">Klient / investor</label><input id="client" name="client"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="address">Miesto stavby</label><input id="address" name="address"></div>
+        <div class="field"><label for="budget">Rozpočet (EUR)</label><input id="budget" name="budget" inputmode="decimal"></div>
+        <div class="field"><label for="status">Stav</label>
+          <select id="status" name="status">
+            <option value="planned">plánovaný</option>
+            <option value="active">prebieha</option>
+            <option value="paused">pozastavený</option>
+            <option value="done">dokončený</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="start_date">Začiatok</label><input id="start_date" name="start_date" type="date"></div>
+        <div class="field"><label for="end_date">Koniec</label><input id="end_date" name="end_date" type="date"></div>
+      </div>
+      <div class="field"><label for="description">Popis</label><textarea id="description" name="description" rows="2"></textarea></div>
+      <button class="btn btn-primary">Vytvoriť projekt</button>
+    </form>
+  </div>
+
+  <% if (projects.length === 0) { %>
+    <div class="card muted">Zatiaľ žiadne projekty.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Projekt</th><th>Klient</th><th>Miesto</th><th>Rozpočet</th><th>Stav</th><th></th></tr></thead>
+        <tbody>
+          <% projects.forEach(function(p){ %>
+            <tr>
+              <td><b><%= p.name %></b><% if (p.code){ %><br><span class="muted" style="font-size:.8rem;"><%= p.code %></span><% } %></td>
+              <td class="muted"><%= p.client || '—' %></td>
+              <td class="muted"><%= p.address || '—' %></td>
+              <td><%= p.budget != null ? Number(p.budget).toLocaleString('sk-SK') + ' €' : '—' %></td>
+              <td>
+                <form class="inline" method="post" action="/projects/<%= p.id %>/status">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <select name="status" onchange="this.form.submit()" class="pill">
+                    <% ['planned','active','paused','done'].forEach(function(s){ %>
+                      <option value="<%= s %>" <%= p.status===s?'selected':'' %>><%= s %></option>
+                    <% }) %>
+                  </select>
+                </form>
+              </td>
+              <td class="actions">
+                <form class="inline" method="post" action="/projects/<%= p.id %>/delete" onsubmit="return confirm('Zmazať projekt?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

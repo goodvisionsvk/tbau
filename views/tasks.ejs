@@ -1,0 +1,57 @@
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+<p class="muted" style="margin-top:-6px;">Úlohy pri budovaní a rozvoji portálu.</p>
+
+<div class="grid" style="grid-template-columns: 1fr; gap:24px;">
+  <div class="card">
+    <h2 style="margin-top:0;">Nová úloha</h2>
+    <form method="post" action="/tasks">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field" style="grid-column: span 2;"><label for="title">Názov *</label><input id="title" name="title" required></div>
+        <div class="field"><label for="priority">Priorita</label>
+          <select id="priority" name="priority">
+            <option value="low">nízka</option>
+            <option value="medium" selected>stredná</option>
+            <option value="high">vysoká</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label for="description">Popis</label><textarea id="description" name="description" rows="2"></textarea></div>
+      <button class="btn btn-primary">Pridať úlohu</button>
+    </form>
+  </div>
+
+  <% if (tasks.length === 0) { %>
+    <div class="card muted">Zatiaľ žiadne úlohy.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Úloha</th><th>Priorita</th><th>Stav</th><th></th></tr></thead>
+        <tbody>
+          <% tasks.forEach(function(t){ %>
+            <tr>
+              <td>
+                <b style="<%= t.status==='done' ? 'text-decoration:line-through; color:#9aa0a6;' : '' %>"><%= t.title %></b>
+                <% if (t.description){ %><br><span class="muted" style="font-size:.85rem;"><%= t.description %></span><% } %>
+              </td>
+              <td><span class="pill <%= t.priority %>"><%= t.priority %></span></td>
+              <td>
+                <form class="inline" method="post" action="/tasks/<%= t.id %>/status">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <select name="status" onchange="this.form.submit()" class="pill">
+                    <% [['todo','na spracovanie'],['in_progress','prebieha'],['done','hotové']].forEach(function(s){ %>
+                      <option value="<%= s[0] %>" <%= t.status===s[0]?'selected':'' %>><%= s[1] %></option>
+                    <% }) %>
+                  </select>
+                </form>
+              </td>
+              <td class="actions">
+                <form class="inline" method="post" action="/tasks/<%= t.id %>/delete" onsubmit="return confirm('Zmazať úlohu?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
