@@ -36,9 +36,16 @@ h2 { font-size: 1.15rem; font-weight: 600; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 20px; position: sticky; top: 0; z-index: 20;
 }
+.topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .brand { display: flex; align-items: center; }
 .brand-logo { height: 34px; width: auto; display: block; }
 .topbar-right { display: flex; align-items: center; gap: 14px; }
+.nav-toggle {
+  display: none; background: transparent; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 1.15rem; line-height: 1; padding: 8px 11px;
+  cursor: pointer; color: var(--ink); font-family: inherit;
+}
+.nav-toggle:hover { background: #f3f4f6; }
 .user-chip { font-weight: 600; font-size: .9rem; color: var(--ink); }
 .badge {
   background: var(--accent); color: #fff; font-size: .68rem; font-weight: 700;
@@ -62,6 +69,8 @@ h2 { font-size: 1.15rem; font-weight: 600; }
 .nav-item.active { background: var(--sidebar-hover); color: #fff; border-left-color: var(--accent); }
 .nav-ico { font-size: 1.05rem; width: 22px; text-align: center; }
 .sidebar-foot { margin-top: auto; padding: 16px; font-size: .72rem; color: #7a7d82; border-top: 1px solid #2a2a2a; }
+.sidebar-account { display: none; padding: 6px 10px; border-top: 1px solid #2a2a2a; }
+.nav-backdrop { display: none; }
 
 /* ---------- Content ---------- */
 .content { flex: 1; padding: 26px 30px; min-width: 0; }
@@ -152,9 +161,36 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 
 /* ---------- Responsive ---------- */
 @media (max-width: 820px) {
-  .shell { flex-direction: column; }
-  .sidebar { width: 100%; height: auto; position: static; }
-  .sidebar nav { flex-direction: row; flex-wrap: wrap; }
-  .sidebar-foot { display: none; }
-  .content { padding: 18px; }
+  .topbar { padding: 0 14px; }
+  .nav-toggle { display: inline-flex; }
+  .shell { display: block; }
+  .content { padding: 16px; }
+  .page-head h1 { font-size: 1.3rem; }
+
+  /* sidebar ako výsuvný drawer */
+  .sidebar {
+    position: fixed; top: 0; left: -284px; height: 100vh; width: 268px;
+    z-index: 60; transition: left .25s ease; box-shadow: 2px 0 18px rgba(0, 0, 0, .35);
+  }
+  .sidebar nav { padding-top: 18px; }
+  body.nav-open .sidebar { left: 0; }
+  body.nav-open .nav-backdrop {
+    display: block; position: fixed; inset: 0; background: rgba(0, 0, 0, .5); z-index: 55;
+  }
+  .sidebar-account { display: block; }
+
+  /* na mobile viac priestoru pre obsah v kartách/formulároch */
+  .card { padding: 16px; }
+  .content { padding-bottom: 40px; }
+}
+
+@media (max-width: 480px) {
+  .brand-logo { height: 28px; }
+  .user-chip { display: none; }         /* šetrí miesto; meno je v drawer/na desktope */
+  .hide-mobile { display: none; }       /* „Zmena hesla" je dostupná v drawer menu */
+  .topbar-right { gap: 8px; }
+  .content { padding: 14px; }
+  h1 { font-size: 1.25rem; }
+  .stat .num { font-size: 1.6rem; }
+  th, td { padding: 10px 11px; }
 }

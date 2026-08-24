@@ -114,6 +114,16 @@ Aktuálny zoznam je v portáli (sekcia **Úlohy**) a v `README.md`. Kľúčové:
 - 🟠 Zálohovanie DB, rate-limiting prihlásenia, monitoring.
 - 🌐 Neskôr: prechod na doménu `portal.tbau.sk`.
 
+## Dizajn / UX
+
+- **Mobile-first, responzívny dizajn je POVINNÝ.** Celý portál musí byť použiteľný a
+  dobre vyzerať na mobile z pohľadu UX. Pri každej novej stránke/komponente over
+  responzivitu na mobilnej šírke (~375 px).
+- Vzory, ktoré už používame: ľavé menu = **výsuvný drawer** s hamburgerom (`.nav-toggle`,
+  `public/js/app.js`), formuláre sa **stackujú** (`.form-row` auto-fit), široké tabuľky sú
+  v `.table-wrap` s horizontálnym scrollom, dostatočne veľké tap-targety.
+- CSP povoľuje len `script-src 'self'` → JS dávaj do `public/js/*.js` (žiadny inline `<script>`).
+
 ## Preferencie používateľa
 
 - Komunikácia po **slovensky**.

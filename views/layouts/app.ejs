@@ -12,14 +12,19 @@
 </head>
 <body class="app">
   <header class="topbar">
-    <a class="brand" href="/dashboard"><img class="brand-logo" src="/static/img/logo.png" alt="TBAU"></a>
+    <div class="topbar-left">
+      <% if (currentUser) { %>
+        <button class="nav-toggle" type="button" aria-label="Otvoriť menu" aria-expanded="false">☰</button>
+      <% } %>
+      <a class="brand" href="<%= currentUser ? '/dashboard' : '/' %>"><img class="brand-logo" src="/static/img/logo.png" alt="TBAU"></a>
+    </div>
     <div class="topbar-right">
       <% if (currentUser) { %>
         <span class="user-chip">
           <%= currentUser.full_name || currentUser.email %>
           <% if (currentUser.role === 'admin') { %><span class="badge">admin</span><% } %>
         </span>
-        <a class="btn-link" href="/account/password">Zmena hesla</a>
+        <a class="btn-link hide-mobile" href="/account/password">Zmena hesla</a>
         <form class="inline" method="post" action="/logout">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <button class="btn btn-ghost btn-sm">Odhlásiť</button>
@@ -31,7 +36,7 @@
   </header>
   <div class="shell">
     <% if (currentUser) { %>
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <nav>
         <% nav.forEach(function(item){
              if (item.adminOnly && currentUser.role !== 'admin') return; %>
@@ -40,13 +45,18 @@
           </a>
         <% }) %>
       </nav>
+      <div class="sidebar-account">
+        <a class="nav-item" href="/account/password"><span class="nav-ico">🔑</span>Zmena hesla</a>
+      </div>
       <div class="sidebar-foot"><%= company.name %><br>IČO <%= company.ico %></div>
     </aside>
+    <div class="nav-backdrop" hidden></div>
     <% } %>
     <main class="content">
       <div class="page-head"><h1><%= title %></h1></div>
       <%- body %>
     </main>
   </div>
+  <% if (currentUser) { %><script src="/static/js/app.js" defer></script><% } %>
 </body>
 </html>
