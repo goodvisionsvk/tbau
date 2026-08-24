@@ -24,5 +24,6 @@ module.exports = {
     { key: 'apps', label: 'Aplikácie', href: '/apps', icon: '🧩' },
     { key: 'projects', label: 'Projekty', href: '/projects', icon: '🏗️' },
     { key: 'tasks', label: 'Úlohy', href: '/tasks', icon: '✅' },
+    { key: 'tests', label: 'Testy', href: '/tests', icon: '🧪' },
   ],
 };

@@ -4,6 +4,16 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// GET /health – jednoduchý health check (pre testy a monitoring)
+router.get('/health', (req, res) => {
+  try {
+    db.prepare('SELECT 1').get();
+    res.json({ status: 'ok', time: new Date().toISOString() });
+  } catch (e) {
+    res.status(500).json({ status: 'error', error: 'db' });
+  }
+});
+
 // GET / – verejná úvodná stránka
 router.get('/', (req, res) => {
   res.render('landing', { layout: 'layouts/public', title: 'Firemný portál' });

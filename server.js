@@ -101,6 +101,7 @@ app.use('/users', require('./src/routes/users'));
 app.use('/apps', require('./src/routes/apps'));
 app.use('/projects', require('./src/routes/projects'));
 app.use('/tasks', require('./src/routes/tasks'));
+app.use('/tests', require('./src/routes/tests'));
 
 // --- 404 ---
 app.use((req, res) => {

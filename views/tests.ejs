@@ -1,0 +1,29 @@
+<div class="page-head" style="margin-top:-8px;">
+  <p class="muted" style="margin:0;">Automatické testy portálu. Spustené: <%= ranAt %></p>
+  <a class="btn btn-ghost btn-sm" href="/tests">↻ Spustiť znova</a>
+</div>
+
+<%
+  const passed = results.filter(r => r.ok).length;
+  const total = results.length;
+%>
+<div class="alert <%= passed === total ? 'alert-info' : 'alert-error' %>">
+  <b><%= passed %>/<%= total %></b> testov prešlo.
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Test</th><th>Popis</th><th>Detail</th><th>Čas</th><th>Výsledok</th></tr></thead>
+    <tbody>
+      <% results.forEach(function(r){ %>
+        <tr>
+          <td><b><%= r.name %></b></td>
+          <td class="muted"><%= r.description %></td>
+          <td class="muted"><%= r.detail %></td>
+          <td class="muted"><%= r.durationMs %> ms</td>
+          <td><span class="pill <%= r.ok ? 'done' : 'high' %>"><%= r.ok ? 'PASS ✓' : 'FAIL ✕' %></span></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
