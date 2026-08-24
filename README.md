@@ -78,7 +78,7 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   (80/443), **HTTPS cez Let's Encrypt** (auto-obnova). Portál beží na https://tbau.goodvision.sk.
 - **2026-08-24** – Pridaná sekcia **Testy** do ľavého menu + endpoint `GET /health` (server + DB).
   Prvý test „Stránka funguje" (self-check, PASS/FAIL). Overené naživo.
-- **2026-08-24** – Vytvorený SSH účet `tomas` (Tomáš Kuriak, bez sudo) a nahraný jeho verejný kľúč.
+- **2026-08-24** – Vytvorený SSH účet `tomas` (Tomáš Kuriak) a nahraný jeho verejný kľúč. Následne mu pridané **sudo** práva (NOPASSWD).
 
 ---
 
@@ -109,7 +109,7 @@ Produkčný VPS, na ktorom beží portál.
 | Účet | Práva | Prihlásenie | Poznámka |
 |------|-------|-------------|----------|
 | `tbau` | sudo (admin) | SSH kľúč | Hlavný správcovský účet |
-| `tomas` (Tomáš Kuriak) | bez sudo | SSH kľúč | ✅ aktívny |
+| `tomas` (Tomáš Kuriak) | sudo (admin) | SSH kľúč | ✅ aktívny |
 
 ### Účty v aplikácii (portál)
 
@@ -132,7 +132,7 @@ Aktualizuje sa po každej práci na projekte.
 - [ ] **Zmeniť root heslo servera** – bolo zdieľané v plaintexte, treba rotovať (`passwd`).
 - [ ] **Zakázať prihlásenie heslom cez SSH** – povoliť len kľúče (`PasswordAuthentication no`).
 - [ ] **Obmedziť/zakázať root SSH login** – po overení admin účtu (`PermitRootLogin no`).
-- [ ] **Nahradiť NOPASSWD sudo** pri účte `tbau` za sudo s heslom (aktuálne passwordless).
+- [ ] **Nahradiť NOPASSWD sudo** pri účtoch `tbau` a `tomas` za sudo s heslom (aktuálne passwordless).
 - [ ] **Autorizácia / role** – jemnejšie rozdelenie prístupu (admin, účtovník, zamestnanec…).
 - [ ] **Šifrovanie dát v pokoji** – citlivé údaje (osobné, mzdové) šifrované v DB.
 - [ ] **Rate-limiting prihlásenia** – ochrana proti hádaniu hesla (brute-force).
