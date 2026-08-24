@@ -37,13 +37,15 @@ src/config.js     – konfigurácia z .env
 src/constants.js  – firemné údaje + definícia ľavého menu (nav)
 src/db/           – index.js (schéma), seed.js, create-user.js
 src/middleware/   – auth.js (prihlásenie/role), csrf.js
-src/routes/       – auth, pages, users, apps, projects, tasks
+src/routes/       – auth, pages, users, apps, projects, tasks, tests
 views/            – EJS (layouts/app.ejs = sidebar, layouts/public.ejs = login/landing)
 public/           – css/style.css, img/logo.png
 deploy/           – tbau-portal.service, nginx-tbau.conf, deploy.sh
 ```
 
 Dátový model (SQLite): `users`, `apps`, `projects`, `tasks` (+ `sessions` spravuje store).
+
+Health check: `GET /health` (verejný, server + DB) — používa ho sekcia **Testy** a je vhodný aj na monitoring.
 
 ## Lokálny vývoj
 

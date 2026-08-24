@@ -21,6 +21,7 @@ aplikácie sa pridávajú postupne. Rozloženie: **logo hore, menu vľavo**, obs
 | Aplikácie | Zoznam modulov automatizujúcich procesy | ✅ hotové (rozcestník) |
 | Projekty | Evidencia stavebných projektov | ✅ základ |
 | Úlohy | Úlohy pri budovaní portálu | ✅ základ |
+| Testy | Automatické testy portálu (health check) | ✅ základ (1 test) |
 | **RSV** – Riadenie stavebnej výroby | Priebeh stavieb, kontrola rozpočtu (plán vs. skutočnosť), výkazy | 🔲 plánované |
 | **Objednávkový systém** | Evidencia a schvaľovanie objednávok | 🔲 plánované |
 | Správa faktúr | Vystavovanie a evidencia faktúr | 🔲 plánované |
@@ -75,6 +76,8 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   (Používatelia, Aplikácie, Projekty, Úlohy). Značka TBAU (logo, farby, Montserrat).
 - **2026-08-23** – **Nasadenie na VPS**: systemd služba, nginx reverzný proxy, otvorený firewall
   (80/443), **HTTPS cez Let's Encrypt** (auto-obnova). Portál beží na https://tbau.goodvision.sk.
+- **2026-08-24** – Pridaná sekcia **Testy** do ľavého menu + endpoint `GET /health` (server + DB).
+  Prvý test „Stránka funguje" (self-check, PASS/FAIL). Overené naživo.
 
 ---
 
