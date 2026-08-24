@@ -79,6 +79,7 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
 - **2026-08-24** – Pridaná sekcia **Testy** do ľavého menu + endpoint `GET /health` (server + DB).
   Prvý test „Stránka funguje" (self-check, PASS/FAIL). Overené naživo.
 - **2026-08-24** – Vytvorený SSH účet `tomas` (Tomáš Kuriak) a nahraný jeho verejný kľúč. Následne mu pridané **sudo** práva (NOPASSWD).
+- **2026-08-24** – **Responzívny mobile-first UX**: ľavé menu na mobile ako výsuvný drawer (hamburger), stackované karty/formuláre, úpravy pre malé displeje. Overené na 375 px.
 
 ---
 
