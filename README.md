@@ -78,6 +78,7 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   (80/443), **HTTPS cez Let's Encrypt** (auto-obnova). Portál beží na https://tbau.goodvision.sk.
 - **2026-08-24** – Pridaná sekcia **Testy** do ľavého menu + endpoint `GET /health` (server + DB).
   Prvý test „Stránka funguje" (self-check, PASS/FAIL). Overené naživo.
+- **2026-08-24** – Vytvorený SSH účet `tomas` (Tomáš Kuriak, bez sudo) a nahraný jeho verejný kľúč.
 
 ---
 
@@ -108,7 +109,7 @@ Produkčný VPS, na ktorom beží portál.
 | Účet | Práva | Prihlásenie | Poznámka |
 |------|-------|-------------|----------|
 | `tbau` | sudo (admin) | SSH kľúč | Hlavný správcovský účet |
-| `tomas` (Tomáš Kuriak) | bez sudo | SSH kľúč | 🔲 čaká na verejný kľúč |
+| `tomas` (Tomáš Kuriak) | bez sudo | SSH kľúč | ✅ aktívny |
 
 ### Účty v aplikácii (portál)
 

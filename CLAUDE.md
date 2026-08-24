@@ -101,7 +101,7 @@ Produkčný `.env` je len na serveri v `/opt/tbau-portal/.env` (nie v gite).
 ## Účty
 
 - **Portál:** `admin@tbau.sk` (admin) — heslo sa mení pri prvom prihlásení.
-- **SSH server:** `tbau` (sudo). `tomas` (Tomáš Kuriak, bez sudo) — 🔲 čaká na jeho verejný `.pub` kľúč.
+- **SSH server:** `tbau` (sudo). `tomas` (Tomáš Kuriak, bez sudo) — ✅ aktívny (kľúč nahraný).
 - Nový SSH kolega = pošle verejný `.pub`, založí sa mu vlastný účet (nikdy nezdieľať súkromné kľúče).
 
 ## Otvorené úlohy / pozor
