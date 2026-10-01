@@ -14,7 +14,7 @@ function visibleRequests(user) {
     JOIN employees e ON e.id = cr.employee_id
     LEFT JOIN projects p ON p.id = cr.project_id`;
   if (perm.isFullAccess(user)) {
-    return db.prepare(base + ' ORDER BY (cr.status="open") DESC, cr.created_at DESC').all();
+    return db.prepare(base + " ORDER BY (cr.status = 'open') DESC, cr.created_at DESC").all();
   }
   const projIds = perm.foremanProjectIds(user);
   if (!projIds.length) return [];
@@ -24,7 +24,7 @@ function visibleRequests(user) {
     .prepare(
       base +
         ` WHERE cr.employee_id IN (SELECT employee_id FROM site_members WHERE project_id IN (${ph}))
-          ORDER BY (cr.status="open") DESC, cr.created_at DESC`
+          ORDER BY (cr.status = 'open') DESC, cr.created_at DESC`
     )
     .all(...projIds);
 }
