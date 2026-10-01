@@ -56,6 +56,12 @@ Dátový model (SQLite): `users`, `apps`, `projects` (= stavby), `tasks`,
 `zamestnanec` = len vlastná dochádzka + žiadosti. Prepojenie prihlásenia na zamestnanca:
 `employees.user_id`. Dochádzka = **denné** hodiny (týždenná mriežka), report sčíta za mesiac.
 
+**Dochádzka – pohľady:** `/dochadzka?view=week` = editovateľná týždenná mriežka (Po–Ne) + smenovky;
+`view=month` = read-only prehľad celého mesiaca (zamestnanci × dni). Obidva filtrované podľa **stavby**.
+**Reporty** (`/reporty`) majú filter podľa stavby; **export pre mzdy je vždy mesačný** CSV
+(`/reporty/export?year&month&project`). Karty aplikácií vedú na modul cez `constants.appRoutes`
+(napr. `dochadzka → /dochadzka`); nové moduly tam pridaj.
+
 **Menu:** sekcie Používatelia, Aplikácie, Úlohy, Testy sú zoskupené pod položkou
 **Nastavenia** (`/nastavenia`, rozcestník `views/settings.ejs`, len plný prístup). Tieto routy
 (`/users`, `/apps`, `/tasks`, `/tests`) sú chránené `requireAdmin` (= plný prístup) a nastavujú
