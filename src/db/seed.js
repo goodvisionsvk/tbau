@@ -55,7 +55,7 @@ const apps = [
     slug: 'dochadzka',
     description:
       'Evidencia odpracovaných hodín na stavbách zo smenoviek, žiadosti o zmenu a mesačné reporty.',
-    status: 'in_progress',
+    status: 'active',
     icon: '🕒',
     sort_order: 0,
   },
