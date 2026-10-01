@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('../db');
+const constants = require('../constants');
 const perm = require('../permissions');
 const dates = require('../util/dates');
 const { requireAuth, requireFullAccess } = require('../middleware/auth');
@@ -84,7 +85,10 @@ router.get('/dashboard', requireAuth, (req, res) => {
     ];
   }
 
-  const apps = db.prepare('SELECT * FROM apps ORDER BY sort_order, name').all();
+  const apps = db
+    .prepare('SELECT * FROM apps ORDER BY sort_order, name')
+    .all()
+    .map((a) => ({ ...a, href: constants.appHref(a) }));
   res.render('dashboard', { title: 'Prehľad', active: 'dashboard', cards, recentRequests, apps, full });
 });
 

@@ -13,15 +13,14 @@
   <h2>Aplikácie</h2>
   <div class="grid cards">
     <% apps.forEach(function(a){ %>
-      <% var box = full ? '<a class="card" href="/apps" style="text-decoration:none;color:inherit;">' : '<div class="card">'; %>
-      <%- box %>
+      <% if (a.href) { %><a class="card" href="<%= a.href %>" style="text-decoration:none; color:inherit;"><% } else { %><div class="card"><% } %>
         <div style="font-size:1.6rem;"><%= a.icon %></div>
         <h2 style="margin:8px 0 6px; font-size:1.05rem;"><%= a.name %></h2>
         <p class="muted" style="font-size:.86rem; margin:0 0 12px;"><%= a.description %></p>
         <span class="pill <%= a.status %>">
           <%= a.status === 'planned' ? 'plánované' : (a.status === 'in_progress' ? 'vo vývoji' : 'aktívne') %>
         </span>
-      <%- full ? '</a>' : '</div>' %>
+      <% if (a.href) { %></a><% } else { %></div><% } %>
     <% }) %>
   </div>
 </div>

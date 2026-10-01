@@ -26,6 +26,14 @@ module.exports = {
   },
   fullAccessRoles: ['sef', 'admin'],
 
+  // mapovanie aplikácií (slug) na ich reálnu adresu v portáli
+  appRoutes: {
+    dochadzka: '/dochadzka',
+  },
+  appHref(app) {
+    return this.appRoutes[app.slug] || null;
+  },
+
   // Zostaví ľavé menu podľa role prihláseného používateľa.
   buildNav(user) {
     if (!user) return [];
