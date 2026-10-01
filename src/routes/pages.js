@@ -84,7 +84,8 @@ router.get('/dashboard', requireAuth, (req, res) => {
     ];
   }
 
-  res.render('dashboard', { title: 'Prehľad', active: 'dashboard', cards, recentRequests, full });
+  const apps = db.prepare('SELECT * FROM apps ORDER BY sort_order, name').all();
+  res.render('dashboard', { title: 'Prehľad', active: 'dashboard', cards, recentRequests, apps, full });
 });
 
 module.exports = router;
