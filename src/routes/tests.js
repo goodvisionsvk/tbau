@@ -1,9 +1,9 @@
 const express = require('express');
 const config = require('../config');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
-router.use(requireAuth);
+router.use(requireAuth, requireAdmin);
 
 // Test: overí, či stránka/aplikácia funguje (self HTTP check na /health).
 async function siteWorksTest() {
@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
   const results = [await siteWorksTest()];
   res.render('tests', {
     title: 'Testy',
-    active: 'tests',
+    active: 'settings',
     results,
     ranAt: new Date().toLocaleString('sk-SK'),
   });

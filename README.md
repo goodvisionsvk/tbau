@@ -91,6 +91,8 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   hodín (denné hodiny), nahrávanie smenoviek (JPG/PNG/PDF) ako dokumentov za stavbu+týždeň,
   žiadosti o zmenu (zamestnanec → parťák/admin), mesačné reporty hodín + CSV export.
   Role-aware menu. Do budúcna: automatizované načítanie smenoviek (OCR).
+- **2026-10-01** – Menu sprehľadnené: Používatelia, Aplikácie, Úlohy, Testy zoskupené pod
+  položku **Nastavenia** (rozcestník, len plný prístup).
 
 ---
 

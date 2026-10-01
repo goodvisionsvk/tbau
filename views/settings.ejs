@@ -1,0 +1,11 @@
+<p class="muted" style="margin-top:-8px;">Správa portálu a jeho modulov.</p>
+
+<div class="grid cards">
+  <% items.forEach(function(it){ %>
+    <a class="card" href="<%= it.href %>" style="text-decoration:none; color:inherit;">
+      <div style="font-size:1.8rem;"><%= it.icon %></div>
+      <h2 style="margin:10px 0 6px;"><%= it.label %></h2>
+      <p class="muted" style="font-size:.9rem; margin:0;"><%= it.desc %></p>
+    </a>
+  <% }) %>
+</div>

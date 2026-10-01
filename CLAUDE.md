@@ -56,6 +56,11 @@ Dátový model (SQLite): `users`, `apps`, `projects` (= stavby), `tasks`,
 `zamestnanec` = len vlastná dochádzka + žiadosti. Prepojenie prihlásenia na zamestnanca:
 `employees.user_id`. Dochádzka = **denné** hodiny (týždenná mriežka), report sčíta za mesiac.
 
+**Menu:** sekcie Používatelia, Aplikácie, Úlohy, Testy sú zoskupené pod položkou
+**Nastavenia** (`/nastavenia`, rozcestník `views/settings.ejs`, len plný prístup). Tieto routy
+(`/users`, `/apps`, `/tasks`, `/tests`) sú chránené `requireAdmin` (= plný prístup) a nastavujú
+`active: 'settings'`.
+
 Nahraté smenovky (JPG/PNG/PDF) sú mimo gitu v `data/uploads/` a servírujú sa chránene
 cez `/dochadzka/smenovka/:id/subor` (kontrola prístupu k stavbe).
 

@@ -2,9 +2,23 @@ const express = require('express');
 const db = require('../db');
 const perm = require('../permissions');
 const dates = require('../util/dates');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireFullAccess } = require('../middleware/auth');
 
 const router = express.Router();
+
+// GET /nastavenia – rozcestník nastavení portálu (len plný prístup)
+router.get('/nastavenia', requireAuth, requireFullAccess, (req, res) => {
+  res.render('settings', {
+    title: 'Nastavenia',
+    active: 'settings',
+    items: [
+      { label: 'Používatelia', href: '/users', icon: '👥', desc: 'Účty, role, reset hesla.' },
+      { label: 'Aplikácie', href: '/apps', icon: '🧩', desc: 'Moduly portálu a ich stav.' },
+      { label: 'Úlohy', href: '/tasks', icon: '✅', desc: 'Úlohy pri budovaní portálu.' },
+      { label: 'Testy', href: '/tests', icon: '🧪', desc: 'Automatické testy portálu.' },
+    ],
+  });
+});
 
 // GET /health – jednoduchý health check (pre testy a monitoring)
 router.get('/health', (req, res) => {

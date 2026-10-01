@@ -48,10 +48,7 @@ module.exports = {
     }
     if (full) {
       items.push({ key: 'employees', label: 'Zamestnanci', href: '/zamestnanci', icon: '👷' });
-      items.push({ key: 'users', label: 'Používatelia', href: '/users', icon: '👥' });
-      items.push({ key: 'apps', label: 'Aplikácie', href: '/apps', icon: '🧩' });
-      items.push({ key: 'tasks', label: 'Úlohy', href: '/tasks', icon: '✅' });
-      items.push({ key: 'tests', label: 'Testy', href: '/tests', icon: '🧪' });
+      items.push({ key: 'settings', label: 'Nastavenia', href: '/nastavenia', icon: '⚙️' });
     }
     // parťák má aj vlastnú dochádzku
     if (foreman) {

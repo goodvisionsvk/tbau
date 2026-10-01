@@ -27,7 +27,7 @@ function listUsers() {
 
 // GET /users
 router.get('/', (req, res) => {
-  res.render('users', { title: 'Používatelia', active: 'users', users: listUsers(), roles: constants.roles, tempInfo: null });
+  res.render('users', { title: 'Používatelia', active: 'settings', users: listUsers(), roles: constants.roles, tempInfo: null });
 });
 
 // POST /users – vytvorenie používateľa (dočasné heslo sa zobrazí raz)
@@ -39,7 +39,7 @@ router.post('/', (req, res) => {
   const render = (error, tempInfo = null) =>
     res.status(error ? 400 : 200).render('users', {
       title: 'Používatelia',
-      active: 'users',
+      active: 'settings',
       users: listUsers(),
       roles: constants.roles,
       error,
@@ -70,7 +70,7 @@ router.post('/:id/reset', (req, res) => {
   );
   res.render('users', {
     title: 'Používatelia',
-    active: 'users',
+    active: 'settings',
     users: listUsers(),
     roles: constants.roles,
     tempInfo: { email: user.email, password: tempPassword, reset: true },

@@ -1,9 +1,9 @@
 const express = require('express');
 const db = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
-router.use(requireAuth);
+router.use(requireAuth, requireAdmin);
 
 const STATUSES = ['todo', 'in_progress', 'done'];
 const PRIORITIES = ['low', 'medium', 'high'];
@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
   const tasks = db
     .prepare("SELECT * FROM tasks ORDER BY CASE status WHEN 'in_progress' THEN 0 WHEN 'todo' THEN 1 ELSE 2 END, created_at DESC")
     .all();
-  res.render('tasks', { title: 'Úlohy', active: 'tasks', tasks, error: null });
+  res.render('tasks', { title: 'Úlohy', active: 'settings', tasks, error: null });
 });
 
 // POST /tasks
@@ -23,7 +23,7 @@ router.post('/', (req, res) => {
     const tasks = db.prepare('SELECT * FROM tasks ORDER BY created_at DESC').all();
     return res
       .status(400)
-      .render('tasks', { title: 'Úlohy', active: 'tasks', tasks, error: 'Názov úlohy je povinný.' });
+      .render('tasks', { title: 'Úlohy', active: 'settings', tasks, error: 'Názov úlohy je povinný.' });
   }
   const priority = PRIORITIES.includes(req.body.priority) ? req.body.priority : 'medium';
   db.prepare('INSERT INTO tasks (title, description, priority, created_by) VALUES (?,?,?,?)').run(
