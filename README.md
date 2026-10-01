@@ -185,6 +185,9 @@ bezpečnosti – ISMS). Aktualizuje sa po každej práci na projekte.
 - [ ] **Riadenie incidentov (A.16)** – postup pri bezpečnostných incidentoch.
 - [ ] **Kontinuita činností (A.17)** – plán obnovy po výpadku/havárii.
 - [ ] **Súlad (A.18)** – legislatíva (GDPR) a interné pravidlá.
+- [ ] **Ochrana osobných údajov zamestnancov (GDPR)** – evidujú sa dátum narodenia, adresa, telefón;
+      doriešiť minimalizáciu, retenciu a prístup len pre oprávnené roly (základ prístupu podľa rolí je hotový).
+- [ ] **Retencia dokumentov** – pravidlá pre uchovávanie a mazanie smenoviek.
 - [ ] **Dokumentácia a záznamy** – evidencia dôkazov pre prípadný audit/certifikáciu.
 
 ### Rozpracované / hotové
