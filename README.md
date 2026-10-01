@@ -19,13 +19,19 @@ aplikácie sa pridávajú postupne. Rozloženie: **logo hore, menu vľavo**, obs
 | Prehľad | Dashboard so štatistikami | ✅ hotové |
 | Používatelia | Správa účtov (admin), role, reset hesla | ✅ hotové |
 | Aplikácie | Zoznam modulov automatizujúcich procesy | ✅ hotové (rozcestník) |
-| Projekty | Evidencia stavebných projektov | ✅ základ |
+| Projekty (Stavby) | Evidencia stavieb + priradenie ľudí a parťáka | ✅ základ |
+| Zamestnanci | Evidencia (meno, číslo, dátum nar., tel., adresa) + prihlásenie | ✅ hotové |
+| **Dochádzka** | Týždenná mriežka hodín, smenovky (dokumenty), žiadosti o zmenu | ✅ v1 |
+| Reporty | Mesačný report hodín na zamestnanca + CSV export | ✅ v1 |
+| Žiadosti o zmenu | Zamestnanec žiada, parťák/admin schvaľuje | ✅ v1 |
 | Úlohy | Úlohy pri budovaní portálu | ✅ základ |
 | Testy | Automatické testy portálu (health check) | ✅ základ (1 test) |
 | **RSV** – Riadenie stavebnej výroby | Priebeh stavieb, kontrola rozpočtu (plán vs. skutočnosť), výkazy | 🔲 plánované |
 | **Objednávkový systém** | Evidencia a schvaľovanie objednávok | 🔲 plánované |
 | Správa faktúr | Vystavovanie a evidencia faktúr | 🔲 plánované |
-| Zamestnanci | Evidencia zamestnancov a dochádzky | 🔲 plánované |
+
+**Roly:** Šéf + Administratíva = plný prístup · Parťák (majster) = svoje stavby a ľudia ·
+Zamestnanec = vlastná dochádzka + žiadosti o zmenu.
 
 ## Technológie
 
@@ -80,6 +86,11 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Prvý test „Stránka funguje" (self-check, PASS/FAIL). Overené naživo.
 - **2026-08-24** – Vytvorený SSH účet `tomas` (Tomáš Kuriak) a nahraný jeho verejný kľúč. Následne mu pridané **sudo** práva (NOPASSWD).
 - **2026-08-24** – **Responzívny mobile-first UX**: ľavé menu na mobile ako výsuvný drawer (hamburger), stackované karty/formuláre, úpravy pre malé displeje. Overené na 375 px.
+- **2026-10-01** – **Dochádzkový modul (v1)**: roly (šéf/administratíva/parťák/zamestnanec),
+  evidencia zamestnancov + prihlásenia, priradenie ľudí a parťáka na stavby, týždenná mriežka
+  hodín (denné hodiny), nahrávanie smenoviek (JPG/PNG/PDF) ako dokumentov za stavbu+týždeň,
+  žiadosti o zmenu (zamestnanec → parťák/admin), mesačné reporty hodín + CSV export.
+  Role-aware menu. Do budúcna: automatizované načítanie smenoviek (OCR).
 
 ---
 
@@ -153,6 +164,9 @@ Aktualizuje sa po každej práci na projekte.
 - [x] **Ochrana pred útokmi** – CSRF tokeny, parametrizované SQL (proti injection), CSP proti XSS.
 - [x] **Správa tajomstiev** – žiadne heslá/kľúče v kóde; `.env` mimo gitu (`.gitignore`).
 - [x] **Audit log** – logovanie požiadaviek (morgan) + systemd/journald.
+- [x] **Riadenie prístupu podľa rolí** – šéf/administratíva/parťák/zamestnanec; parťák vidí len svoje stavby.
+- [x] **Chránené dokumenty** – smenovky sa servírujú len s kontrolou prístupu (nie cez verejné static), mimo gitu.
+- [x] **Validácia uploadov** – povolené len JPG/PNG/PDF, limit 15 MB.
 
 ---
 

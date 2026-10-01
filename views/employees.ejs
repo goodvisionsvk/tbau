@@ -1,0 +1,43 @@
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="grid" style="grid-template-columns:1fr; gap:24px;">
+  <div class="card">
+    <h2 style="margin-top:0;">Nový zamestnanec</h2>
+    <form method="post" action="/zamestnanci">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field"><label for="first_name">Meno *</label><input id="first_name" name="first_name" required></div>
+        <div class="field"><label for="last_name">Priezvisko *</label><input id="last_name" name="last_name" required></div>
+        <div class="field"><label for="employee_number">Osobné číslo</label><input id="employee_number" name="employee_number"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="birth_date">Dátum narodenia</label><input id="birth_date" name="birth_date" type="date"></div>
+        <div class="field"><label for="phone">Telefón</label><input id="phone" name="phone"></div>
+        <div class="field"><label for="address">Adresa</label><input id="address" name="address"></div>
+      </div>
+      <button class="btn btn-primary">Pridať zamestnanca</button>
+    </form>
+  </div>
+
+  <% if (!employees.length) { %>
+    <div class="card muted">Zatiaľ žiadni zamestnanci.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Priezvisko a meno</th><th>Os. číslo</th><th>Telefón</th><th>Prihlásenie</th><th>Stav</th><th></th></tr></thead>
+        <tbody>
+          <% employees.forEach(function(e){ %>
+            <tr>
+              <td><a href="/zamestnanci/<%= e.id %>"><b><%= e.last_name %> <%= e.first_name %></b></a></td>
+              <td class="muted"><%= e.employee_number || '—' %></td>
+              <td class="muted"><%= e.phone || '—' %></td>
+              <td class="muted"><%= e.login_email ? e.login_email : '—' %></td>
+              <td><span class="pill <%= e.active ? 'active':'paused' %>"><%= e.active ? 'aktívny':'neaktívny' %></span></td>
+              <td><a class="btn btn-ghost btn-sm" href="/zamestnanci/<%= e.id %>">Detail</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

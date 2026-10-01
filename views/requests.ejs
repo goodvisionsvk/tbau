@@ -1,0 +1,41 @@
+<p class="muted" style="margin-top:-8px;"><%= openCount %> otvorených žiadostí.</p>
+
+<% if (!requests.length) { %>
+  <div class="card muted">Žiadne žiadosti.</div>
+<% } else { %>
+  <div class="grid" style="grid-template-columns:1fr; gap:16px;">
+    <% requests.forEach(function(r){ %>
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <div>
+            <b><%= r.last_name %> <%= r.first_name %></b>
+            <span class="muted">· <%= r.created_at %></span>
+            <% if (r.project_name) { %><span class="muted">· <%= r.project_name %></span><% } %>
+          </div>
+          <span class="pill <%= r.status==='approved'?'done':(r.status==='rejected'?'high':'todo') %>">
+            <%= r.status==='approved'?'schválené':(r.status==='rejected'?'zamietnuté':'otvorené') %>
+          </span>
+        </div>
+        <p style="margin:10px 0 4px;"><%= r.message %></p>
+        <p class="muted" style="margin:0;">
+          <% if (r.work_date) { %>Dátum: <%= r.work_date %> · <% } %>
+          <% if (r.requested_hours != null) { %>Navrhované hodiny: <b><%= r.requested_hours %></b><% } %>
+        </p>
+
+        <% if (r.status === 'open') { %>
+          <form method="post" action="/ziadosti/<%= r.id %>/resolve" style="margin-top:14px;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field"><label>Odpoveď (voliteľné)</label><input name="response"></div>
+            <div class="actions">
+              <button class="btn btn-primary btn-sm" name="status" value="approved">Schváliť</button>
+              <button class="btn btn-danger btn-sm" name="status" value="rejected">Zamietnuť</button>
+            </div>
+          </form>
+          <p class="muted" style="font-size:.82rem; margin-top:8px;">Po schválení uprav hodiny ručne v sekcii Dochádzka.</p>
+        <% } else if (r.response) { %>
+          <p class="muted" style="margin-top:10px;">Odpoveď: <%= r.response %></p>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+<% } %>

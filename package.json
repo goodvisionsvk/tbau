@@ -23,7 +23,8 @@
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.18.1",
     "helmet": "^8.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "multer": "^2.0.0"
   },
   "license": "UNLICENSED",
   "private": true

@@ -33,17 +33,31 @@ Pozn.: server má **Node 26** → `better-sqlite3` musí byť **v13+** (v11 sa n
 
 ```
 server.js         – vstupný bod (Express, middleware, routy)
-src/config.js     – konfigurácia z .env
-src/constants.js  – firemné údaje + definícia ľavého menu (nav)
+src/config.js     – konfigurácia z .env (DB_PATH, UPLOADS_DIR, ...)
+src/constants.js  – firemné údaje + roly + buildNav(user) (role-aware menu)
+src/permissions.js– oprávnenia (isFullAccess, foremanProjectIds, canAccessProject, ...)
+src/util/dates.js – ISO týždne a dátumy (weekDates, monthRange, ...)
+src/upload.js     – multer (upload smenoviek do data/uploads/smenovky)
 src/db/           – index.js (schéma), seed.js, create-user.js
-src/middleware/   – auth.js (prihlásenie/role), csrf.js
-src/routes/       – auth, pages, users, apps, projects, tasks, tests
+src/middleware/   – auth.js (requireAuth/FullAccess/Staff), csrf.js
+src/routes/       – auth, pages, users, apps, projects, tasks, tests,
+                    employees, attendance, myattendance, requests, reports
 views/            – EJS (layouts/app.ejs = sidebar, layouts/public.ejs = login/landing)
-public/           – css/style.css, img/logo.png
+public/           – css/style.css, js/app.js, img/logo.png
 deploy/           – tbau-portal.service, nginx-tbau.conf, deploy.sh
 ```
 
-Dátový model (SQLite): `users`, `apps`, `projects`, `tasks` (+ `sessions` spravuje store).
+Dátový model (SQLite): `users`, `apps`, `projects` (= stavby), `tasks`,
+`employees` (zamestnanci), `site_members` (priradenie na stavbu + parťák),
+`shift_sheets` (smenovky – dokumenty), `attendance` (denné hodiny),
+`change_requests` (žiadosti o zmenu) (+ `sessions` spravuje store).
+
+**Roly** (users.role): `sef` + `admin` = plný prístup; `parcak` = svoje stavby a ľudia;
+`zamestnanec` = len vlastná dochádzka + žiadosti. Prepojenie prihlásenia na zamestnanca:
+`employees.user_id`. Dochádzka = **denné** hodiny (týždenná mriežka), report sčíta za mesiac.
+
+Nahraté smenovky (JPG/PNG/PDF) sú mimo gitu v `data/uploads/` a servírujú sa chránene
+cez `/dochadzka/smenovka/:id/subor` (kontrola prístupu k stavbe).
 
 Health check: `GET /health` (verejný, server + DB) — používa ho sekcia **Testy** a je vhodný aj na monitoring.
 

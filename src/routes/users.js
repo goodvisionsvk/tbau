@@ -2,10 +2,13 @@ const express = require('express');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const db = require('../db');
+const constants = require('../constants');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 router.use(requireAuth, requireAdmin);
+
+const ROLE_KEYS = Object.keys(constants.roles); // sef, admin, parcak, zamestnanec
 
 // vygeneruj čitateľné dočasné heslo
 function genPassword() {
@@ -24,20 +27,21 @@ function listUsers() {
 
 // GET /users
 router.get('/', (req, res) => {
-  res.render('users', { title: 'Používatelia', active: 'users', users: listUsers(), tempInfo: null });
+  res.render('users', { title: 'Používatelia', active: 'users', users: listUsers(), roles: constants.roles, tempInfo: null });
 });
 
 // POST /users – vytvorenie používateľa (dočasné heslo sa zobrazí raz)
 router.post('/', (req, res) => {
   const email = (req.body.email || '').trim().toLowerCase();
   const fullName = (req.body.full_name || '').trim();
-  const role = req.body.role === 'admin' ? 'admin' : 'user';
+  const role = ROLE_KEYS.includes(req.body.role) ? req.body.role : 'zamestnanec';
 
   const render = (error, tempInfo = null) =>
     res.status(error ? 400 : 200).render('users', {
       title: 'Používatelia',
       active: 'users',
       users: listUsers(),
+      roles: constants.roles,
       error,
       tempInfo,
     });
@@ -68,8 +72,16 @@ router.post('/:id/reset', (req, res) => {
     title: 'Používatelia',
     active: 'users',
     users: listUsers(),
+    roles: constants.roles,
     tempInfo: { email: user.email, password: tempPassword, reset: true },
   });
+});
+
+// POST /users/:id/role – zmena roly
+router.post('/:id/role', (req, res) => {
+  const role = ROLE_KEYS.includes(req.body.role) ? req.body.role : null;
+  if (role) db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, req.params.id);
+  res.redirect('/users');
 });
 
 // POST /users/:id/toggle – aktivovať/deaktivovať

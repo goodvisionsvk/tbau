@@ -1,0 +1,109 @@
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+<% if (saved) { %><div class="alert alert-info">Dochádzka bola uložená.</div><% } %>
+
+<div class="card">
+  <form method="get" action="/dochadzka" class="form-row" style="align-items:end;">
+    <div class="field" style="margin-bottom:0;">
+      <label>Stavba</label>
+      <select name="project" onchange="this.form.submit()">
+        <% projects.forEach(function(p){ %>
+          <option value="<%= p.id %>" <%= project && project.id===p.id ? 'selected':'' %>><%= p.name %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="field" style="margin-bottom:0;"><label>Rok</label><input type="number" name="year" value="<%= year %>" style="max-width:110px;"></div>
+    <div class="field" style="margin-bottom:0;"><label>Týždeň (ISO)</label><input type="number" name="week" min="1" max="53" value="<%= week %>" style="max-width:110px;"></div>
+    <div class="field" style="margin-bottom:0;"><button class="btn btn-ghost">Zobraziť</button></div>
+  </form>
+</div>
+
+<% if (!project) { %>
+  <div class="card muted" style="margin-top:20px;">Nemáš priradenú žiadnu stavbu. Stavby a priradenie ľudí spravuje administratíva.</div>
+<% } else { %>
+
+<div class="section">
+  <h2><%= project.name %> — týždeň <%= week %>/<%= year %> (<%= days[0].date %> – <%= days[6].date %>)</h2>
+
+  <% if (!rows.length) { %>
+    <div class="card muted">Na tejto stavbe nie sú priradení žiadni zamestnanci. Priraď ich v <a href="/projects/<%= project.id %>">detaile stavby</a>.</div>
+  <% } else { %>
+  <form method="post" action="/dochadzka/save">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <input type="hidden" name="project" value="<%= project.id %>">
+    <input type="hidden" name="year" value="<%= year %>">
+    <input type="hidden" name="week" value="<%= week %>">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Zamestnanec</th>
+            <% days.forEach(function(d){ %>
+              <th style="text-align:center; <%= d.weekend ? 'color:#b00;' : '' %>"><%= d.label %><br><span class="muted" style="font-weight:400;"><%= d.day %>.<%= d.month %>.</span></th>
+            <% }) %>
+            <th style="text-align:center;">Spolu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rows.forEach(function(r){ %>
+            <tr>
+              <td><b><%= r.employee.last_name %> <%= r.employee.first_name %></b><% if (r.employee.employee_number){ %><br><span class="muted" style="font-size:.78rem;"><%= r.employee.employee_number %></span><% } %></td>
+              <% days.forEach(function(d){ %>
+                <td style="text-align:center; <%= d.weekend ? 'background:#fafafa;' : '' %>">
+                  <input type="number" step="0.5" min="0" max="24"
+                    name="h_<%= r.employee.id %>_<%= d.date %>"
+                    value="<%= r.hours[d.date] != null ? r.hours[d.date] : '' %>"
+                    style="width:58px; text-align:center; padding:6px;">
+                </td>
+              <% }) %>
+              <td style="text-align:center;"><b><%= r.total %></b></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:16px;"><button class="btn btn-primary">💾 Uložiť dochádzku</button></div>
+  </form>
+  <% } %>
+</div>
+
+<div class="section">
+  <h2>Smenovky za tento týždeň</h2>
+  <div class="card">
+    <form method="post" action="/dochadzka/smenovka" enctype="multipart/form-data" class="form-row" style="align-items:end;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="project" value="<%= project.id %>">
+      <input type="hidden" name="year" value="<%= year %>">
+      <input type="hidden" name="week" value="<%= week %>">
+      <div class="field" style="margin-bottom:0;"><label>Súbor smenovky (JPG, PNG, PDF)</label><input type="file" name="file" accept="image/jpeg,image/png,application/pdf" required></div>
+      <div class="field" style="margin-bottom:0;"><label>Poznámka</label><input name="note"></div>
+      <div class="field" style="margin-bottom:0;"><button class="btn btn-dark">Nahrať</button></div>
+    </form>
+  </div>
+
+  <% if (sheets.length) { %>
+    <div class="table-wrap" style="margin-top:14px;">
+      <table>
+        <thead><tr><th>Dokument</th><th>Nahraté</th><th>Poznámka</th><th></th></tr></thead>
+        <tbody>
+          <% sheets.forEach(function(s){ %>
+            <tr>
+              <td>📄 <a href="/dochadzka/smenovka/<%= s.id %>/subor" target="_blank"><%= s.original_name || 'smenovka' %></a></td>
+              <td class="muted"><%= s.uploaded_at %></td>
+              <td class="muted"><%= s.note || '—' %></td>
+              <td>
+                <form class="inline" method="post" action="/dochadzka/smenovka/<%= s.id %>/delete" onsubmit="return confirm('Zmazať smenovku?')">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-danger btn-sm">Zmazať</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <p class="muted" style="margin-top:12px;">Za tento týždeň zatiaľ nie je nahratá žiadna smenovka.</p>
+  <% } %>
+</div>
+
+<% } %>

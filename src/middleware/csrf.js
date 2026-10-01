@@ -9,6 +9,8 @@ function csrf(req, res, next) {
 
   const mutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
   if (mutating) {
+    // multipart (upload súboru) – telo ešte nie je spracované; CSRF sa overí v route (checkCsrf)
+    if (req.is('multipart/form-data')) return next();
     const sent = req.body && req.body._csrf;
     if (!sent || sent !== req.session.csrfToken) {
       return res.status(403).render('error', {
@@ -20,4 +22,10 @@ function csrf(req, res, next) {
   next();
 }
 
+// Manuálne overenie CSRF tokenu (napr. po multer spracovaní multipartu).
+function verifyCsrf(req) {
+  return !!req.body && req.body._csrf === req.session.csrfToken;
+}
+
 module.exports = csrf;
+module.exports.verifyCsrf = verifyCsrf;

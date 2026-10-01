@@ -17,7 +17,7 @@ if (config.trustProxy) app.set('trust proxy', 1);
 
 // Predvolené locals (dostupné aj v chybových stránkach pred spustením middleware)
 app.locals.company = constants.company;
-app.locals.nav = constants.nav;
+app.locals.nav = [];
 app.locals.currentUser = null;
 app.locals.active = '';
 
@@ -86,7 +86,7 @@ app.use((req, res, next) => {
   }
   res.locals.currentUser = req.user || null;
   res.locals.company = constants.company;
-  res.locals.nav = constants.nav;
+  res.locals.nav = constants.buildNav(req.user);
   res.locals.active = '';
   next();
 });
@@ -102,6 +102,11 @@ app.use('/apps', require('./src/routes/apps'));
 app.use('/projects', require('./src/routes/projects'));
 app.use('/tasks', require('./src/routes/tasks'));
 app.use('/tests', require('./src/routes/tests'));
+app.use('/zamestnanci', require('./src/routes/employees'));
+app.use('/dochadzka', require('./src/routes/attendance'));
+app.use('/moja-dochadzka', require('./src/routes/myattendance'));
+app.use('/ziadosti', require('./src/routes/requests'));
+app.use('/reporty', require('./src/routes/reports'));
 
 // --- 404 ---
 app.use((req, res) => {

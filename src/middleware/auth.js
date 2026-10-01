@@ -1,3 +1,5 @@
+const FULL_ACCESS = ['sef', 'admin'];
+
 // Prihlásený používateľ je potrebný pre všetky interné stránky.
 function requireAuth(req, res, next) {
   if (!req.session.userId) {
@@ -10,15 +12,26 @@ function requireAuth(req, res, next) {
   next();
 }
 
-// Iba administrátor (napr. správa používateľov).
-function requireAdmin(req, res, next) {
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).render('error', {
-      title: 'Prístup zamietnutý',
-      message: 'Na túto sekciu potrebuješ administrátorské oprávnenia.',
-    });
-  }
+function deny(res) {
+  return res.status(403).render('error', {
+    title: 'Prístup zamietnutý',
+    message: 'Na túto sekciu nemáš dostatočné oprávnenia.',
+  });
+}
+
+// Plný prístup: Šéf alebo Administratíva (historicky "admin").
+function requireFullAccess(req, res, next) {
+  if (!req.user || !FULL_ACCESS.includes(req.user.role)) return deny(res);
   next();
 }
 
-module.exports = { requireAuth, requireAdmin };
+// Spätná kompatibilita – "admin" sekcie teraz = plný prístup (šéf/admin).
+const requireAdmin = requireFullAccess;
+
+// Plný prístup alebo parťák (majster) – správa dochádzky stavieb.
+function requireStaff(req, res, next) {
+  if (!req.user || !(FULL_ACCESS.includes(req.user.role) || req.user.role === 'parcak')) return deny(res);
+  next();
+}
+
+module.exports = { requireAuth, requireAdmin, requireFullAccess, requireStaff, FULL_ACCESS };

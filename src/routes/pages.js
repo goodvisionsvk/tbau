@@ -1,5 +1,7 @@
 const express = require('express');
 const db = require('../db');
+const perm = require('../permissions');
+const dates = require('../util/dates');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -19,28 +21,56 @@ router.get('/', (req, res) => {
   res.render('landing', { layout: 'layouts/public', title: 'Firemný portál' });
 });
 
-// GET /dashboard – prehľad po prihlásení
+// GET /dashboard – prehľad po prihlásení (podľa role)
 router.get('/dashboard', requireAuth, (req, res) => {
-  const stats = {
-    users: db.prepare('SELECT COUNT(*) c FROM users WHERE active = 1').get().c,
-    apps: db.prepare('SELECT COUNT(*) c FROM apps').get().c,
-    projects: db.prepare("SELECT COUNT(*) c FROM projects WHERE status != 'done'").get().c,
-    tasks: db.prepare("SELECT COUNT(*) c FROM tasks WHERE status != 'done'").get().c,
-  };
-  const recentTasks = db
-    .prepare("SELECT * FROM tasks WHERE status != 'done' ORDER BY created_at DESC LIMIT 5")
-    .all();
-  const recentProjects = db
-    .prepare('SELECT * FROM projects ORDER BY created_at DESC LIMIT 5')
-    .all();
+  const user = req.user;
+  const full = perm.isFullAccess(user);
+  const foreman = user.role === 'parcak';
 
-  res.render('dashboard', {
-    title: 'Prehľad',
-    active: 'dashboard',
-    stats,
-    recentTasks,
-    recentProjects,
-  });
+  // zamestnanec nemá dashboard – ide rovno na svoju dochádzku
+  if (!full && !foreman) return res.redirect('/moja-dochadzka');
+
+  const now = new Date();
+  const { start, end } = dates.monthRange(now.getUTCFullYear(), now.getUTCMonth() + 1);
+  let cards = [];
+  let recentRequests = [];
+
+  if (full) {
+    const employees = db.prepare('SELECT COUNT(*) c FROM employees WHERE active = 1').get().c;
+    const projects = db.prepare("SELECT COUNT(*) c FROM projects WHERE status != 'done'").get().c;
+    const openReq = db.prepare("SELECT COUNT(*) c FROM change_requests WHERE status = 'open'").get().c;
+    const hours = db.prepare('SELECT COALESCE(SUM(hours),0) h FROM attendance WHERE work_date BETWEEN ? AND ?').get(start, end).h;
+    cards = [
+      { icon: '👷', num: employees, label: 'Aktívni zamestnanci', href: '/zamestnanci' },
+      { icon: '🏗️', num: projects, label: 'Aktívne stavby', href: '/projects' },
+      { icon: '🕒', num: Math.round(hours), label: 'Hodiny tento mesiac', href: '/reporty' },
+      { icon: '✉️', num: openReq, label: 'Otvorené žiadosti', href: '/ziadosti' },
+    ];
+    recentRequests = db
+      .prepare(
+        `SELECT cr.*, e.first_name, e.last_name FROM change_requests cr
+         JOIN employees e ON e.id = cr.employee_id
+         WHERE cr.status = 'open' ORDER BY cr.created_at DESC LIMIT 5`
+      )
+      .all();
+  } else {
+    const projIds = perm.foremanProjectIds(user);
+    let workers = 0, hours = 0, openReq = 0;
+    if (projIds.length) {
+      const ph = projIds.map(() => '?').join(',');
+      workers = db.prepare(`SELECT COUNT(DISTINCT employee_id) c FROM site_members WHERE project_id IN (${ph})`).get(...projIds).c;
+      hours = db.prepare(`SELECT COALESCE(SUM(hours),0) h FROM attendance WHERE project_id IN (${ph}) AND work_date BETWEEN ? AND ?`).get(...projIds, start, end).h;
+      openReq = db.prepare(`SELECT COUNT(*) c FROM change_requests WHERE status='open' AND employee_id IN (SELECT employee_id FROM site_members WHERE project_id IN (${ph}))`).get(...projIds).c;
+    }
+    cards = [
+      { icon: '🏗️', num: projIds.length, label: 'Moje stavby', href: '/projects' },
+      { icon: '👷', num: workers, label: 'Ľudia na stavbách', href: '/dochadzka' },
+      { icon: '🕒', num: Math.round(hours), label: 'Hodiny tento mesiac', href: '/reporty' },
+      { icon: '✉️', num: openReq, label: 'Otvorené žiadosti', href: '/ziadosti' },
+    ];
+  }
+
+  res.render('dashboard', { title: 'Prehľad', active: 'dashboard', cards, recentRequests, full });
 });
 
 module.exports = router;

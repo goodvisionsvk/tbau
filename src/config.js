@@ -8,6 +8,9 @@ module.exports = {
   dbPath: process.env.DB_PATH
     ? path.resolve(process.env.DB_PATH)
     : path.join(__dirname, '..', 'data', 'tbau.db'),
+  uploadsDir: process.env.UPLOADS_DIR
+    ? path.resolve(process.env.UPLOADS_DIR)
+    : path.join(__dirname, '..', 'data', 'uploads'),
   trustProxy: process.env.TRUST_PROXY === '1',
   secureCookies: process.env.SECURE_COOKIES === '1',
 };

@@ -50,6 +50,15 @@ const apps = [
     icon: '🧾',
     sort_order: 2,
   },
+  {
+    name: 'Dochádzka',
+    slug: 'dochadzka',
+    description:
+      'Evidencia odpracovaných hodín na stavbách zo smenoviek, žiadosti o zmenu a mesačné reporty.',
+    status: 'in_progress',
+    icon: '🕒',
+    sort_order: 0,
+  },
 ];
 const insertApp = db.prepare(
   'INSERT OR IGNORE INTO apps (name, slug, description, status, icon, sort_order) VALUES (@name,@slug,@description,@status,@icon,@sort_order)'

@@ -1,0 +1,76 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/zamestnanci">&larr; Späť na zamestnancov</a></p>
+
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+<% if (tempInfo) { %>
+  <div class="alert alert-info">
+    Prihlásenie vytvorené: <b><%= tempInfo.email %></b> (<%= roles[tempInfo.role] %>) — dočasné heslo:
+    <code><%= tempInfo.password %></code><br>
+    <span class="muted">Odovzdaj heslo bezpečne. Zamestnanec si ho po prvom prihlásení musí zmeniť. Zobrazuje sa iba teraz.</span>
+  </div>
+<% } %>
+
+<div class="grid" style="grid-template-columns:1fr 1fr; gap:24px;">
+  <div class="card">
+    <h2 style="margin-top:0;">Údaje zamestnanca</h2>
+    <form method="post" action="/zamestnanci/<%= employee.id %>">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field"><label>Meno *</label><input name="first_name" value="<%= employee.first_name %>" required></div>
+        <div class="field"><label>Priezvisko *</label><input name="last_name" value="<%= employee.last_name %>" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Osobné číslo</label><input name="employee_number" value="<%= employee.employee_number || '' %>"></div>
+        <div class="field"><label>Dátum narodenia</label><input name="birth_date" type="date" value="<%= employee.birth_date || '' %>"></div>
+      </div>
+      <div class="field"><label>Telefón</label><input name="phone" value="<%= employee.phone || '' %>"></div>
+      <div class="field"><label>Adresa</label><input name="address" value="<%= employee.address || '' %>"></div>
+      <label style="display:flex; gap:8px; align-items:center; margin-bottom:14px;">
+        <input type="checkbox" name="active" value="1" style="width:auto;" <%= employee.active ? 'checked':'' %>> Aktívny
+      </label>
+      <button class="btn btn-primary">Uložiť</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Prihlásenie do portálu</h2>
+    <% if (login) { %>
+      <p>E-mail: <b><%= login.email %></b></p>
+      <p>Rola: <span class="pill active"><%= roles[login.role] || login.role %></span></p>
+      <p class="muted">Správa roly a resetu hesla je v sekcii <a href="/users">Používatelia</a>.</p>
+    <% } else { %>
+      <p class="muted">Zamestnanec zatiaľ nemá prístup. Vytvor mu prihlásenie, aby videl svoju dochádzku.</p>
+      <form method="post" action="/zamestnanci/<%= employee.id %>/login">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="field"><label>E-mail</label><input name="email" type="email" required></div>
+        <div class="field"><label>Rola</label>
+          <select name="role">
+            <option value="zamestnanec">Zamestnanec</option>
+            <option value="parcak">Parťák (majster)</option>
+          </select>
+        </div>
+        <button class="btn btn-dark">Vytvoriť prihlásenie</button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Stavby zamestnanca</h2>
+  <% if (!sites.length) { %>
+    <div class="card muted">Zamestnanec nie je priradený na žiadnu stavbu. Priraď ho v <a href="/projects">detaile stavby</a>.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Stavba</th><th>Rola na stavbe</th></tr></thead>
+        <tbody>
+          <% sites.forEach(function(s){ %>
+            <tr>
+              <td><a href="/projects/<%= s.id %>"><%= s.name %></a></td>
+              <td><% if (s.is_foreman) { %><span class="pill active">parťák</span><% } else { %>robotník<% } %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
