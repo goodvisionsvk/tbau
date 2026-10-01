@@ -46,6 +46,18 @@ function weekDates(year, week) {
   return out;
 }
 
+// Všetky dni mesiaca ako [{date, day, label, weekend}]
+function monthDays(year, month) {
+  const last = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const out = [];
+  for (let d = 1; d <= last; d++) {
+    const dt = new Date(Date.UTC(year, month - 1, d));
+    const dow = (dt.getUTCDay() + 6) % 7;
+    out.push({ date: fmt(dt), day: d, label: DOW[dow], weekend: dow >= 5 });
+  }
+  return out;
+}
+
 // Prvý a posledný deň mesiaca
 function monthRange(year, month) {
   return {
@@ -56,4 +68,4 @@ function monthRange(year, month) {
 
 function monthName(month) { return MONTHS[month - 1] || ''; }
 
-module.exports = { isoWeek, currentIsoWeek, mondayOfIsoWeek, weekDates, monthRange, monthName, DOW, MONTHS };
+module.exports = { isoWeek, currentIsoWeek, mondayOfIsoWeek, weekDates, monthDays, monthRange, monthName, DOW, MONTHS };

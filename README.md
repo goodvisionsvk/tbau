@@ -93,7 +93,9 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Role-aware menu. Do budúcna: automatizované načítanie smenoviek (OCR).
 - **2026-10-01** – Menu sprehľadnené: Používatelia, Aplikácie, Úlohy, Testy zoskupené pod
   položku **Nastavenia** (rozcestník, len plný prístup).
-- **2026-10-01** – Prehľad (dashboard) doplnený o **zoznam aplikácií** (moduly a ich stav).
+- **2026-10-01** – Prehľad (dashboard) doplnený o **zoznam aplikácií** (moduly a ich stav); karty vedú na modul.
+- **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
+  filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
 
 ---
 

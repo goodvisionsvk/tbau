@@ -48,10 +48,47 @@ function loadGrid(user, query) {
   return { projects, project, year, week, days, rows, sheets };
 }
 
-// GET /dochadzka
+// mesačný prehľad (read-only) pre vybranú stavbu
+function loadMonthGrid(user, query) {
+  const projects = perm.accessibleProjects(user);
+  const now = new Date();
+  let projectId = query.project ? Number(query.project) : (projects[0] && projects[0].id);
+  if (projectId && !perm.canAccessProject(user, projectId)) projectId = projects[0] && projects[0].id;
+  const year = query.year ? Number(query.year) : now.getUTCFullYear();
+  const month = query.month ? Number(query.month) : now.getUTCMonth() + 1;
+
+  const project = projectId ? db.prepare('SELECT * FROM projects WHERE id = ?').get(projectId) : null;
+  const days = dates.monthDays(year, month);
+  const { start, end } = dates.monthRange(year, month);
+  let rows = [];
+  let grand = 0;
+  if (project) {
+    const members = db
+      .prepare(
+        `SELECT e.id, e.first_name, e.last_name, e.employee_number FROM site_members sm
+         JOIN employees e ON e.id = sm.employee_id
+         WHERE sm.project_id = ? AND e.active = 1 ORDER BY e.last_name, e.first_name`
+      )
+      .all(project.id);
+    const getHours = db.prepare(
+      'SELECT work_date, hours FROM attendance WHERE employee_id = ? AND project_id = ? AND work_date BETWEEN ? AND ?'
+    );
+    rows = members.map((m) => {
+      const map = {};
+      getHours.all(m.id, project.id, start, end).forEach((r) => (map[r.work_date] = r.hours));
+      const total = days.reduce((s, d) => s + (map[d.date] || 0), 0);
+      grand += total;
+      return { employee: m, hours: map, total };
+    });
+  }
+  return { projects, project, year, month, monthName: dates.monthName(month), days, rows, grand };
+}
+
+// GET /dochadzka  (?view=week|month)
 router.get('/', (req, res) => {
-  const data = loadGrid(req.user, req.query);
-  res.render('attendance', Object.assign({ title: 'Dochádzka', active: 'attendance', error: null, saved: req.query.saved === '1' }, data));
+  const view = req.query.view === 'month' ? 'month' : 'week';
+  const data = view === 'month' ? loadMonthGrid(req.user, req.query) : loadGrid(req.user, req.query);
+  res.render('attendance', Object.assign({ title: 'Dochádzka', active: 'attendance', view, error: null, saved: req.query.saved === '1' }, data));
 });
 
 // POST /dochadzka/save – uloženie mriežky hodín
@@ -107,7 +144,7 @@ router.post('/smenovka', (req, res) => {
     }
     if (err) {
       const data = loadGrid(req.user, req.body);
-      return res.status(400).render('attendance', Object.assign({ title: 'Dochádzka', active: 'attendance', error: err.message, saved: false }, data));
+      return res.status(400).render('attendance', Object.assign({ title: 'Dochádzka', active: 'attendance', view: 'week', error: err.message, saved: false }, data));
     }
     if (!req.file) return res.redirect(back);
     db.prepare(

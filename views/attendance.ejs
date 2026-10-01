@@ -1,26 +1,43 @@
 <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
-<% if (saved) { %><div class="alert alert-info">Dochádzka bola uložená.</div><% } %>
+<% if (typeof saved !== 'undefined' && saved) { %><div class="alert alert-info">Dochádzka bola uložená.</div><% } %>
+
+<!-- prepínač pohľadu -->
+<div class="actions" style="margin-bottom:14px;">
+  <a class="btn btn-sm <%= view==='week' ? 'btn-primary' : 'btn-ghost' %>"
+     href="/dochadzka?view=week&project=<%= project ? project.id : '' %>&year=<%= year %>">Týždeň</a>
+  <a class="btn btn-sm <%= view==='month' ? 'btn-primary' : 'btn-ghost' %>"
+     href="/dochadzka?view=month&project=<%= project ? project.id : '' %>&year=<%= year %>">Mesiac</a>
+</div>
 
 <div class="card">
-  <form method="get" action="/dochadzka" class="form-row" style="align-items:end;">
+  <form method="get" action="/dochadzka" class="form-row" style="align-items:end; margin:0;">
+    <input type="hidden" name="view" value="<%= view %>">
     <div class="field" style="margin-bottom:0;">
       <label>Stavba</label>
       <select name="project" onchange="this.form.submit()">
+        <% if (!projects.length) { %><option>— žiadna stavba —</option><% } %>
         <% projects.forEach(function(p){ %>
           <option value="<%= p.id %>" <%= project && project.id===p.id ? 'selected':'' %>><%= p.name %></option>
         <% }) %>
       </select>
     </div>
     <div class="field" style="margin-bottom:0;"><label>Rok</label><input type="number" name="year" value="<%= year %>" style="max-width:110px;"></div>
-    <div class="field" style="margin-bottom:0;"><label>Týždeň (ISO)</label><input type="number" name="week" min="1" max="53" value="<%= week %>" style="max-width:110px;"></div>
+    <% if (view === 'week') { %>
+      <div class="field" style="margin-bottom:0;"><label>Týždeň (ISO)</label><input type="number" name="week" min="1" max="53" value="<%= week %>" style="max-width:110px;"></div>
+    <% } else { %>
+      <div class="field" style="margin-bottom:0;"><label>Mesiac</label>
+        <select name="month"><% for (var mm=1;mm<=12;mm++){ %><option value="<%= mm %>" <%= month===mm?'selected':'' %>><%= mm %></option><% } %></select>
+      </div>
+    <% } %>
     <div class="field" style="margin-bottom:0;"><button class="btn btn-ghost">Zobraziť</button></div>
   </form>
 </div>
 
 <% if (!project) { %>
   <div class="card muted" style="margin-top:20px;">Nemáš priradenú žiadnu stavbu. Stavby a priradenie ľudí spravuje administratíva.</div>
-<% } else { %>
 
+<% } else if (view === 'week') { %>
+<!-- ======================= TÝŽDŇOVÝ (editovateľný) ======================= -->
 <div class="section">
   <h2><%= project.name %> — týždeň <%= week %>/<%= year %> (<%= days[0].date %> – <%= days[6].date %>)</h2>
 
@@ -80,7 +97,7 @@
     </form>
   </div>
 
-  <% if (sheets.length) { %>
+  <% if (sheets && sheets.length) { %>
     <div class="table-wrap" style="margin-top:14px;">
       <table>
         <thead><tr><th>Dokument</th><th>Nahraté</th><th>Poznámka</th><th></th></tr></thead>
@@ -106,4 +123,44 @@
   <% } %>
 </div>
 
+<% } else { %>
+<!-- ======================= MESAČNÝ (prehľad) ======================= -->
+<div class="section">
+  <div class="page-head" style="margin-bottom:12px;">
+    <h2 style="margin:0;"><%= project.name %> — <%= monthName %> <%= year %></h2>
+    <a class="btn-link" href="/dochadzka?view=week&project=<%= project.id %>&year=<%= year %>">Upraviť po týždňoch &rarr;</a>
+  </div>
+  <% if (!rows.length) { %>
+    <div class="card muted">Na tejto stavbe nie sú priradení žiadni zamestnanci.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table style="font-size:.82rem;">
+        <thead>
+          <tr>
+            <th style="position:sticky; left:0; background:#f7f8fa;">Zamestnanec</th>
+            <% days.forEach(function(d){ %>
+              <th style="text-align:center; padding:8px 6px; <%= d.weekend ? 'color:#b00;' : '' %>"><%= d.day %><br><span class="muted" style="font-weight:400; font-size:.68rem;"><%= d.label %></span></th>
+            <% }) %>
+            <th style="text-align:center;">Spolu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rows.forEach(function(r){ %>
+            <tr>
+              <td style="position:sticky; left:0; background:#fff;"><b><%= r.employee.last_name %> <%= r.employee.first_name %></b></td>
+              <% days.forEach(function(d){ %>
+                <td style="text-align:center; padding:8px 6px; <%= d.weekend ? 'background:#fafafa;' : '' %>"><%= r.hours[d.date] != null ? r.hours[d.date] : '' %></td>
+              <% }) %>
+              <td style="text-align:center;"><b><%= r.total %></b></td>
+            </tr>
+          <% }) %>
+        </tbody>
+        <tfoot>
+          <tr><th style="position:sticky; left:0; background:#f7f8fa;">Spolu stavba</th><th colspan="<%= days.length %>"></th><th style="text-align:center;"><%= grand %> h</th></tr>
+        </tfoot>
+      </table>
+    </div>
+    <p class="muted" style="margin-top:10px;">Mesačný export pre mzdy nájdeš v sekcii <a href="/reporty?year=<%= year %>&month=<%= month %>">Reporty</a>.</p>
+  <% } %>
+</div>
 <% } %>
