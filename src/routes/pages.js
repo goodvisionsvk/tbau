@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const db = require('../db');
 const constants = require('../constants');
@@ -6,6 +8,17 @@ const dates = require('../util/dates');
 const { requireAuth, requireFullAccess } = require('../middleware/auth');
 
 const router = express.Router();
+
+// GET /crm-prototyp – referenčný klikací prototyp od klienta (TBAU 360).
+// Servíruje sa nezmenený; potrebuje uvoľnené CSP (jeho inline <script>).
+router.get('/crm-prototyp', requireAuth, requireFullAccess, (req, res) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+      "font-src https://fonts.gstatic.com; script-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'"
+  );
+  res.sendFile(path.join(__dirname, '..', '..', 'reference', 'crm-prototype.html'));
+});
 
 // GET /nastavenia – rozcestník nastavení portálu (len plný prístup)
 router.get('/nastavenia', requireAuth, requireFullAccess, (req, res) => {
@@ -17,6 +30,7 @@ router.get('/nastavenia', requireAuth, requireFullAccess, (req, res) => {
       { label: 'Aplikácie', href: '/apps', icon: '🧩', desc: 'Moduly portálu a ich stav.' },
       { label: 'Úlohy', href: '/tasks', icon: '✅', desc: 'Úlohy pri budovaní portálu.' },
       { label: 'Testy', href: '/tests', icon: '🧪', desc: 'Automatické testy portálu.' },
+      { label: 'Klientov CRM prototyp', href: '/crm-prototyp', icon: '🧭', desc: 'Referenčný prototyp od klienta (TBAU 360) – len na pozeranie.' },
     ],
   });
 });

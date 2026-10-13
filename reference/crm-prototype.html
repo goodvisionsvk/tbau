@@ -1,0 +1,592 @@
+<title>TBAU 360 CRM</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: tmavý bočný panel modulov + pracovná plocha; zoznamy a karty ako v nástroji, nie ako web */
+:root{
+  --bg:#EDF0F2; --surface:#FFFFFF; --ink:#17232B; --muted:#55646E; --line:#DCE1E5; --nav:#1B2830; --nav-ink:#D3DCE2; --nav-on:#2B3C47;
+  --accent:#C2410C; --accent-ink:#FFFFFF; --focus:#1D4ED8;
+  --blue-bg:#DCE8F6; --blue-fg:#1E3A5F; --amber-bg:#FCE9C4; --amber-fg:#6E3A00; --green-bg:#D9EFE1; --green-fg:#12512A;
+  --red-bg:#F8DCD9; --red-fg:#8A1C14; --grey-bg:#E2E6E9; --grey-fg:#3B4852;
+  --font-d:'Barlow Semi Condensed','Arial Narrow',sans-serif; --font-b:'Source Sans 3',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F171C; --surface:#18232A; --ink:#E7EDF0; --muted:#9DAEB8; --line:#2A3A44; --nav:#0A1115; --nav-ink:#B9C7CF; --nav-on:#1F2E37;
+  --accent:#F97316; --accent-ink:#17120D; --focus:#7AA2FF;
+  --blue-bg:#1D3350; --blue-fg:#BBD3F5; --amber-bg:#4A3510; --amber-fg:#F6D58E; --green-bg:#17402A; --green-fg:#A9E3BF;
+  --red-bg:#51201C; --red-fg:#F6B7B0; --grey-bg:#2A3A44; --grey-fg:#C5D1D8; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F171C; --surface:#18232A; --ink:#E7EDF0; --muted:#9DAEB8; --line:#2A3A44; --nav:#0A1115; --nav-ink:#B9C7CF; --nav-on:#1F2E37;
+  --accent:#F97316; --accent-ink:#17120D; --focus:#7AA2FF;
+  --blue-bg:#1D3350; --blue-fg:#BBD3F5; --amber-bg:#4A3510; --amber-fg:#F6D58E; --green-bg:#17402A; --green-fg:#A9E3BF;
+  --red-bg:#51201C; --red-fg:#F6B7B0; --grey-bg:#2A3A44; --grey-fg:#C5D1D8; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.45;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+a{color:var(--accent)}
+.app{display:grid;grid-template-columns:224px minmax(0,1fr);min-height:100%}
+.side{background:var(--nav);color:var(--nav-ink);padding:20px 0;position:sticky;top:0;align-self:start;height:100vh;overflow:auto}
+.brand{font-family:var(--font-d);font-weight:700;font-size:24px;color:#fff;padding:0 20px 18px;letter-spacing:.5px}
+.grp{font-size:12px;font-weight:600;letter-spacing:1px;padding:14px 20px 6px;color:#8FA2AE;text-transform:uppercase}
+.nv{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;color:var(--nav-ink);text-align:left;padding:10px 20px;cursor:pointer;font-size:15px;min-height:44px}
+.nv:hover{background:var(--nav-on)}
+.nv.on{background:var(--nav-on);color:#fff;font-weight:600;box-shadow:inset 3px 0 0 #F59E0B}
+.nv .n{font-size:12px;background:#3A4E5B;color:#fff;border-radius:999px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.nv.off{opacity:.6}
+.main{padding:24px 32px 48px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.demo{font-size:13px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:8px;padding:8px 12px}
+h1{font-family:var(--font-d);font-size:32px;line-height:1.1;margin:0;font-weight:700;text-wrap:balance}
+h2{font-family:var(--font-d);font-size:21px;margin:0;font-weight:700}
+.sub{color:var(--muted)}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:8px;border:1px solid var(--ink);background:var(--surface);cursor:pointer;font-weight:600}
+.btn:hover{background:var(--bg)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:14px}
+.lnk{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.inp{min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:0 12px;width:100%}
+textarea.inp{padding:10px 12px;min-height:72px}
+label{font-size:13px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;text-align:left;cursor:pointer;color:inherit}
+.kpi:hover{border-color:var(--muted)}
+.kpi b{display:block;font-family:var(--font-d);font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;font-weight:600;color:var(--muted)}
+.kpi.bad b,.kpi.bad span{color:var(--red-fg)}
+.cols{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.cols>.main2{flex:2 1 520px;min-width:0}.cols>.rail{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th{font-size:13px;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-weight:600;white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--bg)}
+.chip{display:inline-block;padding:1px 10px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.c-blue{background:var(--blue-bg);color:var(--blue-fg)}.c-amber{background:var(--amber-bg);color:var(--amber-fg)}.c-green{background:var(--green-bg);color:var(--green-fg)}
+.c-red{background:var(--red-bg);color:var(--red-fg)}.c-grey{background:var(--grey-bg);color:var(--grey-fg)}
+.tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;padding:10px 16px;cursor:pointer;color:var(--muted);min-height:44px}
+.tab.on{color:var(--ink);font-weight:700;box-shadow:inset 0 -3px 0 var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px 22px}
+.k{font-size:13px;color:var(--muted);font-weight:600}.v{margin-top:2px}
+.next{border-left:4px solid var(--accent)}
+.list>div{padding:10px 0;border-bottom:1px solid var(--line)}.list>div:last-child{border-bottom:0}
+.bar{height:8px;border-radius:4px;background:var(--grey-bg);overflow:hidden;min-width:80px}.bar i{display:block;height:100%;background:var(--green-fg)}
+.kan{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px}
+.kcol{background:var(--grey-bg);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:200px}
+.kcol h3{margin:2px 4px;font-size:14px;color:var(--grey-fg)}
+.kc{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px}
+.stp{display:inline-flex;align-items:center;gap:6px}
+.stp button{width:32px;height:32px;border-radius:6px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:700}
+.stp output{min-width:20px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:10px;max-width:92vw;z-index:9}
+.warn{background:var(--amber-bg);color:var(--amber-fg);border-radius:8px;padding:10px 12px;font-size:14px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.form .full{grid-column:1/-1}
+.empty{color:var(--muted);padding:16px 4px}
+@media (max-width:820px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:static;height:auto;display:flex;overflow-x:auto;padding:8px 8px;align-items:center;gap:2px}
+  .brand,.grp{display:none}.nv{width:auto;white-space:nowrap;padding:0 14px}.nv .n{margin-left:8px}
+  .main{padding:16px}
+  h1{font-size:27px}
+}
+@media (prefers-reduced-motion:no-preference){.toast{animation:up .2s ease-out}@keyframes up{from{opacity:0;transform:translate(-50%,8px)}}}
+.chat{display:flex;flex-direction:column;gap:10px;max-height:380px;overflow:auto;padding:4px 2px 12px}.msg{max-width:min(560px,92%);padding:8px 12px;border-radius:12px;background:var(--grey-bg);color:var(--grey-fg);overflow-wrap:anywhere}.msg.me{align-self:flex-end;background:var(--blue-bg);color:var(--blue-fg)}.msg small{display:block;font-size:12px;margin-bottom:2px}
+</style>
+
+<div class="app">
+  <nav class="side" aria-label="Moduly" id="nav"></nav>
+  <main class="main" id="main"></main>
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+var TODAY='2026-10-07';
+var STAVY=['Potenciálny','Oslovený','Ponuka','Aktívny','Pozastavený','Ukončený'];
+var STAV_CLS={'Potenciálny':'c-grey','Oslovený':'c-blue','Ponuka':'c-amber','Aktívny':'c-green','Pozastavený':'c-grey','Ukončený':'c-red'};
+var SS=['Plánovaná','Prebieha','Ukončená'];
+var SS_CLS={'Plánovaná':'c-grey','Prebieha':'c-green','Ukončená':'c-red'};
+var DOVODY=['Nedostatok ľudí','Zlá komunikácia','Polier','Cena','Platby','Iné'];
+var DOKT=['Zmluva','Ponuka','Cenník','Plán stavby','Zadanie profesie','Smenovka','Iné'];
+var OWNER='Obchodník 1',WHO=[OWNER,'Obchodník 2','Koordinátor'];
+var TNAME={z:'Zákazník',s:'Stavba',p:'Požiadavka',u:'Úloha'},TPFX={z:'Z',s:'S',p:'P',u:'U'};
+var S={view:'dnes',ent:null,tab:'prehlad',q:'',fStav:'',newOpen:false,pendEnd:null,reqFilter:'',rqNew:false};
+var tid=100;
+function T(t,due,who,done,odd,st){who=who||OWNER;return {pop:'',dok:[],chat:[],akt:[[TODAY,'Založená','Úloha založená']],id:tid++,t:t,due:due,who:who,done:!!done,odd:odd||(who==='Koordinátor'?'Koordinácia':'Obchod'),st:st||(done?'Hotová':'Nová')}}
+
+var C=[
+ {id:1,name:'Muster Bau GmbH',stav:'Aktívny',krajina:'Nemecko',owner:OWNER,typ:'Hodinovka',cena:35,skupina:'Dvojice',lehota:'30 dní',platba:'Oneskorené',hodn:4,pozn:'Fakturovať mesačne, hodiny schvaľuje Polier.',
+  kontakty:[['Max Mustermann','Bauleiter','+49 000 000 000','hlavný kontakt'],['Erika Beispiel','Schvaľovateľ hodín','erika@example.de',''],['Hans Probe','Polier','+49 000 000 001','']],
+  akt:[['2026-10-03','Telefonát','Začiatok stavby posunutý na KW 44, treba potvrdiť'],['2026-09-22','Návšteva','Stretnutie s Bauleiterom, dohodnuté dvojice'],['2026-09-10','E-mail','Poslaná ponuka na murárov']],
+  ul:[T('Zavolať Bauleiterovi, potvrdiť začiatok KW 44','2026-10-03'),T('Poslať ponuku na murárov','2026-09-10',OWNER,true)],
+  dok:[['Rámcová zmluva Muster Bau.pdf','Zmluva','2026-06-15'],['Ponuka murári KW 44.pdf','Ponuka','2026-09-10']]},
+ {id:2,name:'Beispiel Hochbau AG',stav:'Ponuka',krajina:'Nemecko',owner:OWNER,typ:'Výkonová práca (LV)',cena:null,skupina:'Väčšia skupina',lehota:'14 dní',platba:'V poriadku',hodn:null,pozn:'',
+  kontakty:[['Anna Muster','Obchodný kontakt','anna@example.de','hlavný kontakt']],
+  akt:[['2026-09-30','Telefonát','Záujem o betonárov od KW 45']],
+  ul:[T('Poslať ponuku na dvojice, cena za hodinu','2026-10-05')],dok:[]},
+ {id:3,name:'Demo Fassaden GmbH',stav:'Aktívny',krajina:'Nemecko',owner:OWNER,typ:'Hodinovka',cena:34,skupina:'Dvojice',lehota:'30 dní',platba:'Neuhradené',hodn:3,pozn:'Dve faktúry čakajú na úhradu.',
+  kontakty:[['Jan Beispiel','Obchodný kontakt','jan@example.de','hlavný kontakt'],['Petra Probe','Fakturačný kontakt','petra@example.de','']],
+  akt:[['2026-09-28','E-mail','Pripomenutie faktúr']],ul:[T('Opýtať sa na otvorené faktúry','2026-10-07')],dok:[['Zmluva Demo Fassaden.pdf','Zmluva','2026-05-02']]},
+ {id:4,name:'Probe Trockenbau GmbH',stav:'Oslovený',krajina:'Nemecko',owner:OWNER,typ:'',cena:null,skupina:'',lehota:'',platba:'',hodn:null,pozn:'',
+  kontakty:[['Tom Test','Obchodný kontakt','tom@example.de','']],akt:[],ul:[T('Prvý telefonát, predstaviť TBAU','2026-10-07')],dok:[]},
+ {id:5,name:'Test Gerüstbau GmbH',stav:'Aktívny',krajina:'Nemecko',owner:OWNER,typ:'Hodinovka',cena:33,skupina:'Jednotlivci',lehota:'21 dní',platba:'V poriadku',hodn:5,pozn:'',
+  kontakty:[['Lukas Muster','Polier','+49 000 000 002','hlavný kontakt']],akt:[['2026-09-18','Stretnutie','Dohoda o rozsahu prác']],
+  ul:[T('Návšteva na stavbe, stretnutie s Polierom','2026-10-08')],dok:[]},
+ {id:6,name:'Beispiel Putz GmbH',stav:'Potenciálny',krajina:'Nemecko',owner:'',typ:'',cena:null,skupina:'',lehota:'',platba:'',hodn:null,pozn:'Z databázy firiem.',kontakty:[],akt:[],ul:[],dok:[]},
+ {id:7,name:'Muster Dach GmbH',stav:'Pozastavený',krajina:'Nemecko',owner:OWNER,typ:'Hodinovka',cena:36,skupina:'Dvojice',lehota:'30 dní',platba:'V poriadku',hodn:4,pozn:'Zákazník má dočasne plné kapacity.',
+  kontakty:[['Eva Dach','Obchodný kontakt','eva@example.de','hlavný kontakt']],akt:[['2026-08-12','Telefonát','Pauza do konca roka']],ul:[T('Ozvať sa po novom roku','2027-01-11')],dok:[]},
+ {id:8,name:'Ukážka Estrich GmbH',stav:'Ukončený',krajina:'Nemecko',owner:OWNER,typ:'Hodinovka',cena:35,skupina:'Dvojice',lehota:'30 dní',platba:'V poriadku',hodn:3,dovod:'Nedostatok ľudí',pozn:'',
+  kontakty:[['Karl Estrich','Obchodný kontakt','karl@example.de','']],akt:[['2026-07-02','Zmena stavu','Spolupráca ukončená, nevedeli sme dodať ľudí']],ul:[],dok:[]},
+ {id:9,name:'Probe Maler GmbH',stav:'Oslovený',krajina:'Nemecko',owner:OWNER,typ:'',cena:null,skupina:'',lehota:'',platba:'',hodn:null,pozn:'',
+  kontakty:[['Mia Maler','Obchodný kontakt','mia@example.de','']],akt:[],ul:[T('Zavolať a poslať referencie','2026-10-12')],dok:[]}
+];
+var ST=[
+ {id:1,cid:1,name:'Bürogebäude Ukážka',adresa:'Musterstraße 1, Beispielstadt',stav:'Prebieha',od:38,do:52,bauleiter:'Max Mustermann',polier:'Hans Probe',ludia:12,pozn:'Hlavná stavba zákazníka.',
+  akt:[['2026-09-22','Návšteva','Kontrola postupu prác s Bauleiterom']],ul:[],dok:[['Plán stavby Bürogebäude.pdf','Plán stavby','2026-08-30']]},
+ {id:2,cid:1,name:'Wohnanlage Test',adresa:'Teststraße 12, Beispielstadt',stav:'Plánovaná',od:44,do:52,bauleiter:'Max Mustermann',polier:'Hans Probe',ludia:0,pozn:'Začiatok posunutý, čaká na potvrdenie KW 44.',
+  akt:[['2026-10-03','Telefonát','Zákazník posunul začiatok na KW 44']],ul:[T('Potvrdiť adresu a prístup na stavbu','2026-10-08')],dok:[]},
+ {id:3,cid:2,name:'Bürogebäude Ukážka 2',adresa:'Beispielweg 5, Testhausen',stav:'Plánovaná',od:45,do:49,bauleiter:'Anna Muster',polier:'',ludia:0,pozn:'',akt:[],ul:[],dok:[]},
+ {id:4,cid:3,name:'Fassade Nord',adresa:'Nordring 8, Probestadt',stav:'Prebieha',od:40,do:50,bauleiter:'Jan Beispiel',polier:'',ludia:6,pozn:'',akt:[['2026-09-15','Návšteva','Obhliadka fasády']],ul:[],dok:[]},
+ {id:5,cid:4,name:'Schule Mitte',adresa:'Schulplatz 2, Musterburg',stav:'Plánovaná',od:44,do:47,bauleiter:'Tom Test',polier:'',ludia:0,pozn:'',akt:[],ul:[],dok:[]},
+ {id:6,cid:5,name:'Hafenstraße',adresa:'Hafenstraße 20, Hafenstadt',stav:'Prebieha',od:36,do:52,bauleiter:'Lukas Muster',polier:'Lukas Muster',ludia:4,pozn:'',akt:[],ul:[],dok:[]}
+];
+var R=[
+ {id:1,cid:1,sid:2,prof:'Murár',od:44,do:52,req:6,nav:4,pot:2,hl:true,zr:false,kto:'Max Mustermann',prijata:'2026-09-28',podm:'Dvojice, A1 a BOZP doklady pred nástupom, ubytovanie zabezpečí TBAU.',
+  akt:[['2026-10-02','Zmena','Navrhnutí 4 ľudia'],['2026-09-28','Prijatá','Požiadavka prijatá od Maxa Mustermanna']],ul:[T('Doplniť ďalších 2 murárov','2026-10-09','Koordinátor')],dok:[['Zadanie murári Wohnanlage.pdf','Zadanie profesie','2026-09-28']]},
+ {id:2,cid:3,sid:4,prof:'Zatepľovač',od:46,do:50,req:4,nav:0,pot:0,hl:true,zr:false,kto:'Jan Beispiel',prijata:'2026-10-01',podm:'Jednotlivci, vlastné náradie.',
+  akt:[['2026-10-01','Prijatá','Požiadavka prijatá e-mailom']],ul:[T('Nájsť 4 zatepľovačov','2026-10-14','Koordinátor')],dok:[]},
+ {id:3,cid:2,sid:3,prof:'Betonár',od:45,do:49,req:8,nav:8,pot:5,hl:true,zr:false,kto:'Anna Muster',prijata:'2026-09-30',podm:'Väčšia skupina, výkonová práca.',
+  akt:[['2026-10-05','Zmena','Potvrdených 5 z 8'],['2026-09-30','Prijatá','Požiadavka prijatá telefonicky']],ul:[T('Potvrdiť zvyšných 3 ľudí zákazníkovi','2026-10-10','Koordinátor')],dok:[]},
+ {id:4,cid:4,sid:5,prof:'Sadrokartonár',od:44,do:47,req:2,nav:2,pot:2,hl:true,zr:false,kto:'Tom Test',prijata:'2026-09-25',podm:'Dvojica.',
+  akt:[['2026-09-29','Zmena','Potvrdení 2 z 2, požiadavka naplnená']],ul:[],dok:[]},
+ {id:5,cid:5,sid:6,prof:'Pomocný pracovník',od:48,do:52,req:3,nav:0,pot:0,hl:false,zr:false,kto:'Lukas Muster',prijata:'2026-10-06',podm:'',
+  akt:[['2026-10-06','Prijatá','Požiadavka prijatá']],ul:[],dok:[]}
+];
+var NID={z:10,s:7,p:6};
+var LIST={z:C,s:ST,p:R};
+R[0].ul[0].st='Prebieha';R[2].ul[0].st='Čaká';C[2].ul[0].odd='Administratíva';
+ST[0].ul.push(T('Overiť obsadenosť ubytovania na stavbu','2026-10-09','Koordinátor',false,'Doprava a ubytovanie'));
+C[0].ul.push(T('Skontrolovať smenovky za KW 40','2026-10-12','Obchodník 2',false,'Administratíva','Prebieha'));
+ST[3].ul.push(T('Zabezpečiť vozidlo pre štvoricu na Fassade Nord','2026-10-13','Koordinátor',false,'Doprava a ubytovanie'));
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function dt(iso){var p=iso.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+function fmt(iso,y){var x=dt(iso);return x.getDate()+'. '+(x.getMonth()+1)+'.'+(y?' '+x.getFullYear():'')}
+function diff(iso){return Math.round((dt(iso)-dt(TODAY))/864e5)}
+function rel(iso){var n=diff(iso);if(n<0)return '<span class="chip c-red">Po termíne · '+fmt(iso)+'</span>';if(n===0)return '<span class="chip c-grey">Dnes</span>';if(n===1)return '<span class="chip c-grey">Zajtra</span>';return '<span class="chip c-grey">'+fmt(iso)+'</span>'}
+function chipStav(s){return '<span class="chip '+STAV_CLS[s]+'">'+esc(s)+'</span>'}
+function get(t,id){if(t==='u'){var q=findTask(id);return q&&q.u}return LIST[t].filter(function(o){return o.id===id})[0]}
+function cust(id){return get('z',id)}
+function stv(id){return get('s',id)}
+function reqStav(r){if(r.zr)return ['Zrušená','c-grey'];if(r.pot>=r.req)return ['Naplnená','c-green'];if(r.pot>0)return ['Potvrdená','c-grey'];if(r.nav>0)return ['Navrhnutá','c-amber'];if(r.hl)return ['Hľadáme ľudí','c-red'];return ['Prijatá','c-blue']}
+function nameOf(t,o){if(t==='u')return o.t;return t==='p'?o.prof+' · '+stv(o.sid).name:o.name}
+function idLbl(t,o){return TPFX[t]+'-'+String(o.id).padStart(4,'0')}
+function lnk(t,id){var o=get(t,id);return '<button class="lnk" data-ent="'+t+':'+id+'">'+esc(nameOf(t,o))+'</button>'}
+function openT(o){return o.ul.filter(function(u){return !u.done}).sort(function(a,b){return a.due<b.due?-1:1})}
+function allTasks(){var a=[];['z','s','p'].forEach(function(t){LIST[t].forEach(function(o){o.ul.forEach(function(u){if(!u.done)a.push({t:t,o:o,u:u})})})});return a.sort(function(a,b){return a.u.due<b.u.due?-1:1})}
+function log(t,id,typ,txt){get(t,id).akt.unshift([TODAY,typ,txt])}
+function toast(t){var e=document.getElementById('toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){e.hidden=true},3400)}
+function openEnt(t,id,tab){S.view='karta';S.ent={t:t,id:id};S.tab=tab||'prehlad';S.pendEnd=null;render();window.scrollTo(0,0)}
+
+function renderNav(){
+  var over=allTasks().filter(function(x){return diff(x.u.due)<0}).length;
+  var open=R.filter(function(r){return !r.zr&&r.pot<r.req}).length;
+  var cur=S.view==='karta'?S.ent.t:'';
+  var items=[['dnes','Dnes',over||''],['zakaznici','Zákazníci',''],['stavby','Stavby',''],['poziadavky','Požiadavky stavieb',open||''],['ulohy','Úlohy',''],['pipeline','Pipeline','']];
+  var h='<div class="brand">TBAU 360</div><div class="grp">Obchod</div>';
+  items.forEach(function(i){var on=S.view===i[0]||(i[0]==='zakaznici'&&cur==='z')||(i[0]==='stavby'&&cur==='s')||(i[0]==='poziadavky'&&cur==='p')||(i[0]==='ulohy'&&cur==='u');h+='<button class="nv'+(on?' on':'')+'" data-go="'+i[0]+'"'+(on?' aria-current="page"':'')+'>'+i[1]+(i[2]?'<span class="n">'+i[2]+'</span>':'')+'</button>'});
+  h+='<div class="grp">Ostatné moduly</div>';
+  ['Turnus','Smenovky','Fakturácia'].forEach(function(m){h+='<button class="nv off" data-off="'+m+'">'+m+'</button>'});
+  document.getElementById('nav').innerHTML=h;
+}
+
+/* ---------- prehľady ---------- */
+function vDnes(){
+  var ts=allTasks(),today=ts.filter(function(x){return diff(x.u.due)===0}).length,over=ts.filter(function(x){return diff(x.u.due)<0}).length;
+  var act=C.filter(function(c){return c.stav==='Aktívny'}).length,open=R.filter(function(r){return !r.zr&&r.pot<r.req});
+  var h='<div class="head"><div><h1>Dnes</h1><div class="sub">Streda 7. októbra 2026 · '+OWNER+'</div></div><div class="row"><button class="btn pri" data-act="newopen">+ Nový zákazník</button></div></div>';
+  h+='<div class="kpis"><button class="kpi" data-go="ulohy"><b>'+today+'</b><span>Úlohy dnes</span></button><button class="kpi bad" data-go="ulohy"><b>'+over+'</b><span>Po termíne</span></button><button class="kpi" data-go="zakaznici" data-fs="Aktívny"><b>'+act+'</b><span>Aktívni zákazníci</span></button><button class="kpi" data-go="poziadavky"><b>'+open.length+'</b><span>Otvorené požiadavky</span></button></div>';
+  h+='<div class="cols"><div class="card main2"><h2>Moje úlohy</h2><div class="tw"><table><thead><tr><th>Termín</th><th>Úloha</th><th>Karta</th><th>Zodpovedný</th><th></th></tr></thead><tbody>';
+  if(!ts.length)h+='<tr><td colspan="5" class="empty">Žiadne otvorené úlohy.</td></tr>';
+  ts.forEach(function(x){h+='<tr><td>'+rel(x.u.due)+'</td><td>'+lnk('u',x.u.id)+'</td><td><span class="chip c-blue">'+TNAME[x.t]+'</span><div>'+lnk(x.t,x.o.id)+'</div></td><td>'+esc(x.u.who)+'</td><td><button class="btn sm" data-done="'+x.t+':'+x.o.id+':'+x.u.id+'">Hotovo</button></td></tr>'});
+  h+='</tbody></table></div></div><div class="rail"><div class="card"><h2>Požiadavky na doplnenie</h2><div class="list">';
+  open.slice(0,4).forEach(function(r){h+='<div>'+lnk('p',r.id)+'<div class="sub">'+esc(cust(r.cid).name)+' · žiadané '+r.req+' · navrhnuté '+r.nav+' · potvrdené '+r.pot+' · KW '+r.od+'</div></div>'});
+  if(!open.length)h+='<div class="sub">Všetky požiadavky sú naplnené.</div>';
+  h+='</div></div><div class="card"><h2>Zákazníci podľa stavu</h2><div class="row" style="margin-top:10px">';
+  STAVY.forEach(function(s){var n=C.filter(function(c){return c.stav===s}).length;h+='<button class="chip '+STAV_CLS[s]+'" style="border:0;cursor:pointer;min-height:32px" data-go="zakaznici" data-fs="'+s+'">'+s+' '+n+'</button>'});
+  return h+'</div></div></div></div>';
+}
+function newForm(){
+  return '<form class="card" id="newForm"><h2>Nový zákazník</h2><div class="form" style="margin-top:12px"><div class="full"><label for="nn">Názov firmy</label><input class="inp" id="nn" required autocomplete="off"></div><div><label for="nk">Krajina</label><input class="inp" id="nk" value="Nemecko"></div><div><label for="no">Zodpovedný obchodník</label><select class="inp" id="no"><option>'+OWNER+'</option><option>Obchodník 2</option><option value="">(zatiaľ nikto)</option></select></div></div><div id="dupWarn"></div><div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Uložiť zákazníka</button><button class="btn" type="button" data-act="newclose">Zrušiť</button></div></form>';
+}
+function listRows(){
+  var q=S.q.trim().toLowerCase(),rows=C.filter(function(c){
+    if(S.fStav&&c.stav!==S.fStav)return false;
+    if(q){var hay=(c.name+' '+c.kontakty.map(function(k){return k[0]}).join(' ')).toLowerCase();if(hay.indexOf(q)<0)return false}
+    return true});
+  if(!rows.length)return '<tr><td colspan="6" class="empty">Nič nenájdené. Skús iný text alebo stav.</td></tr>';
+  return rows.map(function(c){var n=openT(c)[0];return '<tr class="click" data-ent="z:'+c.id+'"><td><button class="lnk" data-ent="z:'+c.id+'">'+esc(c.name)+'</button></td><td>'+chipStav(c.stav)+'</td><td>'+esc(c.owner||'—')+'</td><td>'+(n?esc(n.t)+'<div style="margin-top:4px">'+rel(n.due)+'</div>':'<span class="sub">bez úlohy</span>')+'</td><td>'+ST.filter(function(s){return s.cid===c.id}).length+'</td><td>'+R.filter(function(r){return r.cid===c.id&&!r.zr&&r.pot<r.req}).length+'</td></tr>'}).join('');
+}
+function vZakaznici(){
+  var h='<div class="head"><div><h1>Zákazníci</h1><div class="sub">'+C.length+' firiem</div></div><button class="btn pri" data-act="newopen">+ Nový zákazník</button></div>';
+  if(S.newOpen)h+=newForm();
+  h+='<div class="row"><div style="flex:1 1 260px"><label for="q">Hľadať</label><input class="inp" id="q" placeholder="Názov firmy alebo kontakt" value="'+esc(S.q)+'" autocomplete="off"></div><div style="flex:0 1 220px"><label for="fs">Stav</label><select class="inp" id="fs"><option value="">Všetky</option>'+STAVY.map(function(s){return '<option'+(S.fStav===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div></div>';
+  return h+'<div class="card tw" style="padding:6px 8px"><table><thead><tr><th>Firma</th><th>Stav</th><th>Obchodník</th><th>Najbližšia úloha</th><th>Stavby</th><th>Otvorené požiadavky</th></tr></thead><tbody id="rows">'+listRows()+'</tbody></table></div>';
+}
+
+/* ---------- spoločné časti kariet ---------- */
+function histHtml(t,o){
+  var h='<form class="card" id="actForm"><h2>Nový záznam do histórie</h2><div class="form" style="margin-top:12px"><div><label for="at">Typ</label><select class="inp" id="at"><option>Telefonát</option><option>E-mail</option><option>Návšteva</option><option>Stretnutie</option><option>Poznámka</option></select></div><div class="full"><label for="ad">Čo sa stalo alebo dohodlo</label><textarea class="inp" id="ad" required></textarea></div></div><div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Uložiť záznam</button></div></form>';
+  return h+'<div class="card"><h2>História aktivít</h2><div class="list" style="margin-top:8px">'+(o.akt.length?o.akt.map(actRow).join(''):'<div class="sub">Zatiaľ žiadny záznam.</div>')+'</div></div>';
+}
+function actRow(a){return '<div><b>'+fmt(a[0],true)+'</b> · <span class="chip c-grey">'+esc(a[1])+'</span><div style="margin-top:2px">'+esc(a[2])+'</div></div>'}
+function tasksHtml(t,o){
+  var op=openT(o),dn=o.ul.filter(function(u){return u.done});
+  var h='<form class="card" id="taskForm"><h2>Nová úloha</h2><div class="form" style="margin-top:12px"><div class="full"><label for="tt">Čo treba urobiť</label><input class="inp" id="tt" required autocomplete="off"></div><div><label for="td">Termín</label><input class="inp" type="date" id="td" value="2026-10-14"></div><div><label for="tw">Zodpovedný</label><select class="inp" id="tw">'+WHO.map(function(w){return '<option>'+w+'</option>'}).join('')+'</select></div><div><label for="to">Oddelenie</label><select class="inp" id="to">'+ODD.map(function(w){return '<option'+(w===(t==='z'?'Obchod':'Koordinácia')?' selected':'')+'>'+w+'</option>'}).join('')+'</select></div></div><div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Pridať úlohu</button></div></form>';
+  h+='<div class="card"><h2>Otvorené úlohy</h2><div class="list" style="margin-top:8px">'+(op.length?op.map(function(u){return '<div class="row" style="justify-content:space-between"><div><b>'+lnk('u',u.id)+'</b><div class="sub">'+esc(u.who)+'</div></div><div class="row">'+rel(u.due)+'<button class="btn sm" data-done="'+t+':'+o.id+':'+u.id+'">Hotovo</button></div></div>'}).join(''):'<div class="sub">Žiadna otvorená úloha.</div>')+'</div></div>';
+  if(dn.length)h+='<div class="card"><h2>Splnené</h2><div class="list" style="margin-top:8px">'+dn.map(function(u){return '<div class="sub"><s>'+esc(u.t)+'</s> · '+esc(u.who)+'</div>'}).join('')+'</div></div>';
+  return h;
+}
+function docsHtml(t,o){
+  var h='<form class="card" id="docForm"><h2>Pridať dokument</h2><div class="form" style="margin-top:12px"><div><label for="df">Súbor</label><input class="inp" type="file" id="df" style="padding-top:9px"></div><div><label for="dn">Alebo názov dokumentu</label><input class="inp" id="dn" autocomplete="off"></div><div><label for="dt">Typ</label><select class="inp" id="dt">'+DOKT.map(function(d){return '<option>'+d+'</option>'}).join('')+'</select></div></div><div class="sub" style="margin-top:8px;font-size:13px">V návrhu sa uloží len názov. V ostrej verzii sa súbor uloží do úložiska.</div><div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Pridať dokument</button></div></form>';
+  return h+'<div class="card"><h2>Dokumenty</h2><div class="list" style="margin-top:8px">'+(o.dok.length?o.dok.map(function(d){return '<div><b>'+esc(d[0])+'</b><div class="sub"><span class="chip c-blue">'+esc(d[1])+'</span> · pridané '+fmt(d[2],true)+'</div></div>'}).join(''):'<div class="sub">Zatiaľ žiadny dokument.</div>')+'</div></div>';
+}
+function reqMini(r){var s=reqStav(r);return '<div>'+lnk('p',r.id)+' <span class="chip '+s[1]+'">'+s[0]+'</span><div class="sub">Žiadané '+r.req+' · navrhnuté '+r.nav+' · potvrdené '+r.pot+' · KW '+r.od+'–'+r.do+'</div></div>'}
+function stvMini(s){return '<div>'+lnk('s',s.id)+' <span class="chip '+SS_CLS[s.stav]+'">'+s.stav+'</span><div class="sub">'+esc(s.adresa)+' · od KW '+s.od+'</div></div>'}
+function nextBox(t,o){var n=openT(o)[0];
+  if(n)return '<div class="card next"><div class="k">Najbližšia úloha</div><div style="font-size:17px;font-weight:600;margin:4px 0 8px">'+esc(n.t)+'</div>'+rel(n.due)+' <span class="sub">'+esc(n.who)+'</span><div class="row" style="margin-top:12px"><button class="btn sm" data-done="'+t+':'+o.id+':'+n.id+'">Hotovo</button><button class="btn sm" data-tab="ulohy">Všetky úlohy</button></div></div>';
+  return '<div class="card next"><div class="k">Najbližšia úloha</div><div style="margin:4px 0 8px"><b>Chýba.</b> Pridaj úlohu s termínom, nech karta nezostane bez ďalšieho kroku.</div><button class="btn sm" data-tab="ulohy">Pridať úlohu</button></div>'}
+function lastAct(o){return '<div class="card"><h2>Posledné aktivity</h2><div class="list" style="margin-top:8px">'+(o.akt.length?o.akt.slice(0,3).map(actRow).join(''):'<div class="sub">Zatiaľ žiadna aktivita.</div>')+'</div><button class="lnk" style="margin-top:8px" data-tab="historia">Celá história</button></div>'}
+
+/* ---------- karta: hlavička a záložky ---------- */
+function cardHead(t,o){
+  var h='<div class="sub">';
+  if(t==='z')h+='<button class="lnk" data-go="zakaznici">Zákazníci</button> / '+esc(o.name);
+  if(t==='s')h+='<button class="lnk" data-go="stavby">Stavby</button> / '+lnk('z',o.cid)+' / '+esc(o.name);
+  if(t==='p')h+='<button class="lnk" data-go="poziadavky">Požiadavky</button> / '+lnk('z',o.cid)+' / '+lnk('s',o.sid)+' / '+esc(o.prof);
+  if(t==='u'){var pp=findTask(o.id);h+='<button class="lnk" data-go="ulohy">Úlohy</button> / '+TNAME[pp.t]+': '+lnk(pp.t,pp.o.id)+' / '+esc(o.t)}
+  h+='</div>';
+  var chip=t==='u'?'<span class="chip '+TST_CLS[o.st]+'">'+o.st+'</span> <span class="chip c-blue">'+esc(o.odd)+'</span>':t==='z'?chipStav(o.stav):t==='s'?'<span class="chip '+SS_CLS[o.stav]+'">'+o.stav+'</span>':'<span class="chip '+reqStav(o)[1]+'">'+reqStav(o)[0]+'</span>';
+  var title=t==='p'?o.prof+' · '+esc(stv(o.sid).name):t==='u'?esc(o.t):esc(o.name);
+  h+='<div class="head"><div class="row"><h1>'+(t==='p'?esc(o.prof)+' · '+esc(stv(o.sid).name):title)+'</h1>'+chip+'<span class="sub">'+TNAME[t]+' · '+idLbl(t,o)+'</span></div>';
+  if(t==='z')h+='<div class="row"><label for="stavSel" style="margin:0">Stav</label><select class="inp" id="stavSel" style="width:auto">'+STAVY.map(function(s){return '<option'+(o.stav===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>';
+  if(t==='s')h+='<div class="row"><label for="stavbaSel" style="margin:0">Stav stavby</label><select class="inp" id="stavbaSel" style="width:auto">'+SS.map(function(s){return '<option'+(o.stav===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>';
+  if(t==='u')h+='<div class="row"><label for="ustSel" style="margin:0">Stav úlohy</label><select class="inp" id="ustSel" style="width:auto">'+TST.map(function(s){return '<option'+(o.st===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>';
+  if(t==='p'&&!o.zr)h+='<div class="row">'+(o.nav===0&&!o.hl?'<button class="btn sm" data-rq="hl" data-id="'+o.id+'">Začať hľadať ľudí</button>':'')+'<button class="btn sm" data-rq="zr" data-id="'+o.id+'">Zrušiť požiadavku</button></div>';
+  return h+'</div>';
+}
+function tabsFor(t,o){
+  var l=[['prehlad','Prehľad']];
+  if(t==='z')l.push(['podmienky','Podmienky'],['kontakty','Kontakty '+o.kontakty.length],['stavby','Stavby '+ST.filter(function(s){return s.cid===o.id}).length],['poziadavky','Požiadavky '+R.filter(function(r){return r.cid===o.id}).length]);
+  if(t==='s')l.push(['poziadavky','Požiadavky '+R.filter(function(r){return r.sid===o.id}).length]);
+  if(t!=='u')l.push(['ulohy','Úlohy '+openT(o).length]);l.push(['dokumenty','Dokumenty '+o.dok.length],['chat','Chat '+(o.chat||[]).length],['historia','História aktivít '+o.akt.length]);
+  return '<div class="tabs" role="tablist">'+l.map(function(x){return '<button class="tab'+(S.tab===x[0]?' on':'')+'" role="tab" aria-selected="'+(S.tab===x[0])+'" data-tab="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
+}
+function infoGrid(rows){return '<div class="grid">'+rows.map(function(p){return '<div><div class="k">'+p[0]+'</div><div class="v">'+(p[2]?p[1]:(esc(p[1])||'<span class="sub">nevyplnené</span>'))+'</div></div>'}).join('')+'</div>'}
+function rqForm(sid){
+  var s=stv(sid);
+  return '<form class="card" id="rqForm"><h2>Nová požiadavka</h2><div class="sub">Zákazník: '+esc(cust(s.cid).name)+' · stavba: '+esc(s.name)+'</div><div class="form" style="margin-top:12px"><div><label for="rp">Profesia</label><input class="inp" id="rp" required></div><div><label for="rn">Počet ľudí</label><input class="inp" id="rn" type="number" min="1" value="2" required></div><div><label for="r1">KW od</label><input class="inp" id="r1" type="number" min="1" max="53" value="'+Math.max(s.od,46)+'" required></div><div><label for="r2">KW do</label><input class="inp" id="r2" type="number" min="1" max="53" value="'+Math.max(s.do,50)+'" required></div><div><label for="rk">Kto požiadal</label><input class="inp" id="rk" value="'+esc(s.bauleiter)+'"></div><div class="full"><label for="rm">Podmienky</label><input class="inp" id="rm" placeholder="Napr. dvojice, doklady, ubytovanie"></div></div><input type="hidden" id="rsid" value="'+s.id+'"><div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Uložiť požiadavku</button></div></form>';
+}
+
+function vKarta(){
+  var t=S.ent.t,o=get(t,S.ent.id);if(!o)return vDnes();
+  var h=cardHead(t,o);
+  if(t==='z'&&S.pendEnd===o.id)h+='<div class="card" style="border-color:var(--accent)"><h2>Dôvod ukončenia spolupráce</h2><div class="row" style="margin-top:10px"><select class="inp" id="dovod" style="max-width:280px">'+DOVODY.map(function(d){return '<option>'+d+'</option>'}).join('')+'</select><button class="btn pri" data-act="endok">Ukončiť spoluprácu</button><button class="btn" data-act="endno">Zrušiť</button></div><div class="sub" style="margin-top:8px">Stav Ukončený vyžaduje dôvod. Zapíše sa do hodnotenia zákazníka.</div></div>';
+  if(t==='z'&&o.stav==='Ukončený'&&o.dovod)h+='<div class="warn">Spolupráca ukončená. Dôvod: '+esc(o.dovod)+'.</div>';
+  h+=tabsFor(t,o);
+  var tab=S.tab;
+  if(tab==='ulohy')return h+tasksHtml(t,o);
+  if(tab==='dokumenty')return h+docsHtml(t,o);
+  if(tab==='historia')return h+histHtml(t,o);
+  if(tab==='chat')return h+chatHtml(o);
+  if(t==='u')return h+taskOverview(o);
+  if(t==='z'){
+    var ss=ST.filter(function(s){return s.cid===o.id}),rr=R.filter(function(r){return r.cid===o.id});
+    if(tab==='prehlad')return h+'<div class="cols"><div class="main2" style="display:flex;flex-direction:column;gap:16px"><div class="card"><h2>Zákazník</h2><div style="margin-top:12px">'+infoGrid([['Krajina',o.krajina],['Obchodník',o.owner],['Typ práce',o.typ],['Cena za hodinu',o.cena?o.cena+' €':''],['Platobná disciplína',o.platba],['Hodnotenie',o.hodn?o.hodn+' z 5':'']])+'</div></div>'+lastAct(o)+'</div><div class="rail">'+nextBox(t,o)+'<div class="card"><h2>Stavby</h2><div class="list" style="margin-top:6px">'+(ss.length?ss.map(stvMini).join(''):'<div class="sub">Zatiaľ žiadna stavba.</div>')+'</div></div><div class="card"><h2>Požiadavky</h2><div class="list" style="margin-top:6px">'+(rr.length?rr.map(reqMini).join(''):'<div class="sub">Zatiaľ žiadna požiadavka.</div>')+'</div></div></div></div>';
+    if(tab==='podmienky')return h+'<div class="card"><h2>Podmienky spolupráce</h2><div style="margin-top:14px">'+infoGrid([['Typ práce',o.typ],['Cena za hodinu',o.cena?o.cena+' €':''],['Minimálna skupina',o.skupina],['Platobná lehota',o.lehota],['Platobná disciplína',o.platba],['Hodnotenie',o.hodn?o.hodn+' z 5':'']])+'</div><div style="margin-top:14px"><div class="k">Poznámka</div><div class="v">'+(esc(o.pozn)||'<span class="sub">žiadna</span>')+'</div></div></div>';
+    if(tab==='kontakty')return h+'<div class="card"><h2>Kontakty</h2><div class="list" style="margin-top:8px">'+(o.kontakty.length?o.kontakty.map(function(k){return '<div><b>'+esc(k[0])+'</b> <span class="chip c-blue">'+esc(k[1])+'</span> '+(k[3]?'<span class="chip c-grey">'+esc(k[3])+'</span>':'')+'<div class="sub">'+esc(k[2])+'</div></div>'}).join(''):'<div class="sub">Žiadny kontakt. Pridaj aspoň jeden pred stavom Aktívny.</div>')+'</div></div>';
+    if(tab==='stavby')return h+'<form class="card" id="stForm"><h2>Nová stavba</h2><div class="form" style="margin-top:12px"><div><label for="sn">Názov stavby</label><input class="inp" id="sn" required></div><div><label for="sa">Adresa</label><input class="inp" id="sa"></div><div><label for="so">Začiatok (KW)</label><input class="inp" id="so" type="number" min="1" max="53" value="46"></div></div><div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Uložiť stavbu</button></div></form><div class="card"><h2>Stavby zákazníka</h2><div class="list" style="margin-top:6px">'+(ss.length?ss.map(stvMini).join(''):'<div class="sub">Zatiaľ žiadna stavba.</div>')+'</div></div>';
+    if(tab==='poziadavky')return h+'<div class="card"><h2>Požiadavky zákazníka</h2><div class="list" style="margin-top:6px">'+(rr.length?rr.map(reqMini).join(''):'<div class="sub">Zatiaľ žiadna požiadavka. Nová požiadavka sa zakladá v karte stavby.</div>')+'</div></div>';
+  }
+  if(t==='s'){
+    var rs=R.filter(function(r){return r.sid===o.id}),pot=rs.reduce(function(a,r){return a+r.pot},0);
+    if(tab==='prehlad')return h+'<div class="cols"><div class="main2" style="display:flex;flex-direction:column;gap:16px"><div class="card"><h2>Stavba</h2><div style="margin-top:12px">'+infoGrid([['Zákazník',lnk('z',o.cid),1],['Adresa',o.adresa],['Termín (KW)',o.od+'–'+o.do],['Bauleiter',o.bauleiter],['Polier',o.polier],['Ľudia na stavbe (z turnusu)',String(o.ludia)],['Potvrdení z požiadaviek',String(pot)]])+'</div><div style="margin-top:14px"><div class="k">Poznámka</div><div class="v">'+(esc(o.pozn)||'<span class="sub">žiadna</span>')+'</div></div></div>'+lastAct(o)+'</div><div class="rail">'+nextBox(t,o)+'<div class="card"><h2>Požiadavky stavby</h2><div class="list" style="margin-top:6px">'+(rs.length?rs.map(reqMini).join(''):'<div class="sub">Zatiaľ žiadna požiadavka.</div>')+'</div></div></div></div>';
+    if(tab==='poziadavky')return h+rqForm(o.id)+'<div class="card"><h2>Požiadavky stavby</h2><div class="list" style="margin-top:6px">'+(rs.length?rs.map(reqMini).join(''):'<div class="sub">Zatiaľ žiadna požiadavka.</div>')+'</div></div>';
+  }
+  if(t==='p'){
+    var s=reqStav(o),pct=Math.min(100,Math.round(o.pot/o.req*100));
+    return h+'<div class="cols"><div class="main2" style="display:flex;flex-direction:column;gap:16px"><div class="card"><h2>Požiadavka</h2><div style="margin-top:12px">'+infoGrid([['Zákazník',lnk('z',o.cid),1],['Stavba',lnk('s',o.sid),1],['Profesia',o.prof],['Termín (KW)',o.od+'–'+o.do],['Kto požiadal',o.kto],['Prijatá',fmt(o.prijata,true)]])+'</div><div style="margin-top:14px"><div class="k">Podmienky</div><div class="v">'+(esc(o.podm)||'<span class="sub">žiadne</span>')+'</div></div></div>'
+      +'<div class="card"><h2>Obsadenie</h2><div class="grid" style="margin-top:12px"><div><div class="k">Žiadané</div><div class="v" style="font-size:24px;font-family:var(--font-d)">'+o.req+'</div></div><div><div class="k">Navrhnuté</div><span class="stp"><button data-rq="nav-" data-id="'+o.id+'" aria-label="Menej navrhnutých">−</button><output>'+o.nav+'</output><button data-rq="nav+" data-id="'+o.id+'" aria-label="Viac navrhnutých">+</button></span></div><div><div class="k">Potvrdené</div><span class="stp"><button data-rq="pot-" data-id="'+o.id+'" aria-label="Menej potvrdených">−</button><output>'+o.pot+'</output><button data-rq="pot+" data-id="'+o.id+'" aria-label="Viac potvrdených">+</button></span></div></div><div class="bar" style="margin-top:14px"><i style="width:'+pct+'%"></i></div><div class="sub" style="font-size:13px;margin-top:4px">'+o.pot+' z '+o.req+' potvrdených</div></div>'+lastAct(o)+'</div><div class="rail">'+nextBox(t,o)+'<div class="card next"><b>Do turnusu.</b> Po potvrdení sa v turnusovej tabuľke otvorí plán pridelení pod touto stavbou.</div></div></div>';
+  }
+  return h;
+}
+
+/* ---------- zoznamy ---------- */
+function reqRows(){
+  var rows=R.filter(function(r){var s=reqStav(r)[0];return !S.reqFilter||(S.reqFilter==='open'?(!r.zr&&r.pot<r.req):s===S.reqFilter)});
+  if(!rows.length)return '<tr><td colspan="8" class="empty">Žiadne požiadavky v tomto filtri.</td></tr>';
+  return rows.map(function(r){var s=reqStav(r),pct=Math.min(100,Math.round(r.pot/r.req*100));
+    return '<tr><td>'+lnk('z',r.cid)+'<div class="sub">'+lnk('s',r.sid)+'</div></td><td><button class="lnk" data-ent="p:'+r.id+'">'+esc(r.prof)+'</button></td><td>'+r.od+'–'+r.do+'</td><td>'+r.req+'</td>'
+    +'<td><span class="stp"><button data-rq="nav-" data-id="'+r.id+'" aria-label="Menej navrhnutých">−</button><output>'+r.nav+'</output><button data-rq="nav+" data-id="'+r.id+'" aria-label="Viac navrhnutých">+</button></span></td>'
+    +'<td><span class="stp"><button data-rq="pot-" data-id="'+r.id+'" aria-label="Menej potvrdených">−</button><output>'+r.pot+'</output><button data-rq="pot+" data-id="'+r.id+'" aria-label="Viac potvrdených">+</button></span></td>'
+    +'<td><div class="bar"><i style="width:'+pct+'%"></i></div><div class="sub" style="font-size:12px">'+r.pot+' z '+r.req+'</div></td><td><span class="chip '+s[1]+'">'+s[0]+'</span></td></tr>'}).join('');
+}
+function vPoziadavky(){
+  var h='<div class="head"><div><h1>Požiadavky stavieb</h1><div class="sub">Každá požiadavka má vlastnú kartu viazanú na zákazníka a stavbu.</div></div><button class="btn pri" data-act="rqnew">+ Nová požiadavka</button></div>';
+  if(S.rqNew){var f=ST[0];h+='<div class="card"><h2>Nová požiadavka</h2><div class="row" style="margin-top:10px"><div style="flex:1 1 280px"><label for="rsel">Vyber stavbu</label><select class="inp" id="rsel">'+ST.map(function(s){return '<option value="'+s.id+'">'+esc(cust(s.cid).name)+' · '+esc(s.name)+'</option>'}).join('')+'</select></div><button class="btn pri" data-act="rqgo" style="align-self:flex-end">Pokračovať</button><button class="btn" data-act="rqclose" style="align-self:flex-end">Zrušiť</button></div><div class="sub" style="margin-top:8px">Požiadavka sa vždy zakladá pod stavbou, aby bola viazaná na zákazníka aj stavbu.</div></div>'}
+  h+='<div class="row">'+[['','Všetky'],['open','Otvorené'],['Hľadáme ľudí','Hľadáme ľudí'],['Naplnená','Naplnené']].map(function(f){return '<button class="btn sm'+(S.reqFilter===f[0]?' pri':'')+'" data-rf="'+f[0]+'">'+f[1]+'</button>'}).join('')+'</div>';
+  return h+'<div class="card tw" style="padding:6px 8px"><table style="min-width:860px"><thead><tr><th>Zákazník · stavba</th><th>Profesia</th><th>KW</th><th>Žiadané</th><th>Navrhnuté</th><th>Potvrdené</th><th>Naplnenie</th><th>Stav</th></tr></thead><tbody>'+reqRows()+'</tbody></table></div>';
+}
+function vStavby(){
+  var h='<div class="head"><div><h1>Stavby</h1><div class="sub">Každá stavba má vlastnú kartu viazanú na zákazníka a jeho požiadavky.</div></div></div><div class="card tw" style="padding:6px 8px"><table><thead><tr><th>Stavba</th><th>Zákazník</th><th>Stav</th><th>Ľudia</th><th>KW</th><th>Otvorené požiadavky</th></tr></thead><tbody>';
+  ST.forEach(function(s){var n=R.filter(function(r){return r.sid===s.id&&!r.zr&&r.pot<r.req}).length;h+='<tr class="click" data-ent="s:'+s.id+'"><td><button class="lnk" data-ent="s:'+s.id+'">'+esc(s.name)+'</button><div class="sub">'+esc(s.adresa)+'</div></td><td>'+lnk('z',s.cid)+'</td><td><span class="chip '+SS_CLS[s.stav]+'">'+s.stav+'</span></td><td>'+s.ludia+'</td><td>'+s.od+'–'+s.do+'</td><td>'+(n||'—')+'</td></tr>'});
+  return h+'</tbody></table></div>';
+}
+function render(){
+  renderNav();
+  var v={dnes:vDnes,zakaznici:vZakaznici,karta:vKarta,poziadavky:vPoziadavky,stavby:vStavby,ulohy:vUlohy,pipeline:vPipeline}[S.view]();
+  document.getElementById('main').innerHTML='<div class="demo">Klikací návrh s vymyslenými údajmi. Všetko sa dá preklikať a zmeniť, po obnovení stránky sa zmeny vynulujú.</div>'+v;
+  var cl=document.getElementById('chatList');if(cl)cl.scrollTop=cl.scrollHeight;var q=document.getElementById('q');if(q&&S.focusQ){q.focus();S.focusQ=false}
+}
+
+function rqChange(r,fn){
+  var before=reqStav(r)[0];fn();var after=reqStav(r)[0];
+  if(after!==before){log('p',r.id,'Zmena stavu',before+' → '+after+' ('+r.pot+' z '+r.req+' potvrdených)');
+    if(after==='Naplnená'){log('s',r.sid,'Požiadavka naplnená',r.prof+': '+r.pot+' z '+r.req);log('z',r.cid,'Požiadavka naplnená',r.prof+' na stavbe '+stv(r.sid).name)}}
+}
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-go],[data-ent],[data-done],[data-tab],[data-act],[data-off],[data-rq],[data-rf],[data-mv]');if(!t)return;
+  var d=t.dataset;
+  if(d.off){toast('Modul '+d.off+' nie je súčasťou tohto návrhu CRM.');return}
+  if(d.ent){var p=d.ent.split(':');openEnt(p[0],+p[1]);return}
+  if(d.go){if(d.fs!==undefined)S.fStav=d.fs;S.view=d.go;S.newOpen=false;S.rqNew=false;S.pendEnd=null;render();window.scrollTo(0,0);return}
+  if(d.tab){S.tab=d.tab;render();return}
+  if(d.done){var p2=d.done.split(':'),o=get(p2[0],+p2[1]);o.ul.forEach(function(u){if(u.id===+p2[2]){setSt(u,'Hotová');o.akt.unshift([TODAY,'Úloha splnená',u.t])}});render();toast('Úloha splnená a zapísaná do histórie.');return}
+  if(d.rf!==undefined){S.reqFilter=d.rf;render();return}
+  if(d.mv){var c2=cust(+d.id),i=STAVY.indexOf(c2.stav)+ +d.mv;if(i<0||i>=STAVY.length)return;var ns=STAVY[i];
+    if(ns==='Ukončený'){openEnt('z',c2.id);S.pendEnd=c2.id;render();toast('Ukončenie vyžaduje dôvod.');return}
+    if(ns==='Aktívny'&&!c2.kontakty.length){toast('Aktívny zákazník potrebuje aspoň jeden kontakt.');return}
+    log('z',c2.id,'Zmena stavu',c2.stav+' → '+ns);c2.stav=ns;c2.dovod='';render();toast(c2.name+' je teraz: '+ns);return}
+  if(d.rq){var r=get('p',+d.id);
+    rqChange(r,function(){
+      if(d.rq==='nav+'&&r.nav<r.req){r.nav++;log('p',r.id,'Zmena','Navrhnutých '+r.nav)}
+      if(d.rq==='nav-'&&r.nav>0){r.nav--;if(r.pot>r.nav)r.pot=r.nav;log('p',r.id,'Zmena','Navrhnutých '+r.nav)}
+      if(d.rq==='pot+'){if(r.pot<r.nav){r.pot++;log('p',r.id,'Zmena','Potvrdených '+r.pot)}else toast('Najprv navrhni ďalšieho človeka.')}
+      if(d.rq==='pot-'&&r.pot>0){r.pot--;log('p',r.id,'Zmena','Potvrdených '+r.pot)}
+      if(d.rq==='hl'){r.hl=true;log('p',r.id,'Zmena','Začali sme hľadať ľudí')}
+      if(d.rq==='zr'){r.zr=true;log('p',r.id,'Zrušená','Požiadavka zrušená');log('s',r.sid,'Požiadavka zrušená',r.prof)}
+    });render();return}
+  if(d.act==='newopen'){S.view='zakaznici';S.newOpen=true;render();var f=document.getElementById('nn');if(f)f.focus();return}
+  if(d.act==='newclose'){S.newOpen=false;render();return}
+  if(d.act==='rqnew'){S.rqNew=true;render();return}
+  if(d.act==='rqclose'){S.rqNew=false;render();return}
+  if(d.act==='rqgo'){var sid=+document.getElementById('rsel').value;S.rqNew=false;openEnt('s',sid,'poziadavky');return}
+  if(d.act==='endno'){S.pendEnd=null;render();return}
+  if(d.act==='endok'){var c3=cust(S.ent.id);c3.dovod=document.getElementById('dovod').value;log('z',c3.id,'Zmena stavu',c3.stav+' → Ukončený, dôvod: '+c3.dovod);c3.stav='Ukončený';c3.ul.forEach(function(u){setSt(u,'Hotová')});S.pendEnd=null;render();toast('Spolupráca ukončená.');return}
+});
+document.addEventListener('input',function(e){
+  if(e.target.id==='q'){S.q=e.target.value;document.getElementById('rows').innerHTML=listRows()}
+  if(e.target.id==='nn'){var v=e.target.value.trim().toLowerCase(),dup=v&&C.filter(function(c){return c.name.toLowerCase()===v})[0];document.getElementById('dupWarn').innerHTML=dup?'<div class="warn" style="margin-top:12px">Zákazník s týmto názvom už existuje: '+esc(dup.name)+'. Otvor jeho kartu namiesto duplicity.</div>':''}
+});
+document.addEventListener('change',function(e){
+  if(e.target.id==='fs'){S.fStav=e.target.value;render()}
+  if(e.target.id==='stavSel'){var c=cust(S.ent.id),ns=e.target.value;
+    if(ns==='Ukončený'){S.pendEnd=c.id;render();return}
+    if(ns==='Aktívny'&&!c.kontakty.length){toast('Aktívny zákazník potrebuje aspoň jeden kontakt.');render();return}
+    if(ns==='Oslovený'&&!c.owner)c.owner=OWNER;
+    log('z',c.id,'Zmena stavu',c.stav+' → '+ns);c.stav=ns;c.dovod='';render();toast('Stav zmenený na '+ns+'.')}
+  if(e.target.id==='stavbaSel'){var s=stv(S.ent.id);log('s',s.id,'Zmena stavu',s.stav+' → '+e.target.value);s.stav=e.target.value;render();toast('Stav stavby zmenený.')}
+});
+document.addEventListener('submit',function(e){
+  e.preventDefault();var id=e.target.id,cur=S.ent?get(S.ent.t,S.ent.id):null;
+  if(id==='newForm'){var nm=document.getElementById('nn').value.trim();if(!nm)return;
+    if(C.filter(function(c){return c.name.toLowerCase()===nm.toLowerCase()}).length){toast('Taký zákazník už existuje.');return}
+    var ow=document.getElementById('no').value,nc={id:NID.z++,name:nm,stav:ow?'Oslovený':'Potenciálny',krajina:document.getElementById('nk').value,owner:ow,typ:'',cena:null,skupina:'',lehota:'',platba:'',hodn:null,pozn:'',kontakty:[],akt:[[TODAY,'Založený','Zákazník založený v CRM']],ul:ow?[T('Prvý telefonát','2026-10-08',ow)]:[],dok:[]};
+    C.unshift(nc);S.newOpen=false;S.q='';S.fStav='';openEnt('z',nc.id);toast('Zákazník '+nm+' pridaný.');return}
+  if(id==='actForm'){var tx=document.getElementById('ad').value.trim();if(!tx)return;cur.akt.unshift([TODAY,document.getElementById('at').value,tx]);render();toast('Záznam uložený v histórii.');return}
+  if(id==='taskForm'){var tt=document.getElementById('tt').value.trim();if(!tt)return;cur.ul.push(T(tt,document.getElementById('td').value||'2026-10-14',document.getElementById('tw').value,false,document.getElementById('to').value));cur.akt.unshift([TODAY,'Nová úloha',tt]);render();toast('Úloha pridaná.');return}
+  if(id==='docForm'){var fi=document.getElementById('df').files[0],nm2=(fi?fi.name:document.getElementById('dn').value.trim());if(!nm2){toast('Vyber súbor alebo napíš názov dokumentu.');return}
+    cur.dok.unshift([nm2,document.getElementById('dt').value,TODAY]);cur.akt.unshift([TODAY,'Dokument pridaný',nm2]);render();toast('Dokument pridaný.');return}
+  if(id==='stForm'){var sn=document.getElementById('sn').value.trim();if(!sn)return;var o=+document.getElementById('so').value||46;
+    var ns2={id:NID.s++,cid:cur.id,name:sn,adresa:document.getElementById('sa').value,stav:'Plánovaná',od:o,do:o+4,bauleiter:(cur.kontakty[0]||[''])[0],polier:'',ludia:0,pozn:'',akt:[[TODAY,'Založená','Stavba založená pod zákazníkom '+cur.name]],ul:[],dok:[]};
+    ST.push(ns2);log('z',cur.id,'Nová stavba',sn);openEnt('s',ns2.id);toast('Stavba založená.');return}
+  if(id==='rqForm'){var sid2=+document.getElementById('rsid').value,s2=stv(sid2);
+    var nr={id:NID.p++,cid:s2.cid,sid:sid2,prof:document.getElementById('rp').value.trim(),od:+document.getElementById('r1').value,do:+document.getElementById('r2').value,req:+document.getElementById('rn').value,nav:0,pot:0,hl:false,zr:false,kto:document.getElementById('rk').value,prijata:TODAY,podm:document.getElementById('rm').value,akt:[[TODAY,'Prijatá','Požiadavka založená']],ul:[T('Nájsť ľudí na požiadavku','2026-10-14','Koordinátor')],dok:[]};
+    R.push(nr);log('s',sid2,'Nová požiadavka',nr.prof+', '+nr.req+' ľudí');log('z',s2.cid,'Nová požiadavka',nr.prof+' na stavbe '+s2.name);openEnt('p',nr.id);toast('Požiadavka založená, stav Prijatá.');return}
+});
+/* ===== Úlohy a Pipeline (kanban) ===== */
+var ODD=['Obchod','Koordinácia','Administratíva','Doprava a ubytovanie'];
+var TST=['Nová','Prebieha','Čaká','Hotová'];
+var TST_CLS={'Nová':'c-blue','Prebieha':'c-amber','Čaká':'c-grey','Hotová':'c-green'};
+var BUCKETS=['Po termíne','Dnes','Tento týždeň','Neskôr'];
+var BUCKET_DUE={'Po termíne':'2026-10-06','Dnes':TODAY,'Tento týždeň':'2026-10-09','Neskôr':'2026-10-20'};
+var TG_LBL={stav:'stavu dokončenia',odd:'oddeleniam',osoba:'osobám',termin:'termínu dokončenia'};
+var DAYS=['Ne','Po','Ut','St','Št','Pi','So'];
+var RP=['Prijatá','Hľadáme ľudí','Navrhnutá','Potvrdená','Naplnená','Zrušená'];
+var RP_CLS={'Prijatá':'c-blue','Hľadáme ľudí':'c-red','Navrhnutá':'c-amber','Potvrdená':'c-grey','Naplnená':'c-green','Zrušená':'c-grey'};
+S.pt='z';S.uv='zoznam';S.tg='stav';S.tfo='';S.tfw='';S.tdone=false;S.task=null;S.tnew=false;
+
+function setSt(u,s){if(u.st!==s&&u.akt)u.akt.unshift([TODAY,'Zmena stavu',u.st+' → '+s]);u.st=s;u.done=(s==='Hotová')}
+function allT(){var a=[];['z','s','p'].forEach(function(t){LIST[t].forEach(function(o){o.ul.forEach(function(u){a.push({t:t,o:o,u:u})})})});return a.sort(function(a,b){return a.u.due<b.u.due?-1:1})}
+function findTask(id){return allT().filter(function(x){return x.u.id===id})[0]}
+function bucket(u){if(u.done)return 'Hotová';var n=diff(u.due);return n<0?'Po termíne':n===0?'Dnes':n<=4?'Tento týždeň':'Neskôr'}
+function tFilt(){return allT().filter(function(x){return (!S.tfo||x.u.odd===S.tfo)&&(!S.tfw||x.u.who===S.tfw)})}
+function tcols(){return S.tg==='stav'?TST:S.tg==='odd'?ODD:S.tg==='osoba'?WHO:BUCKETS.concat(S.tdone?['Hotová']:[])}
+function colOf(u){return S.tg==='stav'?u.st:S.tg==='odd'?u.odd:S.tg==='osoba'?u.who:bucket(u)}
+function applyCol(u,k){
+  if(S.tg==='stav')setSt(u,k);else if(S.tg==='odd'){u.akt.unshift([TODAY,'Zmena oddelenia',u.odd+' → '+k]);u.odd=k}else if(S.tg==='osoba'){u.akt.unshift([TODAY,'Zmena osoby',u.who+' → '+k]);u.who=k}
+  else{if(k==='Hotová')setSt(u,'Hotová');else{if(u.done)setSt(u,'Nová');u.akt.unshift([TODAY,'Zmena termínu',fmt(u.due)+' → '+fmt(BUCKET_DUE[k])]);u.due=BUCKET_DUE[k]}}
+}
+function dayLabel(n){var x=new Date(dt(TODAY).getTime()+n*864e5);return DAYS[x.getDay()]+' '+x.getDate()+'. '+(x.getMonth()+1)+'.'}
+
+function kanban(cols){
+  return '<div class="kan">'+cols.map(function(c){return '<div class="kcol"><h3>'+esc(c.title)+' · '+c.items.length+'</h3>'+(c.items.length?c.items.join(''):'<div class="sub" style="padding:6px 4px">Prázdne</div>')+'</div>'}).join('')+'</div>';
+}
+function moveBtns(attr,id,i,n){return '<div class="row" style="margin-top:8px;gap:6px">'+(i>0?'<button class="btn sm" data-'+attr+'="-1" data-id="'+id+'" aria-label="Presunúť späť">←</button>':'')+(i<n-1?'<button class="btn sm" data-'+attr+'="1" data-id="'+id+'" aria-label="Presunúť ďalej">→</button>':'')+'</div>'}
+
+/* --- úlohy --- */
+function taskCard(x,moves){var u=x.u,cols=tcols().map(function(c){return c}),i=cols.indexOf(colOf(u));
+  return '<div class="kc"><div style="font-weight:600">'+lnk('u',u.id)+'</div><div class="row" style="gap:6px;margin:6px 0">'+(u.done?'<span class="chip c-green">Hotová</span>':rel(u.due))+'<span class="chip c-blue">'+esc(u.odd)+'</span></div><div class="sub" style="font-size:13px">'+esc(u.who)+' · '+TNAME[x.t]+': '+lnk(x.t,x.o.id)+'</div>'+
+  '<div class="row" style="gap:6px;margin-top:8px">'+(moves&&i>0?'<button class="btn sm" data-mvt="-1" data-id="'+u.id+'" aria-label="Presunúť späť">←</button>':'')+(moves&&i<cols.length-1?'<button class="btn sm" data-mvt="1" data-id="'+u.id+'" aria-label="Presunúť ďalej">→</button>':'')+'<button class="btn sm" data-te="'+u.id+'">Otvoriť</button></div></div>';
+}
+function taskControls(showGroup){
+  return '<div class="row">'+(showGroup?'<div><label for="tg">Zoskupiť podľa</label><select class="inp" id="tg" style="width:auto"><option value="stav"'+(S.tg==='stav'?' selected':'')+'>Stav dokončenia</option><option value="odd"'+(S.tg==='odd'?' selected':'')+'>Oddelenia</option><option value="osoba"'+(S.tg==='osoba'?' selected':'')+'>Osoby</option><option value="termin"'+(S.tg==='termin'?' selected':'')+'>Termín dokončenia</option></select></div>':'')+
+  '<div><label for="tfo">Oddelenie</label><select class="inp" id="tfo" style="width:auto"><option value="">Všetky</option>'+ODD.map(function(o){return '<option'+(S.tfo===o?' selected':'')+'>'+o+'</option>'}).join('')+'</select></div>'+
+  '<div><label for="tfw">Osoba</label><select class="inp" id="tfw" style="width:auto"><option value="">Všetky</option>'+WHO.map(function(o){return '<option'+(S.tfw===o?' selected':'')+'>'+o+'</option>'}).join('')+'</select></div>'+
+  '<label style="display:flex;gap:8px;align-items:center;margin:20px 0 0;min-height:44px"><input type="checkbox" id="tshow"'+(S.tdone?' checked':'')+'> Zobraziť hotové</label></div>';
+}
+function taskKanban(){
+  var items=tFilt().filter(function(x){return S.tdone||!x.u.done||S.tg==='stav'});
+  var cols=tcols().map(function(k){return {title:k,items:items.filter(function(x){return colOf(x.u)===k}).map(function(x){return taskCard(x,true)})}});
+  return '<div class="sub">Zoskupené podľa '+TG_LBL[S.tg]+'. Šípkami meníš '+({stav:'stav',odd:'oddelenie',osoba:'zodpovednú osobu',termin:'termín'})[S.tg]+' úlohy.</div>'+kanban(cols);
+}
+function taskList(){
+  var rows=tFilt().filter(function(x){return S.tdone||!x.u.done});
+  var h='<div class="card tw" style="padding:6px 8px"><table style="min-width:860px"><thead><tr><th>Termín</th><th>Úloha</th><th>Karta</th><th>Oddelenie</th><th>Zodpovedný</th><th>Stav</th><th></th></tr></thead><tbody>';
+  if(!rows.length)h+='<tr><td colspan="7" class="empty">Žiadne úlohy v tomto filtri.</td></tr>';
+  rows.forEach(function(x){var u=x.u;h+='<tr><td>'+(u.done?'<span class="sub">'+fmt(u.due)+'</span>':rel(u.due))+'</td><td>'+(u.done?'<s>'+lnk('u',u.id)+'</s>':lnk('u',u.id))+'</td><td><span class="chip c-grey">'+TNAME[x.t]+'</span><div>'+lnk(x.t,x.o.id)+'</div></td><td>'+esc(u.odd)+'</td><td>'+esc(u.who)+'</td><td><select class="inp tstsel" data-id="'+u.id+'" aria-label="Stav úlohy" style="min-height:36px;width:auto">'+TST.map(function(s){return '<option'+(u.st===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select></td><td><button class="btn sm" data-te="'+u.id+'">Otvoriť</button></td></tr>'});
+  return h+'</tbody></table></div>';
+}
+function taskCal(){
+  var items=tFilt().filter(function(x){return !x.u.done}),cols=[{title:'Po termíne',items:[]}];
+  for(var n=0;n<7;n++)cols.push({title:(n===0?'Dnes · ':'')+dayLabel(n),items:[]});
+  cols.push({title:'Neskôr',items:[]});
+  items.forEach(function(x){var n=diff(x.u.due),k=n<0?0:n>6?8:n+1;cols[k].items.push(taskCard(x,false))});
+  return '<div class="sub">Týždenný pohľad od dnes. Termín meníš v úprave úlohy.</div>'+kanban(cols);
+}
+function taskPanel(){
+  if(S.task==null)return '';var x=findTask(S.task);if(!x)return '';var u=x.u;
+  return '<form class="card" id="taskEdit" style="border-color:var(--accent)"><h2>Úloha</h2><div class="sub">'+TNAME[x.t]+': '+lnk(x.t,x.o.id)+'</div><div class="form" style="margin-top:12px"><div class="full"><label for="te_t">Čo treba urobiť</label><input class="inp" id="te_t" required value="'+esc(u.t)+'"></div><div><label for="te_d">Termín</label><input class="inp" type="date" id="te_d" value="'+u.due+'"></div><div><label for="te_w">Zodpovedný</label><select class="inp" id="te_w">'+WHO.map(function(w){return '<option'+(u.who===w?' selected':'')+'>'+w+'</option>'}).join('')+'</select></div><div><label for="te_o">Oddelenie</label><select class="inp" id="te_o">'+ODD.map(function(w){return '<option'+(u.odd===w?' selected':'')+'>'+w+'</option>'}).join('')+'</select></div><div><label for="te_s">Stav</label><select class="inp" id="te_s">'+TST.map(function(w){return '<option'+(u.st===w?' selected':'')+'>'+w+'</option>'}).join('')+'</select></div></div><div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Uložiť</button><button class="btn" type="button" data-tclose="1">Zavrieť</button><button class="btn" type="button" data-tdel="'+u.id+'">Odstrániť úlohu</button></div></form>';
+}
+function taskNewForm(){
+  var opts='';[['z','Zákazníci'],['s','Stavby'],['p','Požiadavky']].forEach(function(g){opts+='<optgroup label="'+g[1]+'">'+LIST[g[0]].map(function(o){return '<option value="'+g[0]+':'+o.id+'">'+esc(nameOf(g[0],o))+'</option>'}).join('')+'</optgroup>'});
+  return '<form class="card" id="taskNew"><h2>Nová úloha</h2><div class="form" style="margin-top:12px"><div class="full"><label for="nt_t">Čo treba urobiť</label><input class="inp" id="nt_t" required autocomplete="off"></div><div class="full"><label for="nt_e">Viaže sa na kartu</label><select class="inp" id="nt_e">'+opts+'</select></div><div><label for="nt_d">Termín</label><input class="inp" type="date" id="nt_d" value="2026-10-14"></div><div><label for="nt_w">Zodpovedný</label><select class="inp" id="nt_w">'+WHO.map(function(w){return '<option>'+w+'</option>'}).join('')+'</select></div><div><label for="nt_o">Oddelenie</label><select class="inp" id="nt_o">'+ODD.map(function(w){return '<option>'+w+'</option>'}).join('')+'</select></div></div><div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Pridať úlohu</button><button class="btn" type="button" data-tnew="0">Zrušiť</button></div></form>';
+}
+function vUlohy(){
+  var h='<div class="head"><div><h1>Úlohy</h1><div class="sub">Všetky úlohy zo všetkých kariet. Každá úloha patrí zákazníkovi, stavbe alebo požiadavke.</div></div><button class="btn pri" data-tnew="1">+ Nová úloha</button></div>';
+  if(S.tnew)h+=taskNewForm();h+=taskPanel();
+  h+='<div class="row">'+[['zoznam','Zoznam'],['kanban','Kanban'],['kalendar','Kalendár']].map(function(v){return '<button class="btn sm'+(S.uv===v[0]?' pri':'')+'" data-uv="'+v[0]+'" aria-pressed="'+(S.uv===v[0])+'">'+v[1]+'</button>'}).join('')+'</div>';
+  h+=taskControls(S.uv==='kanban');
+  return h+(S.uv==='zoznam'?taskList():S.uv==='kanban'?taskKanban():taskCal());
+}
+
+/* --- pipeline --- */
+function moveReq(r,dir){
+  var cur=reqStav(r)[0],i=RP.indexOf(cur),j=i+dir;if(j<0||j>=RP.length)return;
+  var tg=cur==='Zrušená'?'Prijatá':RP[j];
+  rqChange(r,function(){
+    r.zr=false;
+    if(tg==='Prijatá'){r.hl=false;r.nav=0;r.pot=0}
+    if(tg==='Hľadáme ľudí'){r.hl=true;r.nav=0;r.pot=0}
+    if(tg==='Navrhnutá'){r.hl=true;r.nav=Math.max(1,Math.min(r.nav,r.req));r.pot=0}
+    if(tg==='Potvrdená'){r.hl=true;r.pot=Math.max(0,Math.min(Math.max(1,r.pot),r.req-1));r.nav=Math.max(r.nav,r.pot,1)}
+    if(tg==='Naplnená'){r.hl=true;r.nav=r.req;r.pot=r.req}
+    if(tg==='Zrušená'){r.zr=true;log('s',r.sid,'Požiadavka zrušená',r.prof)}
+  });
+}
+function vPipeline(){
+  var tabs=[['z','Zákazníci'],['s','Stavby'],['p','Požiadavky'],['t','Úlohy']];
+  var h='<div class="head"><div><h1>Pipeline</h1><div class="sub">Prehľad na tabuli. Šípkami presúvaš karty o stupeň, zmena sa zapíše do histórie karty.</div></div></div><div class="row">'+tabs.map(function(v){return '<button class="btn sm'+(S.pt===v[0]?' pri':'')+'" data-pt="'+v[0]+'" aria-pressed="'+(S.pt===v[0])+'">'+v[1]+'</button>'}).join('')+'</div>';
+  if(S.pt==='z'){
+    h+=kanban(STAVY.map(function(s,i){return {title:s,items:C.filter(function(c){return c.stav===s}).map(function(c){var n=openT(c)[0];return '<div class="kc">'+lnk('z',c.id)+'<div class="sub" style="font-size:13px">'+(n?esc(n.t):'bez úlohy')+'</div>'+moveBtns('mv',c.id,i,STAVY.length)+'</div>'})}}));
+  }else if(S.pt==='s'){
+    h+=kanban(SS.map(function(s,i){return {title:s,items:ST.filter(function(x){return x.stav===s}).map(function(x){var n=R.filter(function(r){return r.sid===x.id&&!r.zr&&r.pot<r.req}).length;return '<div class="kc">'+lnk('s',x.id)+'<div class="sub" style="font-size:13px">'+esc(cust(x.cid).name)+'<br>KW '+x.od+'–'+x.do+' · ľudia '+x.ludia+(n?' · otvorené požiadavky '+n:'')+'</div>'+moveBtns('mvs',x.id,i,SS.length)+'</div>'})}}));
+  }else if(S.pt==='p'){
+    h+=kanban(RP.map(function(s,i){return {title:s,items:R.filter(function(r){return reqStav(r)[0]===s}).map(function(r){return '<div class="kc">'+lnk('p',r.id)+'<div class="sub" style="font-size:13px">'+esc(cust(r.cid).name)+'<br>Žiadané '+r.req+' · navrhnuté '+r.nav+' · potvrdené '+r.pot+' · KW '+r.od+'</div>'+moveBtns('mvp',r.id,i,RP.length)+'</div>'})}}));
+  }else{
+    h+=taskPanel()+taskControls(true)+taskKanban();
+  }
+  return h;
+}
+
+/* --- udalosti --- */
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-pt],[data-uv],[data-te],[data-tclose],[data-tdel],[data-tnew],[data-mvs],[data-mvp],[data-mvt]');if(!t)return;var d=t.dataset;
+  if(d.pt){S.pt=d.pt;render();return}
+  if(d.uv){S.uv=d.uv;render();return}
+  if(d.te){openEnt('u',+d.te);return}
+  if(d.tclose){S.task=null;render();return}
+  if(d.tnew!==undefined){S.tnew=d.tnew==='1';render();return}
+  if(d.tdel){var x=findTask(+d.tdel);if(x){x.o.ul=x.o.ul.filter(function(u){return u.id!==x.u.id});x.o.akt.unshift([TODAY,'Úloha odstránená',x.u.t])}S.task=null;if(S.view==='karta'&&S.ent.t==='u')S.view='ulohy';render();toast('Úloha odstránená.');return}
+  if(d.mvs){var s=stv(+d.id),i=SS.indexOf(s.stav)+ +d.mvs;if(i<0||i>=SS.length)return;log('s',s.id,'Zmena stavu',s.stav+' → '+SS[i]);s.stav=SS[i];render();toast(s.name+': '+SS[i]);return}
+  if(d.mvp){moveReq(get('p',+d.id),+d.mvp);render();return}
+  if(d.mvt){var y=findTask(+d.id),cols=tcols(),k=cols.indexOf(colOf(y.u))+ +d.mvt;if(k<0||k>=cols.length)return;var was=y.u.done;applyCol(y.u,cols[k]);if(!was&&y.u.done)y.o.akt.unshift([TODAY,'Úloha splnená',y.u.t]);render();return}
+});
+document.addEventListener('change',function(e){
+  var el=e.target;
+  if(el.id==='tg'){S.tg=el.value;render()}
+  if(el.id==='tfo'){S.tfo=el.value;render()}
+  if(el.id==='tfw'){S.tfw=el.value;render()}
+  if(el.id==='tshow'){S.tdone=el.checked;render()}
+  if(el.classList&&el.classList.contains('tstsel')){var x=findTask(+el.dataset.id);var was=x.u.done;setSt(x.u,el.value);if(!was&&x.u.done)x.o.akt.unshift([TODAY,'Úloha splnená',x.u.t]);render()}
+});
+document.addEventListener('submit',function(e){
+  var id=e.target.id;
+  if(id==='taskNew'){e.preventDefault();var p=document.getElementById('nt_e').value.split(':'),o=get(p[0],+p[1]),tx=document.getElementById('nt_t').value.trim();if(!tx)return;o.ul.push(T(tx,document.getElementById('nt_d').value||'2026-10-14',document.getElementById('nt_w').value,false,document.getElementById('nt_o').value));o.akt.unshift([TODAY,'Nová úloha',tx]);S.tnew=false;render();toast('Úloha pridaná ku karte: '+nameOf(p[0],o)+'.')}
+});
+
+/* ===== Karta úlohy a chat ===== */
+var CHATWHO=WHO.concat(['Administratíva']);
+function M(who,d,tm,txt){return {who:who,ts:d+' '+tm,txt:txt}}
+function msgHtml(m){
+  var p=m.ts.split(' '),body=esc(m.txt).replace(/@(Obchodník \d|Koordinátor|Administratíva)/g,'<b>@$1</b>');
+  return '<div class="msg'+(m.who===OWNER?' me':'')+'"><small><b>'+esc(m.who)+'</b> · '+fmt(p[0])+' '+p[1]+'</small>'+body+'</div>';
+}
+function chatHtml(o){
+  var ms=o.chat||[];
+  return '<div class="card"><h2>Chat s kolegami</h2><div class="sub">Správy vidia všetci, ktorí majú prístup ku karte. Zmienka @Koordinátor upozorní kolegu.</div><div class="chat" id="chatList" style="margin-top:12px">'+(ms.length?ms.map(msgHtml).join(''):'<div class="sub">Zatiaľ žiadna správa. Napíš prvú.</div>')+'</div>'
+  +'<form id="chatForm" style="margin-top:8px"><div class="row" style="align-items:flex-end"><div><label for="cw">Píšem ako</label><select class="inp" id="cw" style="width:auto">'+CHATWHO.map(function(w){return '<option'+((S.cw||OWNER)===w?' selected':'')+'>'+w+'</option>'}).join('')+'</select></div><div style="flex:1 1 280px"><label for="cm">Správa</label><textarea class="inp" id="cm" style="min-height:44px;height:44px" placeholder="Napíš správu, Enter odošle" required></textarea></div><button class="btn pri" type="submit">Odoslať</button></div></form></div>';
+}
+function taskOverview(u){
+  var x=findTask(u.id),ms=(u.chat||[]).slice(-3);
+  return '<div class="cols"><div class="main2" style="display:flex;flex-direction:column;gap:16px"><form class="card" id="taskEdit"><h2>Úloha</h2><div class="form" style="margin-top:12px"><div class="full"><label for="te_t">Čo treba urobiť</label><input class="inp" id="te_t" required value="'+esc(u.t)+'"></div><div class="full"><label for="te_p">Popis</label><textarea class="inp" id="te_p" placeholder="Doplň podrobnosti, očakávaný výsledok">'+esc(u.pop||'')+'</textarea></div><div><label for="te_d">Termín</label><input class="inp" type="date" id="te_d" value="'+u.due+'"></div><div><label for="te_w">Zodpovedný</label><select class="inp" id="te_w">'+WHO.map(function(w){return '<option'+(u.who===w?' selected':'')+'>'+w+'</option>'}).join('')+'</select></div><div><label for="te_o">Oddelenie</label><select class="inp" id="te_o">'+ODD.map(function(w){return '<option'+(u.odd===w?' selected':'')+'>'+w+'</option>'}).join('')+'</select></div><div><label for="te_s">Stav</label><select class="inp" id="te_s">'+TST.map(function(w){return '<option'+(u.st===w?' selected':'')+'>'+w+'</option>'}).join('')+'</select></div></div><div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Uložiť zmeny</button><button class="btn" type="button" data-tdel="'+u.id+'">Odstrániť úlohu</button></div></form>'+lastAct(u)+'</div>'
+  +'<div class="rail"><div class="card next"><div class="k">Patrí ku karte</div><div style="font-size:17px;font-weight:600;margin:4px 0">'+lnk(x.t,x.o.id)+'</div><div class="sub">'+TNAME[x.t]+'</div><div class="row" style="margin-top:10px">'+(u.done?'<span class="chip c-green">Hotová</span>':rel(u.due))+'</div>'+(u.done?'':'<div class="row" style="margin-top:12px"><button class="btn sm" data-done="'+x.t+':'+x.o.id+':'+u.id+'">Hotovo</button></div>')+'</div>'
+  +'<div class="card"><h2>Posledné správy</h2><div class="chat" style="margin-top:10px;max-height:none">'+(ms.length?ms.map(msgHtml).join(''):'<div class="sub">Zatiaľ žiadna správa.</div>')+'</div><button class="lnk" style="margin-top:8px" data-tab="chat">Otvoriť chat</button></div></div></div>';
+}
+document.addEventListener('submit',function(e){
+  if(e.target.id==='chatForm'){e.preventDefault();var cur=get(S.ent.t,S.ent.id),tx=document.getElementById('cm').value.trim();if(!tx)return;
+    var now=new Date(),tm=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);S.cw=document.getElementById('cw').value;
+    (cur.chat=cur.chat||[]).push(M(S.cw,TODAY,tm,tx));render();var l=document.getElementById('chatList');if(l)l.scrollTop=l.scrollHeight;var m=document.getElementById('cm');if(m)m.focus()}
+  if(e.target.id==='taskEdit'){e.preventDefault();var x=findTask(S.ent.id),u=x.u,was=u.done,ch=[];
+    var nt=document.getElementById('te_t').value.trim()||u.t,nd=document.getElementById('te_d').value||u.due,nw=document.getElementById('te_w').value,no=document.getElementById('te_o').value,ns=document.getElementById('te_s').value,np=document.getElementById('te_p').value;
+    if(nt!==u.t)ch.push('názov');if(nd!==u.due)ch.push('termín '+fmt(u.due)+' → '+fmt(nd));if(nw!==u.who)ch.push('zodpovedný '+u.who+' → '+nw);if(no!==u.odd)ch.push('oddelenie '+u.odd+' → '+no);if(np!==(u.pop||''))ch.push('popis');
+    u.t=nt;u.due=nd;u.who=nw;u.odd=no;u.pop=np;if(ch.length)u.akt.unshift([TODAY,'Úprava',ch.join(', ')]);setSt(u,ns);
+    if(!was&&u.done)x.o.akt.unshift([TODAY,'Úloha splnená',u.t]);render();toast('Úloha uložená.')}
+});
+document.addEventListener('keydown',function(e){if(e.target.id==='cm'&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();document.getElementById('chatForm').requestSubmit()}});
+document.addEventListener('change',function(e){
+  if(e.target.id==='cw')S.cw=e.target.value;
+  if(e.target.id==='ustSel'){var x=findTask(S.ent.id),was=x.u.done;setSt(x.u,e.target.value);if(!was&&x.u.done)x.o.akt.unshift([TODAY,'Úloha splnená',x.u.t]);render()}
+});
+/* ukážkové správy */
+C[0].chat=[M('Obchodník 1','2026-10-03','14:20','Bauleiter potvrdil, že začiatok Wohnanlage sa posúva na KW 44.'),M('Koordinátor','2026-10-03','15:05','Rozumiem, upravím plán turnusu. @Obchodník 1 dám vedieť, keď budú ľudia potvrdení.')];
+R[0].chat=[M('Koordinátor','2026-10-02','09:10','Mám 4 navrhnutých murárov, ešte treba 2.'),M('Obchodník 1','2026-10-02','09:40','Zákazník trvá na dvojiciach, nerozdeľuj ich.')];
+R[0].ul[0].chat=[M('Koordinátor','2026-10-05','11:00','Ozvali sa 2 záujemcovia, čakám na ich doklady.'),M('Obchodník 1','2026-10-05','11:30','Super, pošli mi zoznam, nahlásim ho zákazníkovi.')];
+C[2].ul[0].chat=[M('Administratíva','2026-10-06','10:15','Obe faktúry sú po splatnosti, @Obchodník 1 prosím pripomeň to pri hovore.')];
+
+render();
+</script>

@@ -94,6 +94,9 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
 - **2026-10-01** – Menu sprehľadnené: Používatelia, Aplikácie, Úlohy, Testy zoskupené pod
   položku **Nastavenia** (rozcestník, len plný prístup).
 - **2026-10-01** – Prehľad (dashboard) doplnený o **zoznam aplikácií** (moduly a ich stav); karty vedú na modul.
+- **2026-10-13** – Štart integrácie **klientovho CRM (TBAU 360)**: jeho zadanie + prototyp uložené
+  v `reference/`, prototyp sprístupnený ako referencia na `/crm-prototyp`. Rozhodnuté: jeho dizajn
+  preberáme na celý portál; stavby zjednotíme (naše + pre klienta). Nasleduje redizajn + moduly HR/Obchod.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
 
