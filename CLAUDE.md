@@ -163,11 +163,13 @@ Aktuálny zoznam je v portáli (sekcia **Úlohy**) a v `README.md`. Kľúčové:
 
 ## Dizajn / UX
 
-- **Dizajnový systém** je prevzatý z klientovho prototypu (`reference/crm-prototype.html`):
-  farebné tokeny v `:root` v `public/css/style.css` (akcent `#C2410C`, nav `#1B2830`, chip
-  farby blue/amber/green/red/grey), fonty **Barlow Semi Condensed** (nadpisy) + **Source Sans 3**
-  (text), **svetlý/tmavý režim podľa systému** (`prefers-color-scheme` + prepínač `data-theme`).
-  Stavy vyjadruj **farbou aj textom**. Triedy `.pill.*` používajú tieto chip farby.
+- **Dizajnový systém: čistý minimalistický štýl à la Apple / macOS** (`public/css/style.css`).
+  Biela + sivá, **systémové fonty** (SF Pro cez `-apple-system` stack, žiadne Google fonty),
+  jemné tiene, zaoblené rohy, veľa bieleho priestoru. Akcent = systémová modrá `#0071E3`
+  (dark `#0A84FF`), inak neutrálne sivé. Svetlý sidebar (macOS), aktívna položka = jemné sivé
+  zvýraznenie (bez farebných pruhov). **Svetlý/tmavý režim podľa systému** (`prefers-color-scheme`
+  + `data-theme`). Stavy vyjadruj **farbou aj textom** (jemné pill farby, `.pill.*`).
+  Pozn.: pôvodný oranžový dizajn z prototypu sme zavrhli (používateľ chcel Apple štýl).
 - **Mobile-first, responzívny dizajn je POVINNÝ.** Celý portál musí byť použiteľný a
   dobre vyzerať na mobile z pohľadu UX. Pri každej novej stránke/komponente over
   responzivitu na mobilnej šírke (~375 px).

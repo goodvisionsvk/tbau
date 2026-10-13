@@ -102,6 +102,9 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   režim podľa systému**. Prepísaný `public/css/style.css`, zmenené fonty v layoutoch.
 - **2026-10-13** – `/crm-prototyp` z portálu **odstránený** (na žiadosť). Jeho appku pozeráme
   samostatne z `reference/` (lokálny náhľad s UTF-8 kópiou). Zdrojové súbory ostávajú v `reference/`.
+- **2026-10-13** – **Nový dizajn: čistý bielo-sivý štýl à la Apple/macOS** (systémové fonty SF,
+  systémová modrá ako akcent, svetlý sidebar, jemné tiene, svetlý/tmavý režim). Nahradil pôvodný
+  oranžový prototypový dizajn. Prepísaný `public/css/style.css`, odstránené Google fonty z layoutov.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
 
