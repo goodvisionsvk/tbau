@@ -2,7 +2,7 @@ const crypto = require('crypto');
 
 // Jednoduchá synchronizer-token CSRF ochrana (bez závislostí).
 function csrf(req, res, next) {
-  if (!req.session) return next(); // obrana proti prechodnému stavu (napr. počas reštartu)
+  if (!req.session) { res.locals.csrfToken = ''; return next(); } // obrana proti chýbajúcej session
   if (!req.session.csrfToken) {
     req.session.csrfToken = crypto.randomBytes(24).toString('hex');
   }

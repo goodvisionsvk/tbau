@@ -81,7 +81,7 @@ app.use((req, res, next) => {
       .prepare('SELECT id, email, full_name, role, active, must_change_password FROM users WHERE id = ?')
       .get(req.session.userId);
     if (!req.user || !req.user.active) {
-      req.session.destroy(() => {});
+      req.session.userId = null; // odhlás neplatného/zmazaného používateľa, session ponechaj platnú
       req.user = null;
     }
   }
