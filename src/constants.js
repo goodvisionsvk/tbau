@@ -26,6 +26,10 @@ module.exports = {
   },
   fullAccessRoles: ['sef', 'admin'],
 
+  // Odhadovaná hodinová sadzba pre ocenenie práce (SK trh, vývoj firemného softvéru, mid-rate).
+  workHourlyRate: 45, // €/h
+  currency: '€',
+
   // HR pozície (rola zamestnanca vo firme) – odlišné od prihlasovacej role (users.role)
   employeePositions: {
     majitel: 'Majiteľ',

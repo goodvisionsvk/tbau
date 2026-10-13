@@ -108,6 +108,7 @@ app.use('/dochadzka', require('./src/routes/attendance'));
 app.use('/moja-dochadzka', require('./src/routes/myattendance'));
 app.use('/ziadosti', require('./src/routes/requests'));
 app.use('/reporty', require('./src/routes/reports'));
+app.use('/praca', require('./src/routes/work'));
 
 // --- 404 ---
 app.use((req, res) => {

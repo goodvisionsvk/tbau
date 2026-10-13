@@ -80,4 +80,21 @@ if (db.prepare('SELECT COUNT(*) c FROM tasks').get().c === 0) {
   console.log('Štartovacie úlohy pridané: ' + tasks.length);
 }
 
+// --- Evidencia práce (čas, tokeny) – odhad podľa míľnikov ---
+if (db.prepare('SELECT COUNT(*) c FROM work_log').get().c === 0) {
+  const work = [
+    ['2026-08-12', 'Repo, prístup na VPS, SSH kľúče, nasadenie (systemd, nginx, HTTPS, firewall)', 8, 300000],
+    ['2026-08-23', 'Základ portálu (Express/EJS/SQLite, prihlásenie, session, dashboard, používatelia)', 18, 900000],
+    ['2026-08-24', 'Responzívny mobilný UX + sekcia Testy', 6, 350000],
+    ['2026-10-01', 'Dochádzkový modul (zamestnanci, stavby, smenovky, hodiny, žiadosti, reporty, CSV)', 38, 2600000],
+    ['2026-10-01', 'Dochádzka Týždeň/Mesiac, filter podľa stavby, mzdový export', 6, 500000],
+    ['2026-10-13', 'Integrácia klientovho CRM – analýza zadania + prototyp', 5, 500000],
+    ['2026-10-13', 'Redizajn portálu (Apple štýl, líniové SVG ikony)', 9, 900000],
+    ['2026-10-13', 'HR sekcia (pozície, druh robotníka, zoskupené menu)', 4, 400000],
+  ];
+  const insW = db.prepare('INSERT INTO work_log (entry_date, title, hours, tokens) VALUES (?,?,?,?)');
+  work.forEach((w) => insW.run(w[0], w[1], w[2], w[3]));
+  console.log('Evidencia práce: ' + work.length + ' záznamov.');
+}
+
 console.log('Hotovo.');

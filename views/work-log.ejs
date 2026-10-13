@@ -1,0 +1,71 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/nastavenia">&larr; Späť na Nastavenia</a></p>
+<p class="muted" style="margin-top:0;">Prehľad práce odvedenej na tomto projekte (pre zadávateľa). Čas a tokeny sú vedené po míľnikoch a priebežne dopĺňané.</p>
+
+<div class="grid stats">
+  <div class="card stat"><span class="ico"><%- icon('clock', 22) %></span><span class="num"><%= totals.hours %> h</span><span class="lbl">Odpracovaný čas (odhad)</span></div>
+  <div class="card stat"><span class="ico"><%- icon('chart', 22) %></span><span class="num"><%= totals.tokens.toLocaleString('sk-SK') %></span><span class="lbl">Spotrebované tokeny (odhad)</span></div>
+  <div class="card stat"><span class="ico"><%- icon('receipt', 22) %></span><span class="num"><%= totals.value.toLocaleString('sk-SK') %> <%= currency %></span><span class="lbl">Odhadovaná cena práce</span></div>
+</div>
+
+<p class="muted" style="font-size:.85rem;">
+  Cena = čas × sadzba <b><%= rate %> <%= currency %>/h</b> (odhad podľa slovenského trhu pre vývoj
+  firemného softvéru, stredná sadzba). Tokeny sú orientačné a nevstupujú do ceny.
+</p>
+
+<div class="section">
+  <div class="card">
+    <h2 style="margin-top:0;">Pridať záznam</h2>
+    <form method="post" action="/praca">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field"><label for="entry_date">Dátum</label><input id="entry_date" name="entry_date" type="date"></div>
+        <div class="field" style="grid-column: span 2;"><label for="title">Čo sa robilo *</label><input id="title" name="title" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="hours">Hodiny</label><input id="hours" name="hours" inputmode="decimal" placeholder="napr. 4,5"></div>
+        <div class="field"><label for="tokens">Tokeny</label><input id="tokens" name="tokens" inputmode="numeric" placeholder="napr. 500000"></div>
+        <div class="field"><label for="note">Poznámka</label><input id="note" name="note"></div>
+      </div>
+      <button class="btn btn-primary">Pridať</button>
+    </form>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Záznamy</h2>
+  <% if (!entries.length) { %>
+    <div class="card muted">Zatiaľ žiadne záznamy.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dátum</th><th>Práca</th><th style="text-align:right;">Hodiny</th><th style="text-align:right;">Tokeny</th><th style="text-align:right;">Cena</th><th></th></tr></thead>
+        <tbody>
+          <% entries.forEach(function(e){ %>
+            <tr>
+              <td class="muted"><%= e.entry_date %></td>
+              <td><%= e.title %><% if (e.note){ %><br><span class="muted" style="font-size:.82rem;"><%= e.note %></span><% } %></td>
+              <td style="text-align:right;"><%= e.hours %></td>
+              <td style="text-align:right;" class="muted"><%= e.tokens.toLocaleString('sk-SK') %></td>
+              <td style="text-align:right;"><%= Math.round(e.hours * rate).toLocaleString('sk-SK') %> <%= currency %></td>
+              <td style="text-align:right;">
+                <form class="inline" method="post" action="/praca/<%= e.id %>/delete" onsubmit="return confirm('Zmazať záznam?')">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-danger btn-sm">Zmazať</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="2">Spolu</th>
+            <th style="text-align:right;"><%= totals.hours %> h</th>
+            <th style="text-align:right;"><%= totals.tokens.toLocaleString('sk-SK') %></th>
+            <th style="text-align:right;"><%= totals.value.toLocaleString('sk-SK') %> <%= currency %></th>
+            <th></th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  <% } %>
+</div>

@@ -17,6 +17,7 @@ router.get('/nastavenia', requireAuth, requireFullAccess, (req, res) => {
       { label: 'Aplikácie', href: '/apps', icon: 'grid', desc: 'Moduly portálu a ich stav.' },
       { label: 'Úlohy', href: '/tasks', icon: 'tasks', desc: 'Úlohy pri budovaní portálu.' },
       { label: 'Testy', href: '/tests', icon: 'beaker', desc: 'Automatické testy portálu.' },
+      { label: 'Vykázaná práca', href: '/praca', icon: 'receipt', desc: 'Čas, tokeny a odhadovaná cena práce na projekte.' },
     ],
   });
 });

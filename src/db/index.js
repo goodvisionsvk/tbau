@@ -137,6 +137,17 @@ CREATE INDEX IF NOT EXISTS idx_attendance_emp_date ON attendance(employee_id, wo
 CREATE INDEX IF NOT EXISTS idx_attendance_project ON attendance(project_id);
 CREATE INDEX IF NOT EXISTS idx_requests_status ON change_requests(status);
 CREATE INDEX IF NOT EXISTS idx_sheets_proj_week ON shift_sheets(project_id, year, week);
+
+-- evidencia práce na projekte (čas, tokeny, cena) – pre prehľad pre zadávateľa
+CREATE TABLE IF NOT EXISTS work_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  entry_date TEXT NOT NULL,
+  title TEXT NOT NULL,
+  hours REAL NOT NULL DEFAULT 0,
+  tokens INTEGER NOT NULL DEFAULT 0,
+  note TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 `);
 // --- Migrácie: doplnenie stĺpcov do existujúcich tabuliek (idempotentné) ---
 function ensureColumn(table, col, type) {
