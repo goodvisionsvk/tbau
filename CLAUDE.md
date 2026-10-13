@@ -107,6 +107,8 @@ Nahraté smenovky (JPG/PNG/PDF) sú mimo gitu v `data/uploads/` a servírujú sa
 cez `/dochadzka/smenovka/:id/subor` (kontrola prístupu k stavbe).
 
 Health check: `GET /health` (verejný, server + DB) — používa ho sekcia **Testy** a je vhodný aj na monitoring.
+**Testy** (`/tests`, `src/routes/tests.js`): „Stránka funguje" (self /health) + **CRUD zamestnanca** a
+**CRUD stavby** — bežia v transakcii s `ROLLBACK`, takže v DB nič neostane. Nové CRUD testy pridávaj sem.
 
 ## Klientov CRM (TBAU 360 – modul Obchod)
 

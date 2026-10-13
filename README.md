@@ -121,6 +121,8 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   stránka pridania + detail s **parametrami podľa zadania klienta** (KW od/do, Bauleiter, Polier,
   zákazník, stav…). Evidencia práce rozdelená na *Rozpis vykonaných prác* a *Čas a náklady*;
   automatické meranie reálneho času + tokenov (SessionEnd hook); réžia za vývoj evidencie neúčtovaná.
+- **2026-10-13** – Pridané **testy CRUD** zamestnanca a stavby (v sekcii Testy; bežia v transakcii
+  s rollbackom, takže nič v DB neostane). Spolu 3 automatické testy.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
 
