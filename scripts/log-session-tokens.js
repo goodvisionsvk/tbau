@@ -25,8 +25,8 @@ try {
     try { obj = JSON.parse(line); } catch (e) { continue; }
     const u = obj && obj.message && obj.message.usage;
     if (u) {
-      total += (u.input_tokens || 0) + (u.output_tokens || 0) +
-               (u.cache_creation_input_tokens || 0) + (u.cache_read_input_tokens || 0);
+      // nové/zapísané tokeny (bez opakovaného čítania cache, ktoré by číslo nafúklo)
+      total += (u.input_tokens || 0) + (u.output_tokens || 0) + (u.cache_creation_input_tokens || 0);
     }
     if (obj && obj.timestamp) {
       const t = Date.parse(obj.timestamp);
