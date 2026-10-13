@@ -1,0 +1,55 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/dopyty">&larr; Späť na dopyty</a></p>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<form method="post" action="/dopyty">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <div class="card">
+    <h2 style="margin-top:0;">Parametre dopytu</h2>
+    <div class="form-row">
+      <div class="field"><label>Zákazník</label>
+        <select name="customer_id"><option value="">— vyber (nepovinné) —</option>
+          <% customers.forEach(function(c){ %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+        </select>
+      </div>
+      <div class="field"><label>Názov dopytu</label><input name="title" placeholder="napr. Ponuka murárov – KW 45"></div>
+      <div class="field"><label>Profesia</label><input name="profession" placeholder="napr. Murári"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Voľní od</label><input name="free_from" placeholder="napr. KW 45 / 3.11.2026"></div>
+      <div class="field"><label>Cena</label><input name="price" placeholder="napr. 35 €/h"></div>
+    </div>
+    <div class="field"><label>Referencie stavieb</label><textarea name="references_text" rows="2" placeholder="napr. Bürogebäude Leiblfing, Fassade Nord…"></textarea></div>
+    <div class="field"><label>Správa / poznámka</label><textarea name="message" rows="2"></textarea></div>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h2 style="margin-top:0;">Voľní pracovníci</h2>
+    <p class="muted" style="margin-top:0;">Zaškrtni, koho ponúkaš. „Voľný od (KW)" je odhad z konca ich stavby.</p>
+    <% if (!employees.length) { %>
+      <p class="muted">Žiadni aktívni zamestnanci.</p>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Zamestnanec</th><th>Druh</th><th>Aktuálna stavba</th><th>Voľný od (KW)</th></tr></thead>
+          <tbody>
+            <% employees.forEach(function(e){ %>
+              <tr>
+                <td><input type="checkbox" name="employee_id" value="<%= e.id %>" style="width:auto;"></td>
+                <td><b><%= e.last_name %> <%= e.first_name %></b></td>
+                <td class="muted"><%= e.trade || (e.position || '—') %></td>
+                <td class="muted"><%= e.sites || '—' %></td>
+                <td class="muted"><%= e.free_kw != null ? ('KW ' + e.free_kw) : '—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="actions" style="margin-top:18px;">
+    <button class="btn btn-primary">Vytvoriť dopyt</button>
+    <a class="btn btn-ghost" href="/dopyty">Zrušiť</a>
+  </div>
+</form>

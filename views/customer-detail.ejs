@@ -1,0 +1,104 @@
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:-8px; gap:12px; flex-wrap:wrap;">
+  <a class="btn-link" href="/zakaznici">&larr; Späť na zákazníkov</a>
+  <div class="actions">
+    <span class="pill <%= statusClass[customer.status] || 'planned' %>"><%= statuses[customer.status] || customer.status %></span>
+    <% if (!customer.active) { %><span class="pill paused">archivovaný</span><% } %>
+    <form class="inline" method="post" action="/zakaznici/<%= customer.id %>/archive"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="back" value="detail"><button class="btn btn-ghost btn-sm"><%= customer.active ? 'Archivovať' : 'Obnoviť' %></button></form>
+    <form class="inline" method="post" action="/zakaznici/<%= customer.id %>/delete" onsubmit="return confirm('Úplne zmazať zákazníka?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+  </div>
+</div>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="grid" style="grid-template-columns:1fr; gap:24px;">
+  <div class="card">
+    <h2 style="margin-top:0;">Údaje zákazníka</h2>
+    <form method="post" action="/zakaznici/<%= customer.id %>">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field" style="grid-column: span 2;"><label>Názov firmy *</label><input name="name" value="<%= customer.name %>" required></div>
+        <div class="field"><label>Stav</label><select name="status">
+          <% Object.keys(statuses).forEach(function(k){ %><option value="<%= k %>" <%= customer.status===k?'selected':'' %>><%= statuses[k] %></option><% }) %>
+        </select></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Krajina</label><input name="country" value="<%= customer.country || '' %>"></div>
+        <div class="field"><label>Mesto</label><input name="city" value="<%= customer.city || '' %>"></div>
+        <div class="field"><label>Adresa</label><input name="address" value="<%= customer.address || '' %>"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Zodpovedný obchodník</label><input name="owner" value="<%= customer.owner || '' %>"></div>
+        <div class="field"><label>Zdroj kontaktu</label><select name="source"><option value="">—</option>
+          <% sources.forEach(function(s){ %><option <%= customer.source===s?'selected':'' %>><%= s %></option><% }) %>
+        </select></div>
+        <div class="field"><label>Hodnotenie (1–5)</label><input name="rating" type="number" min="1" max="5" value="<%= customer.rating != null ? customer.rating : '' %>"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Typ práce</label><select name="work_type"><option value="">—</option>
+          <% Object.keys(workTypes).forEach(function(k){ %><option value="<%= k %>" <%= customer.work_type===k?'selected':'' %>><%= workTypes[k] %></option><% }) %>
+        </select></div>
+        <div class="field"><label>Cena za hodinu (€)</label><input name="hourly_price" inputmode="decimal" value="<%= customer.hourly_price != null ? customer.hourly_price : '' %>"></div>
+        <div class="field"><label>Minimálna skupina</label><select name="min_group"><option value="">—</option>
+          <% Object.keys(minGroups).forEach(function(k){ %><option value="<%= k %>" <%= customer.min_group===k?'selected':'' %>><%= minGroups[k] %></option><% }) %>
+        </select></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Platobná lehota</label><input name="payment_terms" value="<%= customer.payment_terms || '' %>"></div>
+        <div class="field"><label>Platobná disciplína</label><select name="payment_discipline"><option value="">—</option>
+          <% paymentDisciplines.forEach(function(s){ %><option <%= customer.payment_discipline===s?'selected':'' %>><%= s %></option><% }) %>
+        </select></div>
+        <div class="field"><label>Dôvod ukončenia</label><select name="end_reason"><option value="">—</option>
+          <% endReasons.forEach(function(s){ %><option <%= customer.end_reason===s?'selected':'' %>><%= s %></option><% }) %>
+        </select></div>
+      </div>
+      <div class="field"><label>Fakturačné údaje</label><input name="billing_info" value="<%= customer.billing_info || '' %>"></div>
+      <div class="field"><label>Poznámka</label><textarea name="note" rows="2"><%= customer.note || '' %></textarea></div>
+      <button class="btn btn-primary">Uložiť</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Kontakty</h2>
+    <% if (!contacts.length) { %>
+      <p class="muted">Žiadny kontakt.</p>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Meno</th><th>Rola</th><th>E-mail</th><th>Telefón</th><th></th></tr></thead>
+          <tbody>
+            <% contacts.forEach(function(k){ %>
+              <tr>
+                <td><b><%= k.name %></b><% if (k.is_primary){ %> <span class="pill active">hlavný</span><% } %></td>
+                <td class="muted"><%= k.role || '—' %></td>
+                <td class="muted"><%= k.email || '—' %></td>
+                <td class="muted"><%= k.phone || '—' %></td>
+                <td><form class="inline" method="post" action="/zakaznici/<%= customer.id %>/kontakt/<%= k.id %>/delete" onsubmit="return confirm('Zmazať kontakt?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+    <form method="post" action="/zakaznici/<%= customer.id %>/kontakt" class="form-row" style="align-items:end; margin-top:14px;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="field" style="margin-bottom:0;"><label>Meno</label><input name="name" required></div>
+      <div class="field" style="margin-bottom:0;"><label>Rola</label><select name="role"><option value="">—</option><% contactRoles.forEach(function(r){ %><option><%= r %></option><% }) %></select></div>
+      <div class="field" style="margin-bottom:0;"><label>E-mail</label><input name="email" type="email"></div>
+      <div class="field" style="margin-bottom:0;"><label>Telefón</label><input name="phone"></div>
+      <div class="field" style="margin-bottom:0;"><label style="display:flex; gap:6px; align-items:center;"><input type="checkbox" name="is_primary" value="1" style="width:auto;"> hlavný</label></div>
+      <div class="field" style="margin-bottom:0;"><button class="btn btn-dark">Pridať</button></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Dopyty pre tohto zákazníka</h2>
+    <% if (!inquiries.length) { %>
+      <p class="muted">Zatiaľ žiadny dopyt. Vytvoríš ho v sekcii <a href="/dopyty/novy">Dopyty</a>.</p>
+    <% } else { %>
+      <div class="list" style="margin-top:6px;">
+        <% inquiries.forEach(function(i){ %>
+          <div style="padding:8px 0; border-bottom:1px solid var(--line-soft);"><a href="/dopyty/<%= i.id %>"><%= i.title || ('Dopyt #' + i.id) %></a> <span class="muted">· <%= i.created_at %></span></div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</div>

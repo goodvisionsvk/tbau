@@ -1,0 +1,44 @@
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:-8px; gap:12px; flex-wrap:wrap;">
+  <a class="btn-link" href="/dopyty">&larr; Späť na dopyty</a>
+  <div class="actions">
+    <form class="inline" method="post" action="/dopyty/<%= inquiry.id %>/status">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <select name="status" onchange="this.form.submit()">
+        <% Object.keys(statuses).forEach(function(k){ %><option value="<%= k %>" <%= inquiry.status===k?'selected':'' %>><%= statuses[k] %></option><% }) %>
+      </select>
+    </form>
+    <form class="inline" method="post" action="/dopyty/<%= inquiry.id %>/delete" onsubmit="return confirm('Zmazať dopyt?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+  </div>
+</div>
+
+<div class="grid" style="grid-template-columns:1fr; gap:24px;">
+  <div class="card">
+    <h2 style="margin-top:0;"><%= inquiry.title || ('Dopyt #' + inquiry.id) %></h2>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px 22px; margin-top:6px;">
+      <div><div class="muted" style="font-size:13px;font-weight:600;">Zákazník</div><div><% if (customer) { %><a href="/zakaznici/<%= customer.id %>"><%= customer.name %></a><% } else { %>—<% } %></div></div>
+      <div><div class="muted" style="font-size:13px;font-weight:600;">Profesia</div><div><%= inquiry.profession || '—' %></div></div>
+      <div><div class="muted" style="font-size:13px;font-weight:600;">Voľní od</div><div><%= inquiry.free_from || '—' %></div></div>
+      <div><div class="muted" style="font-size:13px;font-weight:600;">Cena</div><div><%= inquiry.price || '—' %></div></div>
+    </div>
+    <% if (emps.length) { %>
+      <div style="margin-top:14px;"><div class="muted" style="font-size:13px;font-weight:600;">Ponúkaní pracovníci (<%= emps.length %>)</div>
+        <div class="list" style="margin-top:4px;">
+          <% emps.forEach(function(e){ %><div style="padding:4px 0;"><%= e.last_name %> <%= e.first_name %><% if (e.trade){ %> <span class="muted">– <%= e.trade %></span><% } %></div><% }) %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">E-mail pre zákazníka</h2>
+    <p class="muted" style="margin-top:0;">
+      <% if (toEmail) { %>Príjemca: <b><%= toEmail %></b><% } else { %>Zákazník nemá e-mailový kontakt — doplň ho v <% if (customer) { %><a href="/zakaznici/<%= customer.id %>">karte zákazníka</a><% } else { %>karte zákazníka<% } %>.<% } %>
+    </p>
+    <div class="field"><label>Predmet</label><input value="<%= subject %>" readonly></div>
+    <div class="field"><label>Text e-mailu</label><textarea rows="12" readonly style="font-family:inherit;"><%= body %></textarea></div>
+    <div class="actions">
+      <a class="btn btn-primary" href="<%= mailto %>"><%- icon('send', 16) %> Otvoriť v e-maile</a>
+    </div>
+    <p class="muted" style="font-size:.82rem; margin-top:8px;">„Otvoriť v e-maile" otvorí tvojho e-mailového klienta s predvyplneným textom. (Automatické odosielanie cez server doplníme neskôr.)</p>
+  </div>
+</div>

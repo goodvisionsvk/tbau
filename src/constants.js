@@ -38,6 +38,23 @@ module.exports = {
     majster: 'Majster',
     robotnik: 'Robotník',
   },
+  // --- Obchod (CRM) číselníky (podľa zadania klienta) ---
+  customerStatuses: {
+    potencialny: 'Potenciálny', osloveny: 'Oslovený', ponuka: 'Ponuka',
+    aktivny: 'Aktívny', pozastaveny: 'Pozastavený', ukonceny: 'Ukončený',
+  },
+  // mapovanie stavu zákazníka na pill farbu
+  customerStatusClass: {
+    potencialny: 'planned', osloveny: 'in_progress', ponuka: 'medium',
+    aktivny: 'active', pozastaveny: 'paused', ukonceny: 'high',
+  },
+  workTypes: { hodinovka: 'Hodinovka', lv: 'Výkonová práca (LV)', obe: 'Obe' },
+  minGroups: { jednotlivci: 'Jednotlivci', dvojice: 'Dvojice', skupina: 'Väčšia skupina' },
+  paymentDisciplines: ['V poriadku', 'Oneskorené', 'Spor', 'Neuhradené'],
+  contactSources: ['databáza firiem', 'návšteva', 'odporúčanie', 'iné'],
+  endReasons: ['Nedostatok ľudí', 'Zlá komunikácia', 'Polier', 'Cena', 'Platby', 'Iné'],
+  contactRoles: ['Obchodný kontakt', 'Bauleiter', 'Polier', 'Schvaľovateľ hodín', 'Fakturačný kontakt'],
+
   // stavy stavby (podľa zadania klienta + navyše Pozastavená)
   projectStatuses: {
     planned: 'Plánovaná',
@@ -85,6 +102,10 @@ module.exports = {
         { key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' },
         { key: 'reports', label: 'Report dochádzky', href: '/reporty', icon: 'chart' },
         { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
+      ] });
+      groups.push({ label: 'Obchod', items: [
+        { key: 'customers', label: 'Zákazníci', href: '/zakaznici', icon: 'briefcase' },
+        { key: 'inquiries', label: 'Dopyty', href: '/dopyty', icon: 'send' },
       ] });
       groups.push({ label: 'Projekty', items: [
         { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },

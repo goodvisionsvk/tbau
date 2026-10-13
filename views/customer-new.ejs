@@ -1,0 +1,47 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/zakaznici">&larr; Späť na zákazníkov</a></p>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="card" style="max-width:900px;">
+  <form method="post" action="/zakaznici">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="form-row">
+      <div class="field" style="grid-column: span 2;"><label>Názov firmy *</label><input name="name" required autofocus></div>
+      <div class="field"><label>Stav</label><select name="status">
+        <% Object.keys(statuses).forEach(function(k){ %><option value="<%= k %>" <%= k==='potencialny'?'selected':'' %>><%= statuses[k] %></option><% }) %>
+      </select></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Krajina</label><input name="country" value="Nemecko"></div>
+      <div class="field"><label>Mesto</label><input name="city"></div>
+      <div class="field"><label>Adresa</label><input name="address"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Zodpovedný obchodník</label><input name="owner"></div>
+      <div class="field"><label>Zdroj kontaktu</label><select name="source"><option value="">—</option>
+        <% sources.forEach(function(s){ %><option><%= s %></option><% }) %>
+      </select></div>
+      <div class="field"><label>Hodnotenie (1–5)</label><input name="rating" type="number" min="1" max="5"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Typ práce</label><select name="work_type"><option value="">—</option>
+        <% Object.keys(workTypes).forEach(function(k){ %><option value="<%= k %>"><%= workTypes[k] %></option><% }) %>
+      </select></div>
+      <div class="field"><label>Cena za hodinu (€)</label><input name="hourly_price" inputmode="decimal"></div>
+      <div class="field"><label>Minimálna skupina</label><select name="min_group"><option value="">—</option>
+        <% Object.keys(minGroups).forEach(function(k){ %><option value="<%= k %>"><%= minGroups[k] %></option><% }) %>
+      </select></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Platobná lehota</label><input name="payment_terms" placeholder="napr. 30 dní"></div>
+      <div class="field"><label>Platobná disciplína</label><select name="payment_discipline"><option value="">—</option>
+        <% paymentDisciplines.forEach(function(s){ %><option><%= s %></option><% }) %>
+      </select></div>
+    </div>
+    <div class="field"><label>Fakturačné údaje (IČO / USt-IdNr, adresa)</label><input name="billing_info"></div>
+    <div class="field"><label>Poznámka</label><textarea name="note" rows="2"></textarea></div>
+    <div class="actions">
+      <button class="btn btn-primary">Vytvoriť zákazníka</button>
+      <a class="btn btn-ghost" href="/zakaznici">Zrušiť</a>
+    </div>
+  </form>
+</div>

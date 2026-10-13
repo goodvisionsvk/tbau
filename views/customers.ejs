@@ -1,0 +1,47 @@
+<div style="display:flex; justify-content:flex-end;">
+  <a class="btn btn-primary" href="/zakaznici/novy"><%- icon('plus', 16) %> Pridať zákazníka</a>
+</div>
+
+<div class="card">
+  <form method="get" action="/zakaznici" class="form-row" style="align-items:end; margin:0;">
+    <div class="field" style="margin-bottom:0;"><label>Hľadať</label><input name="q" value="<%= filter.q %>" placeholder="Firma, mesto, krajina, obchodník"></div>
+    <div class="field" style="margin-bottom:0;"><label>Stav</label>
+      <select name="status"><option value="">Všetky</option>
+        <% Object.keys(statuses).forEach(function(k){ %><option value="<%= k %>" <%= filter.status===k?'selected':'' %>><%= statuses[k] %></option><% }) %>
+      </select>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label style="display:flex; gap:6px; align-items:center;"><input type="checkbox" name="archived" value="1" style="width:auto;" <%= filter.archived?'checked':'' %>> Archivovaní</label>
+    </div>
+    <div class="field" style="margin-bottom:0;"><button class="btn btn-ghost">Filtrovať</button></div>
+  </form>
+</div>
+
+<div class="section">
+  <% if (!customers.length) { %>
+    <div class="card muted">Žiadni zákazníci. Reálny zoznam firiem natiahneme z Excelu „FIRMY DE spolupráca" od klienta.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Firma</th><th>Stav</th><th>Obchodník</th><th>Miesto</th><th>Typ práce</th><th>Cena/h</th><th></th></tr></thead>
+        <tbody>
+          <% customers.forEach(function(c){ %>
+            <tr>
+              <td><a href="/zakaznici/<%= c.id %>"><b><%= c.name %></b></a></td>
+              <td><span class="pill <%= statusClass[c.status] || 'planned' %>"><%= statuses[c.status] || c.status %></span></td>
+              <td class="muted"><%= c.owner || '—' %></td>
+              <td class="muted"><%= [c.city, c.country].filter(Boolean).join(', ') || '—' %></td>
+              <td class="muted"><%= c.work_type ? (workTypes[c.work_type] || c.work_type) : '—' %></td>
+              <td class="muted"><%= c.hourly_price != null ? c.hourly_price + ' €' : '—' %></td>
+              <td class="actions">
+                <a class="btn btn-ghost btn-sm" href="/zakaznici/<%= c.id %>">Upraviť</a>
+                <form class="inline" method="post" action="/zakaznici/<%= c.id %>/archive"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-ghost btn-sm"><%= filter.archived ? 'Obnoviť' : 'Archivovať' %></button></form>
+                <form class="inline" method="post" action="/zakaznici/<%= c.id %>/delete" onsubmit="return confirm('Úplne zmazať zákazníka <%= c.name %>?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

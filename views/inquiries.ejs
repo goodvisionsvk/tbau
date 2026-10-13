@@ -1,0 +1,27 @@
+<div style="display:flex; justify-content:flex-end;">
+  <a class="btn btn-primary" href="/dopyty/novy"><%- icon('plus', 16) %> Nový dopyt</a>
+</div>
+
+<div class="section">
+  <% if (!inquiries.length) { %>
+    <div class="card muted">Zatiaľ žiadne dopyty. Vytvor nový — vyberieš voľných ľudí a vygeneruje sa email pre zákazníka.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dopyt</th><th>Zákazník</th><th>Voľní od</th><th>Ľudia</th><th>Stav</th><th></th></tr></thead>
+        <tbody>
+          <% inquiries.forEach(function(i){ %>
+            <tr>
+              <td><a href="/dopyty/<%= i.id %>"><b><%= i.title || ('Dopyt #' + i.id) %></b></a><% if (i.profession){ %><br><span class="muted" style="font-size:.8rem;"><%= i.profession %></span><% } %></td>
+              <td class="muted"><%= i.customer_name || '—' %></td>
+              <td class="muted"><%= i.free_from || '—' %></td>
+              <td class="muted"><%= i.people %></td>
+              <td><span class="pill <%= statusClass[i.status] || 'planned' %>"><%= statuses[i.status] || i.status %></span></td>
+              <td><a class="btn btn-ghost btn-sm" href="/dopyty/<%= i.id %>">Otvoriť</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

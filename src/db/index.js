@@ -149,6 +149,68 @@ CREATE TABLE IF NOT EXISTS work_log (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 `);
+// --- Schéma: Obchod (CRM) ---
+db.exec(`
+CREATE TABLE IF NOT EXISTS customers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  country TEXT,
+  city TEXT,
+  address TEXT,
+  status TEXT NOT NULL DEFAULT 'potencialny',  -- potencialny/osloveny/ponuka/aktivny/pozastaveny/ukonceny
+  owner TEXT,                 -- zodpovedný obchodník
+  source TEXT,                -- zdroj kontaktu
+  billing_info TEXT,          -- IČO / USt-IdNr, fakturačná adresa
+  work_type TEXT,             -- hodinovka / lv / obe
+  hourly_price REAL,
+  min_group TEXT,             -- jednotlivci / dvojice / skupina
+  payment_terms TEXT,
+  payment_discipline TEXT,
+  rating INTEGER,
+  end_reason TEXT,
+  note TEXT,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_by INTEGER REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS contacts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  role TEXT,
+  email TEXT,
+  phone TEXT,
+  is_primary INTEGER NOT NULL DEFAULT 0,
+  note TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- dopyty: ponuka voľných ľudí zákazníkovi
+CREATE TABLE IF NOT EXISTS inquiries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_id INTEGER REFERENCES customers(id) ON DELETE SET NULL,
+  title TEXT,
+  profession TEXT,
+  free_from TEXT,             -- odkedy sú voľní
+  price TEXT,                 -- cena (text)
+  references_text TEXT,       -- referencie stavieb
+  message TEXT,
+  status TEXT NOT NULL DEFAULT 'new',  -- new/sent/responded/closed
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_by INTEGER REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS inquiry_employees (
+  inquiry_id INTEGER NOT NULL REFERENCES inquiries(id) ON DELETE CASCADE,
+  employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+  PRIMARY KEY (inquiry_id, employee_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_contacts_customer ON contacts(customer_id);
+CREATE INDEX IF NOT EXISTS idx_inquiries_customer ON inquiries(customer_id);
+`);
+
 // --- Migrácie: doplnenie stĺpcov do existujúcich tabuliek (idempotentné) ---
 function ensureColumn(table, col, type) {
   const cols = db.prepare(`PRAGMA table_info(${table})`).all();

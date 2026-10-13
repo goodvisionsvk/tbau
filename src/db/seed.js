@@ -108,4 +108,39 @@ if (db.prepare('SELECT COUNT(*) c FROM work_log').get().c === 0) {
   console.log('Evidencia práce: ' + work.length + ' + rozpis ' + activities.length + '.');
 }
 
+// --- Demo zákazníci (Obchod/CRM) z prototypu – ak je tabuľka prázdna ---
+if (db.prepare('SELECT COUNT(*) c FROM customers').get().c === 0) {
+  // [name, status, work_type, hourly_price, min_group, payment_terms, payment_discipline, rating, note, [contacts]]
+  // contact: [name, role, emailOrPhone, primary]
+  const cs = [
+    ['Muster Bau GmbH','aktivny','hodinovka',35,'dvojice','30 dní','Oneskorené',4,'Fakturovať mesačne, hodiny schvaľuje Polier.',
+      [['Max Mustermann','Bauleiter','+49 000 000 000',1],['Erika Beispiel','Schvaľovateľ hodín','erika@example.de',0],['Hans Probe','Polier','+49 000 000 001',0]]],
+    ['Beispiel Hochbau AG','ponuka','lv',null,'skupina','14 dní','V poriadku',null,'',
+      [['Anna Muster','Obchodný kontakt','anna@example.de',1]]],
+    ['Demo Fassaden GmbH','aktivny','hodinovka',34,'dvojice','30 dní','Neuhradené',3,'Dve faktúry čakajú na úhradu.',
+      [['Jan Beispiel','Obchodný kontakt','jan@example.de',1],['Petra Probe','Fakturačný kontakt','petra@example.de',0]]],
+    ['Probe Trockenbau GmbH','osloveny',null,null,null,null,null,null,'',
+      [['Tom Test','Obchodný kontakt','tom@example.de',0]]],
+    ['Test Gerüstbau GmbH','aktivny','hodinovka',33,'jednotlivci','21 dní','V poriadku',5,'',
+      [['Lukas Muster','Polier','+49 000 000 002',1]]],
+    ['Beispiel Putz GmbH','potencialny',null,null,null,null,null,null,'Z databázy firiem.',[]],
+    ['Muster Dach GmbH','pozastaveny','hodinovka',36,'dvojice','30 dní','V poriadku',4,'Zákazník má dočasne plné kapacity.',
+      [['Eva Dach','Obchodný kontakt','eva@example.de',1]]],
+    ['Ukážka Estrich GmbH','ukonceny','hodinovka',35,'dvojice','30 dní','V poriadku',3,'',
+      [['Karl Estrich','Obchodný kontakt','karl@example.de',0]]],
+    ['Probe Maler GmbH','osloveny',null,null,null,null,null,null,'',
+      [['Mia Maler','Obchodný kontakt','mia@example.de',0]]],
+  ];
+  const insC = db.prepare(`INSERT INTO customers (name,country,status,work_type,hourly_price,min_group,payment_terms,payment_discipline,rating,note) VALUES (?,?,?,?,?,?,?,?,?,?)`);
+  const insK = db.prepare('INSERT INTO contacts (customer_id,name,role,email,phone,is_primary) VALUES (?,?,?,?,?,?)');
+  cs.forEach((c) => {
+    const id = insC.run(c[0], 'Nemecko', c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8]).lastInsertRowid;
+    (c[9] || []).forEach((k) => {
+      const isEmail = /@/.test(k[2]);
+      insK.run(id, k[0], k[1], isEmail ? k[2] : null, isEmail ? null : k[2], k[3]);
+    });
+  });
+  console.log('Demo zákazníci: ' + cs.length + ' (vymyslené z prototypu).');
+}
+
 console.log('Hotovo.');
