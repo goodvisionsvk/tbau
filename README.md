@@ -97,6 +97,9 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
 - **2026-10-13** – Štart integrácie **klientovho CRM (TBAU 360)**: jeho zadanie + prototyp uložené
   v `reference/`, prototyp sprístupnený ako referencia na `/crm-prototyp`. Rozhodnuté: jeho dizajn
   preberáme na celý portál; stavby zjednotíme (naše + pre klienta). Nasleduje redizajn + moduly HR/Obchod.
+- **2026-10-13** – **Redizajn celého portálu** do štýlu klientovho prototypu: farebné tokeny
+  (akcent #C2410C, bridlicový nav), fonty Barlow Semi Condensed + Source Sans 3, **svetlý/tmavý
+  režim podľa systému**. Prepísaný `public/css/style.css`, zmenené fonty v layoutoch.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
 

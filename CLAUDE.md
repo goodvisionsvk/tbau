@@ -161,6 +161,11 @@ Aktuálny zoznam je v portáli (sekcia **Úlohy**) a v `README.md`. Kľúčové:
 
 ## Dizajn / UX
 
+- **Dizajnový systém** je prevzatý z klientovho prototypu (`reference/crm-prototype.html`):
+  farebné tokeny v `:root` v `public/css/style.css` (akcent `#C2410C`, nav `#1B2830`, chip
+  farby blue/amber/green/red/grey), fonty **Barlow Semi Condensed** (nadpisy) + **Source Sans 3**
+  (text), **svetlý/tmavý režim podľa systému** (`prefers-color-scheme` + prepínač `data-theme`).
+  Stavy vyjadruj **farbou aj textom**. Triedy `.pill.*` používajú tieto chip farby.
 - **Mobile-first, responzívny dizajn je POVINNÝ.** Celý portál musí byť použiteľný a
   dobre vyzerať na mobile z pohľadu UX. Pri každej novej stránke/komponente over
   responzivitu na mobilnej šírke (~375 px).
