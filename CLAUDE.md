@@ -42,7 +42,8 @@ src/icons.js      – líniové SVG ikony (icon(name,size)); v šablónach <%- i
 src/db/           – index.js (schéma), seed.js, create-user.js
 src/middleware/   – auth.js (requireAuth/FullAccess/Staff), csrf.js
 src/routes/       – auth, pages, users, apps, projects, tasks, tests,
-                    employees, attendance, myattendance, requests, reports, work
+                    employees, attendance, myattendance, requests, reports,
+                    customers (Zákazníci), inquiries (Dopyty/CRM), work
 views/            – EJS (layouts/app.ejs = sidebar, layouts/public.ejs = login/landing)
 public/           – css/style.css, js/app.js, img/logo.png
 deploy/           – tbau-portal.service, nginx-tbau.conf, deploy.sh
@@ -53,6 +54,20 @@ Dátový model (SQLite): `users`, `apps`, `projects` (= stavby), `tasks`,
 `shift_sheets` (smenovky – dokumenty), `attendance` (denné hodiny),
 `change_requests` (žiadosti o zmenu), `work_log` (evidencia práce na projekte: čas, tokeny)
 (+ `sessions` spravuje store).
+Obchod: `customers` (nemecké firmy – stav, typ práce, cena/h, min. skupina, platobná
+lehota/disciplína, hodnotenie, zdroj, fakturačné údaje, `active`), `contacts` (kontakty
+zákazníka – meno, rola, email/telefón, `is_primary`), `inquiries` (dopyty – zákazník,
+profesia, voľní od, cena, referencie, správa, stav) a `inquiry_employees` (M:N dopyt ↔
+ponúkaní zamestnanci).
+
+**Modul Obchod** (menu skupina „Obchod", len plný prístup): **Zákazníci** (`/zakaznici`,
+`src/routes/customers.js`, pohľady `customers.ejs` / `customer-new.ejs` / `customer-detail.ejs`)
+= CRUD firiem + kontakty + archivácia/zmazanie, filter podľa stavu/hľadania. **Dopyty/CRM**
+(`/dopyty`, `src/routes/inquiries.js`, pohľady `inquiries.ejs` / `inquiry-new.ejs` /
+`inquiry-detail.ejs`): `availableEmployees()` vráti aktívnych zamestnancov s odhadom „voľný od
+KW" (z MAX `kw_do` ich stavby), `emailDraft()` poskladá slovenský e-mail + `mailto` na hlavný
+kontakt zákazníka. Enumy (stavy, typy práce, platobná disciplína, zdroje, roly kontaktov…) sú
+v `src/constants.js`. Automatické odosielanie e-mailu (SMTP) zatiaľ nie je – len `mailto`.
 
 **Vykázaná práca** (`/praca`, len full access, v Nastaveniach): čas + tokeny + odhadovaná cena
 práce (`work_log`). Sadzba `constants.workHourlyRate` (**40 €/h**, reálny spoločný čas); cena =

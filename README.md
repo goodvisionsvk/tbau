@@ -24,6 +24,8 @@ aplikácie sa pridávajú postupne. Rozloženie: **logo hore, menu vľavo**, obs
 | **Dochádzka** | Týždenná mriežka hodín, smenovky (dokumenty), žiadosti o zmenu | ✅ v1 |
 | Reporty | Mesačný report hodín na zamestnanca + CSV export | ✅ v1 |
 | Žiadosti o zmenu | Zamestnanec žiada, parťák/admin schvaľuje | ✅ v1 |
+| **Obchod – Zákazníci** | Zoznam nemeckých firiem (dopytujeme ich), kontakty, parametre spolupráce | ✅ v1 |
+| **Obchod – Dopyty (CRM)** | Obchodník vidí voľných ľudí, vytvorí dopyt a vygeneruje e-mail zákazníkovi | ✅ v1 |
 | Úlohy | Úlohy pri budovaní portálu | ✅ základ |
 | Testy | Automatické testy portálu (health check) | ✅ základ (1 test) |
 | **RSV** – Riadenie stavebnej výroby | Priebeh stavieb, kontrola rozpočtu (plán vs. skutočnosť), výkazy | 🔲 plánované |
@@ -128,6 +130,16 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-13** – **Modul Obchod** (ako HR, nová skupina v menu): **Zákazníci** (`/zakaznici`) –
+  zoznam nemeckých firiem, ktoré robia stavby a ktorým posielame dopyty: tabuľka + filter (stav,
+  hľadanie, archivovaní), samostatná stránka pridania, detail s parametrami spolupráce (typ práce,
+  cena/h, min. skupina, platobná lehota a disciplína, hodnotenie, zdroj, fakturačné údaje),
+  **kontakty** (Bauleiter/Polier/schvaľovateľ hodín…) a archivácia/zmazanie. **Dopyty/CRM**
+  (`/dopyty`) – obchodník vidí **voľných pracovníkov** (aktívni zamestnanci + odhad „voľný od KW"
+  z konca ich stavby), vyberie koho ponúka, zadá cenu a referencie a vygeneruje sa **e-mail pre
+  zákazníka** (predvyplnený text + „Otvoriť v e-maile" cez `mailto` na hlavný kontakt). Nové tabuľky
+  `customers`, `contacts`, `inquiries`, `inquiry_employees`. Naseedovaných 9 demo zákazníkov
+  z prototypu. Automatické odosielanie e-mailu cez SMTP doplníme neskôr (zatiaľ `mailto`).
 
 ---
 
