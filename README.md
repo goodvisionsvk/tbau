@@ -105,6 +105,8 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
 - **2026-10-13** – **Nový dizajn: čistý bielo-sivý štýl à la Apple/macOS** (systémové fonty SF,
   systémová modrá ako akcent, svetlý sidebar, jemné tiene, svetlý/tmavý režim). Nahradil pôvodný
   oranžový prototypový dizajn. Prepísaný `public/css/style.css`, odstránené Google fonty z layoutov.
+- **2026-10-13** – Emoji ikony nahradené **líniovými SVG** (`src/icons.js`) – menu, karty, aplikácie,
+  tlačidlá; čistejší vzhľad ladiaci s Apple dizajnom.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
 

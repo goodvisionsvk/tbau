@@ -38,6 +38,7 @@ src/constants.js  – firemné údaje + roly + buildNav(user) (role-aware menu)
 src/permissions.js– oprávnenia (isFullAccess, foremanProjectIds, canAccessProject, ...)
 src/util/dates.js – ISO týždne a dátumy (weekDates, monthRange, ...)
 src/upload.js     – multer (upload smenoviek do data/uploads/smenovky)
+src/icons.js      – líniové SVG ikony (icon(name,size)); v šablónach <%- icon('home',18) %>
 src/db/           – index.js (schéma), seed.js, create-user.js
 src/middleware/   – auth.js (requireAuth/FullAccess/Staff), csrf.js
 src/routes/       – auth, pages, users, apps, projects, tasks, tests,
@@ -170,6 +171,9 @@ Aktuálny zoznam je v portáli (sekcia **Úlohy**) a v `README.md`. Kľúčové:
   zvýraznenie (bez farebných pruhov). **Svetlý/tmavý režim podľa systému** (`prefers-color-scheme`
   + `data-theme`). Stavy vyjadruj **farbou aj textom** (jemné pill farby, `.pill.*`).
   Pozn.: pôvodný oranžový dizajn z prototypu sme zavrhli (používateľ chcel Apple štýl).
+- **Ikony:** žiadne emoji v UI – používaj **líniové SVG** cez `src/icons.js` (`<%- icon('name',size) %>`,
+  `app.locals.icon`). Menu/karty/aplikácie používajú názvy ikon (home, clock, inbox, chart, building,
+  hardhat, settings, users, user, grid, tasks, beaker, receipt, file, download, save, refresh, key, calendar).
 - **Mobile-first, responzívny dizajn je POVINNÝ.** Celý portál musí byť použiteľný a
   dobre vyzerať na mobile z pohľadu UX. Pri každej novej stránke/komponente over
   responzivitu na mobilnej šírke (~375 px).

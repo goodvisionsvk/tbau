@@ -1,6 +1,6 @@
 <div class="page-head" style="margin-top:-8px;">
   <p class="muted" style="margin:0;">Automatické testy portálu. Spustené: <%= ranAt %></p>
-  <a class="btn btn-ghost btn-sm" href="/tests">↻ Spustiť znova</a>
+  <a class="btn btn-ghost btn-sm" href="/tests"><%- icon('refresh', 15) %> Spustiť znova</a>
 </div>
 
 <%
@@ -21,7 +21,7 @@
           <td class="muted"><%= r.description %></td>
           <td class="muted"><%= r.detail %></td>
           <td class="muted"><%= r.durationMs %> ms</td>
-          <td><span class="pill <%= r.ok ? 'done' : 'high' %>"><%= r.ok ? 'PASS ✓' : 'FAIL ✕' %></span></td>
+          <td><span class="pill <%= r.ok ? 'done' : 'high' %>"><%= r.ok ? 'PASS' : 'FAIL' %></span></td>
         </tr>
       <% }) %>
     </tbody>

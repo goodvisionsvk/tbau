@@ -10,7 +10,7 @@
         <% if (project.client) { %> &middot; <span class="muted">Klient: <%= project.client %></span><% } %>
         <% if (project.address) { %> &middot; <span class="muted"><%= project.address %></span><% } %>
       </div>
-      <a class="btn btn-primary btn-sm" href="/dochadzka?project=<%= project.id %>&year=<%= cur.year %>&week=<%= cur.week %>">🕒 Dochádzka stavby</a>
+      <a class="btn btn-primary btn-sm" href="/dochadzka?project=<%= project.id %>&year=<%= cur.year %>&week=<%= cur.week %>"><%- icon('clock', 15) %> Dochádzka stavby</a>
     </div>
     <% if (project.description) { %><p class="muted" style="margin-bottom:0;"><%= project.description %></p><% } %>
   </div>
@@ -82,7 +82,7 @@
             <% sheets.forEach(function(s){ %>
               <tr>
                 <td><%= s.week %>/<%= s.year %></td>
-                <td>📄 <a href="/dochadzka/smenovka/<%= s.id %>/subor" target="_blank"><%= s.original_name || 'smenovka' %></a></td>
+                <td><span style="color:var(--muted)"><%- icon('file', 15) %></span> <a href="/dochadzka/smenovka/<%= s.id %>/subor" target="_blank"><%= s.original_name || 'smenovka' %></a></td>
                 <td class="muted"><%= s.uploaded_at %></td>
               </tr>
             <% }) %>

@@ -3,7 +3,7 @@
 <div class="grid cards">
   <% apps.forEach(function(a){ %>
     <% if (a.href) { %><a class="card" href="<%= a.href %>" style="text-decoration:none; color:inherit;"><% } else { %><div class="card"><% } %>
-      <div style="font-size:1.8rem;"><%= a.icon %></div>
+      <div class="app-ico"><%- icon(a.iconName, 24) %></div>
       <h2 style="margin:10px 0 6px;"><%= a.name %></h2>
       <p class="muted" style="font-size:.9rem; margin:0 0 14px;"><%= a.description %></p>
       <span class="pill <%= a.status %>">

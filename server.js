@@ -20,6 +20,7 @@ app.locals.company = constants.company;
 app.locals.nav = [];
 app.locals.currentUser = null;
 app.locals.active = '';
+app.locals.icon = require('./src/icons').icon;
 
 // --- Bezpečnostné hlavičky (helmet) ---
 app.use(

@@ -1,7 +1,7 @@
 <div class="grid stats">
   <% cards.forEach(function(c){ %>
     <a class="card stat" href="<%= c.href %>" style="text-decoration:none; color:inherit;">
-      <span class="ico"><%= c.icon %></span>
+      <span class="ico"><%- icon(c.icon, 22) %></span>
       <span class="num"><%= c.num %></span>
       <span class="lbl"><%= c.label %></span>
     </a>
@@ -14,7 +14,7 @@
   <div class="grid cards">
     <% apps.forEach(function(a){ %>
       <% if (a.href) { %><a class="card" href="<%= a.href %>" style="text-decoration:none; color:inherit;"><% } else { %><div class="card"><% } %>
-        <div style="font-size:1.6rem;"><%= a.icon %></div>
+        <div class="app-ico"><%- icon(a.iconName, 22) %></div>
         <h2 style="margin:8px 0 6px; font-size:1.05rem;"><%= a.name %></h2>
         <p class="muted" style="font-size:.86rem; margin:0 0 12px;"><%= a.description %></p>
         <span class="pill <%= a.status %>">

@@ -15,7 +15,7 @@
       </select>
     </div>
     <div class="field" style="margin-bottom:0;"><button class="btn btn-ghost">Zobraziť</button></div>
-    <div class="field" style="margin-bottom:0;"><a class="btn btn-dark" href="/reporty/export?year=<%= year %>&month=<%= month %>&project=<%= selectedProject || '' %>">⬇ Export pre mzdy (CSV)</a></div>
+    <div class="field" style="margin-bottom:0;"><a class="btn btn-dark" href="/reporty/export?year=<%= year %>&month=<%= month %>&project=<%= selectedProject || '' %>"><%- icon('download', 15) %> Export pre mzdy (CSV)</a></div>
   </form>
 </div>
 <p class="muted" style="margin-top:8px;">Export pre mzdy je vždy mesačný<%= selectedProject ? ' (filtrovaný podľa vybranej stavby)' : ' (všetky stavby)' %>.</p>

@@ -13,10 +13,10 @@ router.get('/nastavenia', requireAuth, requireFullAccess, (req, res) => {
     title: 'Nastavenia',
     active: 'settings',
     items: [
-      { label: 'Používatelia', href: '/users', icon: '👥', desc: 'Účty, role, reset hesla.' },
-      { label: 'Aplikácie', href: '/apps', icon: '🧩', desc: 'Moduly portálu a ich stav.' },
-      { label: 'Úlohy', href: '/tasks', icon: '✅', desc: 'Úlohy pri budovaní portálu.' },
-      { label: 'Testy', href: '/tests', icon: '🧪', desc: 'Automatické testy portálu.' },
+      { label: 'Používatelia', href: '/users', icon: 'users', desc: 'Účty, role, reset hesla.' },
+      { label: 'Aplikácie', href: '/apps', icon: 'grid', desc: 'Moduly portálu a ich stav.' },
+      { label: 'Úlohy', href: '/tasks', icon: 'tasks', desc: 'Úlohy pri budovaní portálu.' },
+      { label: 'Testy', href: '/tests', icon: 'beaker', desc: 'Automatické testy portálu.' },
     ],
   });
 });
@@ -56,10 +56,10 @@ router.get('/dashboard', requireAuth, (req, res) => {
     const openReq = db.prepare("SELECT COUNT(*) c FROM change_requests WHERE status = 'open'").get().c;
     const hours = db.prepare('SELECT COALESCE(SUM(hours),0) h FROM attendance WHERE work_date BETWEEN ? AND ?').get(start, end).h;
     cards = [
-      { icon: '👷', num: employees, label: 'Aktívni zamestnanci', href: '/zamestnanci' },
-      { icon: '🏗️', num: projects, label: 'Aktívne stavby', href: '/projects' },
-      { icon: '🕒', num: Math.round(hours), label: 'Hodiny tento mesiac', href: '/reporty' },
-      { icon: '✉️', num: openReq, label: 'Otvorené žiadosti', href: '/ziadosti' },
+      { icon: 'hardhat', num: employees, label: 'Aktívni zamestnanci', href: '/zamestnanci' },
+      { icon: 'building', num: projects, label: 'Aktívne stavby', href: '/projects' },
+      { icon: 'clock', num: Math.round(hours), label: 'Hodiny tento mesiac', href: '/reporty' },
+      { icon: 'inbox', num: openReq, label: 'Otvorené žiadosti', href: '/ziadosti' },
     ];
     recentRequests = db
       .prepare(
@@ -78,17 +78,17 @@ router.get('/dashboard', requireAuth, (req, res) => {
       openReq = db.prepare(`SELECT COUNT(*) c FROM change_requests WHERE status='open' AND employee_id IN (SELECT employee_id FROM site_members WHERE project_id IN (${ph}))`).get(...projIds).c;
     }
     cards = [
-      { icon: '🏗️', num: projIds.length, label: 'Moje stavby', href: '/projects' },
-      { icon: '👷', num: workers, label: 'Ľudia na stavbách', href: '/dochadzka' },
-      { icon: '🕒', num: Math.round(hours), label: 'Hodiny tento mesiac', href: '/reporty' },
-      { icon: '✉️', num: openReq, label: 'Otvorené žiadosti', href: '/ziadosti' },
+      { icon: 'building', num: projIds.length, label: 'Moje stavby', href: '/projects' },
+      { icon: 'users', num: workers, label: 'Ľudia na stavbách', href: '/dochadzka' },
+      { icon: 'clock', num: Math.round(hours), label: 'Hodiny tento mesiac', href: '/reporty' },
+      { icon: 'inbox', num: openReq, label: 'Otvorené žiadosti', href: '/ziadosti' },
     ];
   }
 
   const apps = db
     .prepare('SELECT * FROM apps ORDER BY sort_order, name')
     .all()
-    .map((a) => ({ ...a, href: constants.appHref(a) }));
+    .map((a) => ({ ...a, href: constants.appHref(a), iconName: constants.appIcon(a) }));
   res.render('dashboard', { title: 'Prehľad', active: 'dashboard', cards, recentRequests, apps, full });
 });
 

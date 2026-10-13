@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
   const apps = db
     .prepare('SELECT * FROM apps ORDER BY sort_order, name')
     .all()
-    .map((a) => ({ ...a, href: constants.appHref(a) }));
+    .map((a) => ({ ...a, href: constants.appHref(a), iconName: constants.appIcon(a) }));
   res.render('apps', { title: 'Aplikácie', active: 'settings', apps });
 });
 

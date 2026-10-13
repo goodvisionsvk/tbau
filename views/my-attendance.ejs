@@ -8,8 +8,8 @@
 <% if (sent) { %><div class="alert alert-info">Žiadosť o zmenu bola odoslaná parťákovi/administratíve.</div><% } %>
 
 <div class="grid stats">
-  <div class="card stat"><span class="ico">🕒</span><span class="num"><%= month.total %></span><span class="lbl">Hodiny — <%= month.name %> <%= month.year %></span></div>
-  <div class="card stat"><span class="ico">📅</span><span class="num"><%= month.rows.length %></span><span class="lbl">Odpracované dni</span></div>
+  <div class="card stat"><span class="ico"><%- icon('clock', 22) %></span><span class="num"><%= month.total %></span><span class="lbl">Hodiny — <%= month.name %> <%= month.year %></span></div>
+  <div class="card stat"><span class="ico"><%- icon('calendar', 22) %></span><span class="num"><%= month.rows.length %></span><span class="lbl">Odpracované dni</span></div>
 </div>
 
 <div class="card" style="margin-top:18px;">

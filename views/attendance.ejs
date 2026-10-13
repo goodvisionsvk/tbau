@@ -78,7 +78,7 @@
         </tbody>
       </table>
     </div>
-    <div style="margin-top:16px;"><button class="btn btn-primary">💾 Uložiť dochádzku</button></div>
+    <div style="margin-top:16px;"><button class="btn btn-primary"><%- icon('save', 16) %> Uložiť dochádzku</button></div>
   </form>
   <% } %>
 </div>
@@ -104,7 +104,7 @@
         <tbody>
           <% sheets.forEach(function(s){ %>
             <tr>
-              <td>📄 <a href="/dochadzka/smenovka/<%= s.id %>/subor" target="_blank"><%= s.original_name || 'smenovka' %></a></td>
+              <td><span style="color:var(--muted)"><%- icon('file', 15) %></span> <a href="/dochadzka/smenovka/<%= s.id %>/subor" target="_blank"><%= s.original_name || 'smenovka' %></a></td>
               <td class="muted"><%= s.uploaded_at %></td>
               <td class="muted"><%= s.note || '—' %></td>
               <td>

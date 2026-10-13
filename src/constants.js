@@ -33,6 +33,10 @@ module.exports = {
   appHref(app) {
     return this.appRoutes[app.slug] || null;
   },
+  appIconBySlug: { dochadzka: 'clock', objednavky: 'receipt', rsv: 'building' },
+  appIcon(app) {
+    return this.appIconBySlug[app.slug] || 'grid';
+  },
 
   // Zostaví ľavé menu podľa role prihláseného používateľa.
   buildNav(user) {
@@ -44,23 +48,23 @@ module.exports = {
 
     // Zamestnanec vidí len svoju dochádzku.
     if (worker && !full && !foreman) {
-      return [{ key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: '🙋' }];
+      return [{ key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: 'user' }];
     }
 
-    const items = [{ key: 'dashboard', label: 'Prehľad', href: '/dashboard', icon: '🏠' }];
+    const items = [{ key: 'dashboard', label: 'Prehľad', href: '/dashboard', icon: 'home' }];
     if (full || foreman) {
-      items.push({ key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: '🕒' });
-      items.push({ key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: '✉️' });
-      items.push({ key: 'reports', label: 'Reporty', href: '/reporty', icon: '📊' });
-      items.push({ key: 'projects', label: 'Stavby', href: '/projects', icon: '🏗️' });
+      items.push({ key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' });
+      items.push({ key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' });
+      items.push({ key: 'reports', label: 'Reporty', href: '/reporty', icon: 'chart' });
+      items.push({ key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' });
     }
     if (full) {
-      items.push({ key: 'employees', label: 'Zamestnanci', href: '/zamestnanci', icon: '👷' });
-      items.push({ key: 'settings', label: 'Nastavenia', href: '/nastavenia', icon: '⚙️' });
+      items.push({ key: 'employees', label: 'Zamestnanci', href: '/zamestnanci', icon: 'hardhat' });
+      items.push({ key: 'settings', label: 'Nastavenia', href: '/nastavenia', icon: 'settings' });
     }
     // parťák má aj vlastnú dochádzku
     if (foreman) {
-      items.push({ key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: '🙋' });
+      items.push({ key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: 'user' });
     }
     return items;
   },
