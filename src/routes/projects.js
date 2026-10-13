@@ -2,57 +2,96 @@ const express = require('express');
 const db = require('../db');
 const perm = require('../permissions');
 const dates = require('../util/dates');
+const constants = require('../constants');
 const { requireAuth, requireFullAccess } = require('../middleware/auth');
 
 const router = express.Router();
 router.use(requireAuth);
 
 const STATUSES = ['planned', 'active', 'paused', 'done'];
+const S = (v) => ((v || '').trim() || null);
+const num = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : null; };
 
-// GET /projects (Stavby)
+// pevné polia stavby z formulára
+function projectFields(body) {
+  const budget = body.budget ? parseFloat(String(body.budget).replace(',', '.')) : null;
+  return {
+    name: (body.name || '').trim(),
+    code: S(body.code),
+    client: S(body.client),
+    address: S(body.address),
+    budget: Number.isFinite(budget) ? budget : null,
+    status: STATUSES.includes(body.status) ? body.status : 'planned',
+    start_date: S(body.start_date),
+    end_date: S(body.end_date),
+    bauleiter: S(body.bauleiter),
+    polier: S(body.polier),
+    kw_od: num(body.kw_od),
+    kw_do: num(body.kw_do),
+    description: S(body.description),
+  };
+}
+
+function listProjects(user, f) {
+  const where = [];
+  const params = [];
+  if (!perm.isFullAccess(user)) {
+    const ids = perm.foremanProjectIds(user);
+    if (!ids.length) return [];
+    where.push('id IN (' + ids.map(() => '?').join(',') + ')');
+    params.push(...ids);
+  }
+  if (f.status && STATUSES.includes(f.status)) { where.push('status = ?'); params.push(f.status); }
+  if (f.q) {
+    where.push('(name LIKE ? OR code LIKE ? OR client LIKE ? OR address LIKE ?)');
+    const l = '%' + f.q + '%';
+    params.push(l, l, l, l);
+  }
+  const sql =
+    'SELECT * FROM projects' + (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY created_at DESC';
+  return db.prepare(sql).all(...params);
+}
+
+// GET /projects – tabuľka + filter
 router.get('/', (req, res) => {
-  const projects = perm.isFullAccess(req.user)
-    ? db.prepare('SELECT * FROM projects ORDER BY created_at DESC').all()
-    : perm.accessibleProjects(req.user);
+  const f = {
+    q: (req.query.q || '').trim(),
+    status: STATUSES.includes(req.query.status) ? req.query.status : '',
+  };
   res.render('projects', {
     title: 'Stavby',
     active: 'projects',
-    projects,
+    projects: listProjects(req.user, f),
+    filter: f,
+    statuses: constants.projectStatuses,
     canManage: perm.isFullAccess(req.user),
-    error: null,
   });
 });
 
-// POST /projects – vytvorenie stavby (len plný prístup)
-router.post('/', requireFullAccess, (req, res) => {
-  const name = (req.body.name || '').trim();
-  if (!name) {
-    const projects = db.prepare('SELECT * FROM projects ORDER BY created_at DESC').all();
-    return res.status(400).render('projects', {
-      title: 'Stavby', active: 'projects', projects, canManage: true, error: 'Názov stavby je povinný.',
-    });
-  }
-  const status = STATUSES.includes(req.body.status) ? req.body.status : 'planned';
-  const budget = req.body.budget ? parseFloat(String(req.body.budget).replace(',', '.')) : null;
-  db.prepare(
-    `INSERT INTO projects (name, code, client, address, budget, status, start_date, end_date, description, created_by)
-     VALUES (?,?,?,?,?,?,?,?,?,?)`
-  ).run(
-    name,
-    (req.body.code || '').trim() || null,
-    (req.body.client || '').trim() || null,
-    (req.body.address || '').trim() || null,
-    Number.isFinite(budget) ? budget : null,
-    status,
-    (req.body.start_date || '').trim() || null,
-    (req.body.end_date || '').trim() || null,
-    (req.body.description || '').trim() || null,
-    req.user.id
-  );
-  res.redirect('/projects');
+// GET /projects/novy – samostatná stránka na pridanie
+router.get('/novy', requireFullAccess, (req, res) => {
+  res.render('project-new', {
+    title: 'Nová stavba', active: 'projects', statuses: constants.projectStatuses, error: null,
+  });
 });
 
-// GET /projects/:id – detail stavby (info, ľudia, smenovky)
+// POST /projects – vytvorenie
+router.post('/', requireFullAccess, (req, res) => {
+  const p = projectFields(req.body);
+  if (!p.name) {
+    return res.status(400).render('project-new', {
+      title: 'Nová stavba', active: 'projects', statuses: constants.projectStatuses,
+      error: 'Názov stavby je povinný.',
+    });
+  }
+  const info = db.prepare(
+    `INSERT INTO projects (name, code, client, address, budget, status, start_date, end_date, bauleiter, polier, kw_od, kw_do, description, created_by)
+     VALUES (@name,@code,@client,@address,@budget,@status,@start_date,@end_date,@bauleiter,@polier,@kw_od,@kw_do,@description,@created_by)`
+  ).run(Object.assign(p, { created_by: req.user.id }));
+  res.redirect('/projects/' + info.lastInsertRowid);
+});
+
+// GET /projects/:id – detail (parametre + ľudia + smenovky)
 router.get('/:id', (req, res) => {
   const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(req.params.id);
   if (!project) return res.redirect('/projects');
@@ -74,17 +113,32 @@ router.get('/:id', (req, res) => {
   const sheets = db
     .prepare('SELECT * FROM shift_sheets WHERE project_id = ? ORDER BY year DESC, week DESC, uploaded_at DESC LIMIT 20')
     .all(project.id);
-  const cur = dates.currentIsoWeek();
 
   res.render('project-detail', {
     title: project.name,
     active: 'projects',
     project, members, available, sheets,
+    statuses: constants.projectStatuses,
     canManageMembers: perm.canAccessProject(req.user, project.id),
+    canManage: perm.isFullAccess(req.user),
     canAssignForeman: perm.isFullAccess(req.user),
-    cur,
+    cur: dates.currentIsoWeek(),
     error: null,
   });
+});
+
+// POST /projects/:id – úprava parametrov (len plný prístup)
+router.post('/:id', requireFullAccess, (req, res) => {
+  const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(req.params.id);
+  if (!project) return res.redirect('/projects');
+  const p = projectFields(req.body);
+  if (!p.name) return res.redirect('/projects/' + project.id);
+  db.prepare(
+    `UPDATE projects SET name=@name, code=@code, client=@client, address=@address, budget=@budget,
+       status=@status, start_date=@start_date, end_date=@end_date, bauleiter=@bauleiter, polier=@polier,
+       kw_od=@kw_od, kw_do=@kw_do, description=@description WHERE id=@id`
+  ).run(Object.assign(p, { id: project.id }));
+  res.redirect('/projects/' + project.id);
 });
 
 // POST /projects/:id/members – pridať zamestnanca na stavbu
@@ -116,13 +170,6 @@ router.post('/:id/members/:mid/remove', (req, res) => {
     db.prepare('DELETE FROM site_members WHERE id = ? AND project_id = ?').run(req.params.mid, project.id);
   }
   res.redirect('/projects/' + req.params.id);
-});
-
-// POST /projects/:id/status (len plný prístup)
-router.post('/:id/status', requireFullAccess, (req, res) => {
-  const status = STATUSES.includes(req.body.status) ? req.body.status : 'planned';
-  db.prepare('UPDATE projects SET status = ? WHERE id = ?').run(status, req.params.id);
-  res.redirect(req.body.back === 'detail' ? '/projects/' + req.params.id : '/projects');
 });
 
 // POST /projects/:id/delete (len plný prístup)

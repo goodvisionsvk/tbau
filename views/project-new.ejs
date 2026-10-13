@@ -1,0 +1,37 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/projects">&larr; Späť na stavby</a></p>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="card" style="max-width:860px;">
+  <form method="post" action="/projects">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="form-row">
+      <div class="field"><label for="name">Názov stavby *</label><input id="name" name="name" required autofocus></div>
+      <div class="field"><label for="code">Kód projektu</label><input id="code" name="code"></div>
+      <div class="field"><label for="client">Zákazník / klient</label><input id="client" name="client"></div>
+    </div>
+    <div class="field"><label for="address">Adresa stavby</label><input id="address" name="address"></div>
+    <div class="form-row">
+      <div class="field"><label for="kw_od">KW od</label><input id="kw_od" name="kw_od" type="number" min="1" max="53"></div>
+      <div class="field"><label for="kw_do">KW do</label><input id="kw_do" name="kw_do" type="number" min="1" max="53"></div>
+      <div class="field"><label for="status">Stav</label>
+        <select id="status" name="status">
+          <% Object.keys(statuses).forEach(function(k){ %><option value="<%= k %>" <%= k==='planned'?'selected':'' %>><%= statuses[k] %></option><% }) %>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="bauleiter">Bauleiter (stavbyvedúci)</label><input id="bauleiter" name="bauleiter"></div>
+      <div class="field"><label for="polier">Polier</label><input id="polier" name="polier"></div>
+      <div class="field"><label for="budget">Rozpočet (EUR)</label><input id="budget" name="budget" inputmode="decimal"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="start_date">Začiatok (dátum)</label><input id="start_date" name="start_date" type="date"></div>
+      <div class="field"><label for="end_date">Koniec (dátum)</label><input id="end_date" name="end_date" type="date"></div>
+    </div>
+    <div class="field"><label for="description">Poznámka</label><textarea id="description" name="description" rows="2"></textarea></div>
+    <div class="actions">
+      <button class="btn btn-primary">Vytvoriť stavbu</button>
+      <a class="btn btn-ghost" href="/projects">Zrušiť</a>
+    </div>
+  </form>
+</div>

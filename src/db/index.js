@@ -156,6 +156,10 @@ function ensureColumn(table, col, type) {
 }
 ensureColumn('employees', 'position', 'TEXT'); // HR pozícia: majitel/obchodnik/uctovnik/majster/robotnik
 ensureColumn('employees', 'trade', 'TEXT'); // druh robotníka (len pre robotník)
+ensureColumn('projects', 'bauleiter', 'TEXT'); // stavbyvedúci
+ensureColumn('projects', 'polier', 'TEXT'); // polier
+ensureColumn('projects', 'kw_od', 'INTEGER'); // kalendárny týždeň od
+ensureColumn('projects', 'kw_do', 'INTEGER'); // kalendárny týždeň do
 ensureColumn('work_log', 'session_ref', 'TEXT'); // Claude Code session id (pre automatické tokeny)
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_worklog_session ON work_log(session_ref)'); // SQLite povoľuje viac NULL
 

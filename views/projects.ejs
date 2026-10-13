@@ -1,51 +1,36 @@
-<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+<% if (canManage) { %>
+<div style="display:flex; justify-content:flex-end;">
+  <a class="btn btn-primary" href="/projects/novy"><%- icon('plus', 16) %> Pridať novú stavbu</a>
+</div>
+<% } %>
 
-<div class="grid" style="grid-template-columns: 1fr; gap:24px;">
-  <% if (canManage) { %>
-  <div class="card">
-    <h2 style="margin-top:0;">Nová stavba</h2>
-    <form method="post" action="/projects">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <div class="form-row">
-        <div class="field"><label for="name">Názov *</label><input id="name" name="name" required></div>
-        <div class="field"><label for="code">Kód / číslo</label><input id="code" name="code"></div>
-        <div class="field"><label for="client">Klient / investor</label><input id="client" name="client"></div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label for="address">Miesto stavby</label><input id="address" name="address"></div>
-        <div class="field"><label for="budget">Rozpočet (EUR)</label><input id="budget" name="budget" inputmode="decimal"></div>
-        <div class="field"><label for="status">Stav</label>
-          <select id="status" name="status">
-            <option value="planned">plánovaná</option>
-            <option value="active">prebieha</option>
-            <option value="paused">pozastavená</option>
-            <option value="done">dokončená</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label for="start_date">Začiatok</label><input id="start_date" name="start_date" type="date"></div>
-        <div class="field"><label for="end_date">Koniec</label><input id="end_date" name="end_date" type="date"></div>
-      </div>
-      <div class="field"><label for="description">Popis</label><textarea id="description" name="description" rows="2"></textarea></div>
-      <button class="btn btn-primary">Vytvoriť stavbu</button>
-    </form>
-  </div>
-  <% } %>
+<div class="card">
+  <form method="get" action="/projects" class="form-row" style="align-items:end; margin:0;">
+    <div class="field" style="margin-bottom:0;"><label>Hľadať</label><input name="q" value="<%= filter.q %>" placeholder="Názov, kód, klient, miesto"></div>
+    <div class="field" style="margin-bottom:0;"><label>Stav</label>
+      <select name="status"><option value="">Všetky</option>
+        <% Object.keys(statuses).forEach(function(k){ %><option value="<%= k %>" <%= filter.status===k?'selected':'' %>><%= statuses[k] %></option><% }) %>
+      </select>
+    </div>
+    <div class="field" style="margin-bottom:0;"><button class="btn btn-ghost">Filtrovať</button></div>
+  </form>
+</div>
 
-  <% if (projects.length === 0) { %>
-    <div class="card muted">Zatiaľ žiadne stavby.</div>
+<div class="section">
+  <% if (!projects.length) { %>
+    <div class="card muted">Žiadne stavby pre zvolený filter.</div>
   <% } else { %>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Stavba</th><th>Klient</th><th>Miesto</th><th>Stav</th><th></th></tr></thead>
+        <thead><tr><th>Stavba</th><th>Klient</th><th>Miesto</th><th>KW</th><th>Stav</th><th></th></tr></thead>
         <tbody>
           <% projects.forEach(function(p){ %>
             <tr>
               <td><a href="/projects/<%= p.id %>"><b><%= p.name %></b></a><% if (p.code){ %><br><span class="muted" style="font-size:.8rem;"><%= p.code %></span><% } %></td>
               <td class="muted"><%= p.client || '—' %></td>
               <td class="muted"><%= p.address || '—' %></td>
-              <td><span class="pill <%= p.status %>"><%= p.status %></span></td>
+              <td class="muted"><%= (p.kw_od || p.kw_do) ? ((p.kw_od||'?') + '–' + (p.kw_do||'?')) : '—' %></td>
+              <td><span class="pill <%= p.status %>"><%= statuses[p.status] || p.status %></span></td>
               <td class="actions">
                 <a class="btn btn-ghost btn-sm" href="/projects/<%= p.id %>">Detail</a>
                 <% if (canManage) { %>

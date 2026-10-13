@@ -1,18 +1,59 @@
-<p style="margin-top:-8px;"><a class="btn-link" href="/projects">&larr; Späť na stavby</a></p>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:-8px; gap:12px; flex-wrap:wrap;">
+  <a class="btn-link" href="/projects">&larr; Späť na stavby</a>
+  <div class="actions">
+    <a class="btn btn-primary btn-sm" href="/dochadzka?project=<%= project.id %>&year=<%= cur.year %>&week=<%= cur.week %>"><%- icon('clock', 15) %> Dochádzka stavby</a>
+    <% if (canManage) { %>
+      <form class="inline" method="post" action="/projects/<%= project.id %>/delete" onsubmit="return confirm('Zmazať stavbu? Zmažú sa aj priradenia a dochádzka.')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+    <% } %>
+  </div>
+</div>
 <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
 <div class="grid" style="grid-template-columns:1fr; gap:24px;">
   <div class="card">
-    <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center;">
-      <div>
-        <% if (project.code) { %><span class="muted"><%= project.code %></span><br><% } %>
-        <span class="pill <%= project.status %>"><%= project.status %></span>
-        <% if (project.client) { %> &middot; <span class="muted">Klient: <%= project.client %></span><% } %>
-        <% if (project.address) { %> &middot; <span class="muted"><%= project.address %></span><% } %>
+    <h2 style="margin-top:0;">Parametre stavby</h2>
+    <% if (canManage) { %>
+    <form method="post" action="/projects/<%= project.id %>">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field"><label>Názov stavby *</label><input name="name" value="<%= project.name %>" required></div>
+        <div class="field"><label>Kód projektu</label><input name="code" value="<%= project.code || '' %>"></div>
+        <div class="field"><label>Zákazník / klient</label><input name="client" value="<%= project.client || '' %>"></div>
       </div>
-      <a class="btn btn-primary btn-sm" href="/dochadzka?project=<%= project.id %>&year=<%= cur.year %>&week=<%= cur.week %>"><%- icon('clock', 15) %> Dochádzka stavby</a>
-    </div>
-    <% if (project.description) { %><p class="muted" style="margin-bottom:0;"><%= project.description %></p><% } %>
+      <div class="field"><label>Adresa stavby</label><input name="address" value="<%= project.address || '' %>"></div>
+      <div class="form-row">
+        <div class="field"><label>KW od</label><input name="kw_od" type="number" min="1" max="53" value="<%= project.kw_od != null ? project.kw_od : '' %>"></div>
+        <div class="field"><label>KW do</label><input name="kw_do" type="number" min="1" max="53" value="<%= project.kw_do != null ? project.kw_do : '' %>"></div>
+        <div class="field"><label>Stav</label>
+          <select name="status">
+            <% Object.keys(statuses).forEach(function(k){ %><option value="<%= k %>" <%= project.status===k?'selected':'' %>><%= statuses[k] %></option><% }) %>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Bauleiter (stavbyvedúci)</label><input name="bauleiter" value="<%= project.bauleiter || '' %>"></div>
+        <div class="field"><label>Polier</label><input name="polier" value="<%= project.polier || '' %>"></div>
+        <div class="field"><label>Rozpočet (EUR)</label><input name="budget" inputmode="decimal" value="<%= project.budget != null ? project.budget : '' %>"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Začiatok (dátum)</label><input name="start_date" type="date" value="<%= project.start_date || '' %>"></div>
+        <div class="field"><label>Koniec (dátum)</label><input name="end_date" type="date" value="<%= project.end_date || '' %>"></div>
+      </div>
+      <div class="field"><label>Poznámka</label><textarea name="description" rows="2"><%= project.description || '' %></textarea></div>
+      <p class="muted" style="font-size:.84rem;">Počet ľudí na stavbe sa preberá z turnusu (zatiaľ nenapojené) — aktuálne 0.</p>
+      <button class="btn btn-primary">Uložiť</button>
+    </form>
+    <% } else { %>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px 22px;">
+        <div><div class="k muted" style="font-size:13px;font-weight:600;">Stav</div><span class="pill <%= project.status %>"><%= statuses[project.status] || project.status %></span></div>
+        <div><div class="k muted" style="font-size:13px;font-weight:600;">Zákazník</div><div><%= project.client || '—' %></div></div>
+        <div><div class="k muted" style="font-size:13px;font-weight:600;">Adresa</div><div><%= project.address || '—' %></div></div>
+        <div><div class="k muted" style="font-size:13px;font-weight:600;">KW</div><div><%= (project.kw_od||project.kw_do) ? ((project.kw_od||'?')+'–'+(project.kw_do||'?')) : '—' %></div></div>
+        <div><div class="k muted" style="font-size:13px;font-weight:600;">Bauleiter</div><div><%= project.bauleiter || '—' %></div></div>
+        <div><div class="k muted" style="font-size:13px;font-weight:600;">Polier</div><div><%= project.polier || '—' %></div></div>
+      </div>
+      <% if (project.description) { %><p class="muted" style="margin-bottom:0;"><%= project.description %></p><% } %>
+    <% } %>
   </div>
 
   <div class="card">

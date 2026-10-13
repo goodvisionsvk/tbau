@@ -38,6 +38,14 @@ module.exports = {
     majster: 'Majster',
     robotnik: 'Robotník',
   },
+  // stavy stavby (podľa zadania klienta + navyše Pozastavená)
+  projectStatuses: {
+    planned: 'Plánovaná',
+    active: 'Prebieha',
+    paused: 'Pozastavená',
+    done: 'Ukončená',
+  },
+
   // druh robotníka (len pre pozíciu Robotník); rozšíriteľné
   workerTrades: [
     'Murár', 'Tesár', 'Zateplovač', 'Betonár', 'Železiar', 'Obkladač',
