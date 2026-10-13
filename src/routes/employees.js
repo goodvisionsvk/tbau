@@ -38,11 +38,14 @@ function listEmployees(f) {
     params.push(like, like, like);
   }
   const sql =
-    `SELECT DISTINCT e.*, u.email AS login_email, u.role AS login_role
+    `SELECT e.*, u.email AS login_email, u.role AS login_role,
+       (SELECT GROUP_CONCAT(p.name, ', ') FROM site_members sm2
+          JOIN projects p ON p.id = sm2.project_id WHERE sm2.employee_id = e.id) AS sites
      FROM employees e
      LEFT JOIN users u ON u.id = e.user_id
-     LEFT JOIN site_members sm ON sm.employee_id = e.id
+     ${f.stavba ? 'JOIN site_members sm ON sm.employee_id = e.id' : ''}
      WHERE ${where.join(' AND ')}
+     GROUP BY e.id
      ORDER BY e.last_name, e.first_name`;
   return db.prepare(sql).all(...params);
 }
