@@ -13,4 +13,5 @@ module.exports = {
     : path.join(__dirname, '..', 'data', 'uploads'),
   trustProxy: process.env.TRUST_PROXY === '1',
   secureCookies: process.env.SECURE_COOKIES === '1',
+  worklogSecret: process.env.WORKLOG_SECRET || '',
 };

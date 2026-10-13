@@ -23,3 +23,6 @@ data/
 *.db
 *.sqlite
 *.sqlite3
+
+# tajomstvo pre worklog hook (lokálne)
+.worklog-secret

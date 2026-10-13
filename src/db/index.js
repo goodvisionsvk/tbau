@@ -156,6 +156,8 @@ function ensureColumn(table, col, type) {
 }
 ensureColumn('employees', 'position', 'TEXT'); // HR pozícia: majitel/obchodnik/uctovnik/majster/robotnik
 ensureColumn('employees', 'trade', 'TEXT'); // druh robotníka (len pre robotník)
+ensureColumn('work_log', 'session_ref', 'TEXT'); // Claude Code session id (pre automatické tokeny)
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_worklog_session ON work_log(session_ref)'); // SQLite povoľuje viac NULL
 
 // Poznámka: tabuľku "sessions" si vytvára a spravuje better-sqlite3-session-store.
 

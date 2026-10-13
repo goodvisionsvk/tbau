@@ -3,13 +3,13 @@
 
 <div class="grid stats">
   <div class="card stat"><span class="ico"><%- icon('clock', 22) %></span><span class="num"><%= totals.hours %> h</span><span class="lbl">Odpracovaný čas (odhad)</span></div>
-  <div class="card stat"><span class="ico"><%- icon('chart', 22) %></span><span class="num"><%= totals.tokens.toLocaleString('sk-SK') %></span><span class="lbl">Spotrebované tokeny (odhad)</span></div>
+  <div class="card stat"><span class="ico"><%- icon('chart', 22) %></span><span class="num"><%= totals.tokens.toLocaleString('sk-SK') %></span><span class="lbl">Spotrebované tokeny (automaticky)</span></div>
   <div class="card stat"><span class="ico"><%- icon('receipt', 22) %></span><span class="num"><%= totals.value.toLocaleString('sk-SK') %> <%= currency %></span><span class="lbl">Odhadovaná cena práce</span></div>
 </div>
 
 <p class="muted" style="font-size:.85rem;">
   Cena = čas × sadzba <b><%= rate %> <%= currency %>/h</b> (odhad podľa slovenského trhu pre vývoj
-  firemného softvéru, stredná sadzba). Tokeny sú orientačné a nevstupujú do ceny.
+  firemného softvéru). Tokeny sa počítajú <b>automaticky</b> z Claude Code sessions a nevstupujú do ceny.
 </p>
 
 <div class="section">

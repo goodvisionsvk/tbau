@@ -42,6 +42,9 @@ app.use(
 // --- Logovanie požiadaviek (audit) ---
 app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 
+// --- API pre automatické tokeny (pred session/csrf; autorizácia cez X-Worklog-Secret) ---
+app.post('/api/worklog', express.urlencoded({ extended: false }), require('./src/routes/worklog-api'));
+
 // --- Views ---
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
