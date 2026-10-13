@@ -42,7 +42,7 @@ src/icons.js      – líniové SVG ikony (icon(name,size)); v šablónach <%- i
 src/db/           – index.js (schéma), seed.js, create-user.js
 src/middleware/   – auth.js (requireAuth/FullAccess/Staff), csrf.js
 src/routes/       – auth, pages, users, apps, projects, tasks, tests,
-                    employees, attendance, myattendance, requests, reports
+                    employees, attendance, myattendance, requests, reports, work
 views/            – EJS (layouts/app.ejs = sidebar, layouts/public.ejs = login/landing)
 public/           – css/style.css, js/app.js, img/logo.png
 deploy/           – tbau-portal.service, nginx-tbau.conf, deploy.sh
@@ -51,7 +51,12 @@ deploy/           – tbau-portal.service, nginx-tbau.conf, deploy.sh
 Dátový model (SQLite): `users`, `apps`, `projects` (= stavby), `tasks`,
 `employees` (zamestnanci), `site_members` (priradenie na stavbu + parťák),
 `shift_sheets` (smenovky – dokumenty), `attendance` (denné hodiny),
-`change_requests` (žiadosti o zmenu) (+ `sessions` spravuje store).
+`change_requests` (žiadosti o zmenu), `work_log` (evidencia práce na projekte: čas, tokeny)
+(+ `sessions` spravuje store).
+
+**Vykázaná práca** (`/praca`, len full access, v Nastaveniach): čas + tokeny + odhadovaná cena
+práce (`work_log`). Sadzba `constants.workHourlyRate` (45 €/h, SK trh); cena = hodiny × sadzba,
+tokeny sú orientačné. Priebežne dopĺňať míľniky.
 
 **Roly** (users.role): `sef` + `admin` = plný prístup; `parcak` = svoje stavby a ľudia;
 `zamestnanec` = len vlastná dochádzka + žiadosti. Prepojenie prihlásenia na zamestnanca:

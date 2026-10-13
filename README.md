@@ -110,6 +110,8 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
 - **2026-10-13** – **HR sekcia**: menu zoskupené (HR / Projekty / Systém); k zamestnancom pridaná
   **pozícia** (Majiteľ/Obchodník/Účtovník/Majster/Robotník) a **druh robotníka** (Murár, Tesár,
   Zateplovač…). Oprava: 500 na `/login` so starou/neplatnou session.
+- **2026-10-13** – Nastavenia → **Vykázaná práca** (`/praca`): evidencia času, tokenov a odhadovanej
+  ceny práce (sadzba 45 €/h, SK trh). Doteraz odhadom ~94 h / ~6,45 M tokenov / ~4 230 €.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
 
