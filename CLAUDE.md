@@ -63,6 +63,10 @@ a pošle `hours`+`tokens` na chránený endpoint `POST /api/worklog` (hlavička 
 mountnutý PRED session/csrf). Stretnutia a staršie míľniky sú manuálne (seed). Secret: lokálne
 `.worklog-secret` (gitignored) = server `.env` `WORKLOG_SECRET`. Upsert podľa `work_log.session_ref`
 (bez duplicít). Hook je v `.claude/settings.local.json` (aktívny od najbližšej session).
+Tokeny = nové tokeny (input+output+cache_creation, **bez** cache re-readov). Stránka `/praca` má
+2 sekcie: **Rozpis vykonaných prác** (klientske položky, `hours=0, session_ref NULL`) a **Čas a
+náklady** (účtované: stretnutia + auto sessions + prípadné odpočty so zápornými hodinami).
+**Čas vývoja internej evidencie sa neúčtuje** (záporný záznam „Neúčtovaná réžia…").
 
 **Zamestnanci** (`/zamestnanci`): tabuľka s **filtrami** (hľadanie, stavba, pozícia, druh robotníka,
 archivovaní) + tlačidlo „Pridať" → samostatná stránka `/zamestnanci/novy`. Akcie: Upraviť
