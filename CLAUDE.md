@@ -80,10 +80,12 @@ pre vzhľad a správanie CRM.
 
 - **Biznis model:** TBAU zháňa robotníkov zo SK a ponúka ich **nemeckým firmám**, ktoré robia
   zákazky. CRM reťaz: `Zákazník (DE firma) → Stavba → Požiadavka (koľko ľudí, profesia, KW od–do)`.
-- **Rozhodnutia:** (1) „2 verzie" = jeho prototyp ako **referencia** na `/crm-prototyp`
-  (chránené, full access, uvoľnené CSP kvôli inline skriptu) + **naša integrovaná** verzia;
+- **Rozhodnutia:** (1) jeho prototyp sa do portálu **nevkladá** (route `/crm-prototyp` bola na
+  žiadosť používateľa odstránená); jeho appku pozeráme **samostatne** z `reference/` (lokálny
+  náhľad: kópia s `<meta charset="utf-8">` servírovaná napr. `python3 -m http.server` – originál
+  v `reference/` nemeniť). Staviame **našu integrovanú** verziu modulu Obchod.
   (2) jeho **dizajn preberáme na celý portál** (oranžový `#C2410C`, bridlicový nav `#1B2830`,
-  fonty Barlow Semi Condensed + Source Sans 3, svetlý/tmavý režim).
+  fonty Barlow Semi Condensed + Source Sans 3, svetlý/tmavý režim) – HOTOVO.
 - **Stavby sú zjednotené:** `projects` (naša „stavba") môže byť samostatná (naša) alebo naviazaná
   na CRM zákazníka (nemecká stavba). Plán: `projects.customer_id` (nepovinné).
 - **Zamestnanci:** jeho prototyp **nemá** sekciu zamestnancov ani menných robotníkov – iba
