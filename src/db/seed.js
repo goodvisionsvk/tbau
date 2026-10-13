@@ -91,6 +91,8 @@ if (db.prepare('SELECT COUNT(*) c FROM work_log').get().c === 0) {
     ['2026-10-13', 'Integrácia klientovho CRM – analýza zadania + prototyp', 0.4, 500000],
     ['2026-10-13', 'Redizajn portálu (Apple štýl, líniové SVG ikony)', 0.4, 900000],
     ['2026-10-13', 'HR sekcia + evidencia práce (pozície, druh robotníka, menu)', 0.25, 400000],
+    ['2026-08-10', 'Stretnutie so zadávateľom – zadanie (portál, dochádzka)', 1, 0],
+    ['2026-10-13', 'Stretnutie so zadávateľom – klientov CRM a smerovanie', 1, 0],
   ];
   const insW = db.prepare('INSERT INTO work_log (entry_date, title, hours, tokens) VALUES (?,?,?,?)');
   work.forEach((w) => insW.run(w[0], w[1], w[2], w[3]));
