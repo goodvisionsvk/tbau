@@ -35,11 +35,13 @@
     <% if (currentUser) { %>
     <aside class="sidebar" id="sidebar">
       <nav>
-        <% nav.forEach(function(item){
-             if (item.adminOnly && currentUser.role !== 'admin') return; %>
-          <a class="nav-item <%= active === item.key ? 'active' : '' %>" href="<%= item.href %>">
-            <span class="nav-ico"><%- icon(item.icon) %></span><%= item.label %>
-          </a>
+        <% nav.forEach(function(group){ %>
+          <% if (group.label) { %><div class="nav-group"><%= group.label %></div><% } %>
+          <% group.items.forEach(function(item){ %>
+            <a class="nav-item <%= active === item.key ? 'active' : '' %>" href="<%= item.href %>">
+              <span class="nav-ico"><%- icon(item.icon) %></span><%= item.label %>
+            </a>
+          <% }) %>
         <% }) %>
       </nav>
       <div class="sidebar-account">

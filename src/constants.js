@@ -26,6 +26,20 @@ module.exports = {
   },
   fullAccessRoles: ['sef', 'admin'],
 
+  // HR pozície (rola zamestnanca vo firme) – odlišné od prihlasovacej role (users.role)
+  employeePositions: {
+    majitel: 'Majiteľ',
+    obchodnik: 'Obchodník',
+    uctovnik: 'Účtovník',
+    majster: 'Majster',
+    robotnik: 'Robotník',
+  },
+  // druh robotníka (len pre pozíciu Robotník); rozšíriteľné
+  workerTrades: [
+    'Murár', 'Tesár', 'Zateplovač', 'Betonár', 'Železiar', 'Obkladač',
+    'Maliar', 'Elektrikár', 'Inštalatér', 'Pomocný pracovník', 'Iné',
+  ],
+
   // mapovanie aplikácií (slug) na ich reálnu adresu v portáli
   appRoutes: {
     dochadzka: '/dochadzka',
@@ -48,24 +62,35 @@ module.exports = {
 
     // Zamestnanec vidí len svoju dochádzku.
     if (worker && !full && !foreman) {
-      return [{ key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: 'user' }];
+      return [{ label: '', items: [{ key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: 'user' }] }];
     }
 
-    const items = [{ key: 'dashboard', label: 'Prehľad', href: '/dashboard', icon: 'home' }];
-    if (full || foreman) {
-      items.push({ key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' });
-      items.push({ key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' });
-      items.push({ key: 'reports', label: 'Reporty', href: '/reporty', icon: 'chart' });
-      items.push({ key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' });
-    }
+    const groups = [{ label: '', items: [{ key: 'dashboard', label: 'Prehľad', href: '/dashboard', icon: 'home' }] }];
+
     if (full) {
-      items.push({ key: 'employees', label: 'Zamestnanci', href: '/zamestnanci', icon: 'hardhat' });
-      items.push({ key: 'settings', label: 'Nastavenia', href: '/nastavenia', icon: 'settings' });
+      groups.push({ label: 'HR', items: [
+        { key: 'employees', label: 'Zamestnanci', href: '/zamestnanci', icon: 'hardhat' },
+        { key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' },
+        { key: 'reports', label: 'Report dochádzky', href: '/reporty', icon: 'chart' },
+        { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
+      ] });
+      groups.push({ label: 'Projekty', items: [
+        { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },
+      ] });
+      groups.push({ label: 'Systém', items: [
+        { key: 'settings', label: 'Nastavenia', href: '/nastavenia', icon: 'settings' },
+      ] });
+    } else if (foreman) {
+      groups.push({ label: 'HR', items: [
+        { key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' },
+        { key: 'reports', label: 'Report dochádzky', href: '/reporty', icon: 'chart' },
+        { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
+        { key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: 'user' },
+      ] });
+      groups.push({ label: 'Projekty', items: [
+        { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },
+      ] });
     }
-    // parťák má aj vlastnú dochádzku
-    if (foreman) {
-      items.push({ key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: 'user' });
-    }
-    return items;
+    return groups;
   },
 };

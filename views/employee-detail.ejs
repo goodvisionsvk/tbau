@@ -24,6 +24,20 @@
       </div>
       <div class="field"><label>Telefón</label><input name="phone" value="<%= employee.phone || '' %>"></div>
       <div class="field"><label>Adresa</label><input name="address" value="<%= employee.address || '' %>"></div>
+      <div class="form-row">
+        <div class="field"><label>Pozícia</label>
+          <select name="position" data-position>
+            <option value="">— vyber —</option>
+            <% Object.keys(positions).forEach(function(k){ %><option value="<%= k %>" <%= employee.position===k?'selected':'' %>><%= positions[k] %></option><% }) %>
+          </select>
+        </div>
+        <div class="field" data-trade <%= employee.position==='robotnik' ? '' : 'hidden' %>><label>Druh robotníka</label>
+          <select name="trade">
+            <option value="">— vyber —</option>
+            <% trades.forEach(function(t){ %><option value="<%= t %>" <%= employee.trade===t?'selected':'' %>><%= t %></option><% }) %>
+          </select>
+        </div>
+      </div>
       <label style="display:flex; gap:8px; align-items:center; margin-bottom:14px;">
         <input type="checkbox" name="active" value="1" style="width:auto;" <%= employee.active ? 'checked':'' %>> Aktívny
       </label>

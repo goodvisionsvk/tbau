@@ -138,6 +138,14 @@ CREATE INDEX IF NOT EXISTS idx_attendance_project ON attendance(project_id);
 CREATE INDEX IF NOT EXISTS idx_requests_status ON change_requests(status);
 CREATE INDEX IF NOT EXISTS idx_sheets_proj_week ON shift_sheets(project_id, year, week);
 `);
+// --- Migrácie: doplnenie stĺpcov do existujúcich tabuliek (idempotentné) ---
+function ensureColumn(table, col, type) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!cols.some((c) => c.name === col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`);
+}
+ensureColumn('employees', 'position', 'TEXT'); // HR pozícia: majitel/obchodnik/uctovnik/majster/robotnik
+ensureColumn('employees', 'trade', 'TEXT'); // druh robotníka (len pre robotník)
+
 // Poznámka: tabuľku "sessions" si vytvára a spravuje better-sqlite3-session-store.
 
 module.exports = db;

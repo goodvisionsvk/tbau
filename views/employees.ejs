@@ -15,6 +15,20 @@
         <div class="field"><label for="phone">Telefón</label><input id="phone" name="phone"></div>
         <div class="field"><label for="address">Adresa</label><input id="address" name="address"></div>
       </div>
+      <div class="form-row">
+        <div class="field"><label for="position">Pozícia</label>
+          <select id="position" name="position" data-position>
+            <option value="">— vyber —</option>
+            <% Object.keys(positions).forEach(function(k){ %><option value="<%= k %>"><%= positions[k] %></option><% }) %>
+          </select>
+        </div>
+        <div class="field" data-trade hidden><label for="trade">Druh robotníka</label>
+          <select id="trade" name="trade">
+            <option value="">— vyber —</option>
+            <% trades.forEach(function(t){ %><option value="<%= t %>"><%= t %></option><% }) %>
+          </select>
+        </div>
+      </div>
       <button class="btn btn-primary">Pridať zamestnanca</button>
     </form>
   </div>
@@ -24,11 +38,12 @@
   <% } else { %>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Priezvisko a meno</th><th>Os. číslo</th><th>Telefón</th><th>Prihlásenie</th><th>Stav</th><th></th></tr></thead>
+        <thead><tr><th>Priezvisko a meno</th><th>Pozícia</th><th>Os. číslo</th><th>Telefón</th><th>Prihlásenie</th><th>Stav</th><th></th></tr></thead>
         <tbody>
           <% employees.forEach(function(e){ %>
             <tr>
               <td><a href="/zamestnanci/<%= e.id %>"><b><%= e.last_name %> <%= e.first_name %></b></a></td>
+              <td class="muted"><%= e.position ? positions[e.position] : '—' %><% if (e.position==='robotnik' && e.trade){ %> · <%= e.trade %><% } %></td>
               <td class="muted"><%= e.employee_number || '—' %></td>
               <td class="muted"><%= e.phone || '—' %></td>
               <td class="muted"><%= e.login_email ? e.login_email : '—' %></td>

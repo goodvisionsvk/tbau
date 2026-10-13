@@ -26,12 +26,21 @@ function listEmployees() {
     .all();
 }
 
+// pozícia + druh robotníka z formulára (druh len pre robotníka)
+function parsePosition(body) {
+  const position = Object.keys(constants.employeePositions).includes(body.position) ? body.position : null;
+  const trade = position === 'robotnik' ? ((body.trade || '').trim() || null) : null;
+  return { position, trade };
+}
+
 // GET /zamestnanci
 router.get('/', (req, res) => {
   res.render('employees', {
     title: 'Zamestnanci',
     active: 'employees',
     employees: listEmployees(),
+    positions: constants.employeePositions,
+    trades: constants.workerTrades,
     error: null,
   });
 });
@@ -43,18 +52,21 @@ router.post('/', (req, res) => {
   if (!first || !last) {
     return res.status(400).render('employees', {
       title: 'Zamestnanci', active: 'employees', employees: listEmployees(),
+      positions: constants.employeePositions, trades: constants.workerTrades,
       error: 'Meno a priezvisko sú povinné.',
     });
   }
+  const { position, trade } = parsePosition(req.body);
   db.prepare(
-    `INSERT INTO employees (first_name, last_name, employee_number, birth_date, phone, address)
-     VALUES (?,?,?,?,?,?)`
+    `INSERT INTO employees (first_name, last_name, employee_number, birth_date, phone, address, position, trade)
+     VALUES (?,?,?,?,?,?,?,?)`
   ).run(
     first, last,
     (req.body.employee_number || '').trim() || null,
     (req.body.birth_date || '').trim() || null,
     (req.body.phone || '').trim() || null,
-    (req.body.address || '').trim() || null
+    (req.body.address || '').trim() || null,
+    position, trade
   );
   res.redirect('/zamestnanci');
 });
@@ -77,6 +89,8 @@ router.get('/:id', (req, res) => {
     active: 'employees',
     employee, login, sites,
     roles: constants.roles,
+    positions: constants.employeePositions,
+    trades: constants.workerTrades,
     tempInfo: null,
     error: null,
   });
@@ -96,6 +110,7 @@ function renderDetail(res, status, id, extra) {
   res.status(status).render('employee-detail', Object.assign({
     title: employee.first_name + ' ' + employee.last_name,
     active: 'employees', employee, login, sites, roles: constants.roles,
+    positions: constants.employeePositions, trades: constants.workerTrades,
     tempInfo: null, error: null,
   }, extra));
 }
@@ -107,8 +122,9 @@ router.post('/:id', (req, res) => {
   const first = (req.body.first_name || '').trim();
   const last = (req.body.last_name || '').trim();
   if (!first || !last) return renderDetail(res, 400, employee.id, { error: 'Meno a priezvisko sú povinné.' });
+  const { position, trade } = parsePosition(req.body);
   db.prepare(
-    `UPDATE employees SET first_name=?, last_name=?, employee_number=?, birth_date=?, phone=?, address=?, active=?
+    `UPDATE employees SET first_name=?, last_name=?, employee_number=?, birth_date=?, phone=?, address=?, position=?, trade=?, active=?
      WHERE id=?`
   ).run(
     first, last,
@@ -116,6 +132,7 @@ router.post('/:id', (req, res) => {
     (req.body.birth_date || '').trim() || null,
     (req.body.phone || '').trim() || null,
     (req.body.address || '').trim() || null,
+    position, trade,
     req.body.active ? 1 : 0,
     employee.id
   );

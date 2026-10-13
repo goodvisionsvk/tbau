@@ -29,3 +29,17 @@
     a.addEventListener('click', close);
   });
 })();
+
+// Pole "Druh robotníka" sa zobrazí len pri pozícii Robotník.
+(function () {
+  document.querySelectorAll('select[data-position]').forEach(function (sel) {
+    function sync() {
+      var form = sel.closest('form');
+      if (!form) return;
+      var tf = form.querySelector('[data-trade]');
+      if (tf) tf.hidden = sel.value !== 'robotnik';
+    }
+    sel.addEventListener('change', sync);
+    sync();
+  });
+})();
