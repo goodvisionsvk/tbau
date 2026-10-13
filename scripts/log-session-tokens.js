@@ -46,7 +46,8 @@ try {
 
   const body = 'session=' + encodeURIComponent(session) +
     '&tokens=' + total + '&hours=' + hours + '&date=' + new Date().toISOString().slice(0, 10);
-  const req = https.request('https://portal.tbau.eu/api/worklog', {
+  // interný endpoint – goodvision resolvuje spoľahlivo (portal.tbau.eu je user-facing)
+  const req = https.request('https://tbau.goodvision.sk/api/worklog', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
