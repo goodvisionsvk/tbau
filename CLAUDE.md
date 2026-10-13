@@ -55,8 +55,17 @@ Dátový model (SQLite): `users`, `apps`, `projects` (= stavby), `tasks`,
 (+ `sessions` spravuje store).
 
 **Vykázaná práca** (`/praca`, len full access, v Nastaveniach): čas + tokeny + odhadovaná cena
-práce (`work_log`). Sadzba `constants.workHourlyRate` (45 €/h, SK trh); cena = hodiny × sadzba,
-tokeny sú orientačné. Priebežne dopĺňať míľniky.
+práce (`work_log`). Sadzba `constants.workHourlyRate` (**40 €/h**, reálny spoločný čas); cena =
+hodiny × sadzba. **Hodiny** = manuálne míľniky/stretnutia (seed). **Tokeny = automaticky**:
+Claude Code **SessionEnd hook** (`scripts/log-session-tokens.js`) sčíta tokeny z transkriptu a
+pošle ich na chránený endpoint `POST /api/worklog` (hlavička `X-Worklog-Secret`, mountnutý PRED
+session/csrf). Secret: lokálne `.worklog-secret` (gitignored) = server `.env` `WORKLOG_SECRET`.
+Upsert podľa `work_log.session_ref` (bez duplicít). Hook je v `.claude/settings.local.json`.
+
+**Zamestnanci** (`/zamestnanci`): tabuľka s **filtrami** (hľadanie, stavba, pozícia, druh robotníka,
+archivovaní) + tlačidlo „Pridať" → samostatná stránka `/zamestnanci/novy`. Akcie: Upraviť
+(`/zamestnanci/:id`), **Archivovať** (`/:id/archive`, soft = `active=0`), **Zmazať** (`/:id/delete`,
+hard, kaskáda na dochádzku/priradenia).
 
 **Roly** (users.role): `sef` + `admin` = plný prístup; `parcak` = svoje stavby a ľudia;
 `zamestnanec` = len vlastná dochádzka + žiadosti. Prepojenie prihlásenia na zamestnanca:
