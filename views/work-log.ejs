@@ -2,14 +2,15 @@
 <p class="muted" style="margin-top:0;">Prehľad práce odvedenej na tomto projekte (pre zadávateľa). Čas a tokeny sú vedené po míľnikoch a priebežne dopĺňané.</p>
 
 <div class="grid stats">
-  <div class="card stat"><span class="ico"><%- icon('clock', 22) %></span><span class="num"><%= totals.hours %> h</span><span class="lbl">Odpracovaný čas (odhad)</span></div>
+  <div class="card stat"><span class="ico"><%- icon('clock', 22) %></span><span class="num"><%= totals.hours %> h</span><span class="lbl">Odpracovaný čas</span></div>
   <div class="card stat"><span class="ico"><%- icon('chart', 22) %></span><span class="num"><%= totals.tokens.toLocaleString('sk-SK') %></span><span class="lbl">Spotrebované tokeny (automaticky)</span></div>
   <div class="card stat"><span class="ico"><%- icon('receipt', 22) %></span><span class="num"><%= totals.value.toLocaleString('sk-SK') %> <%= currency %></span><span class="lbl">Odhadovaná cena práce</span></div>
 </div>
 
 <p class="muted" style="font-size:.85rem;">
-  Cena = čas × sadzba <b><%= rate %> <%= currency %>/h</b> (odhad podľa slovenského trhu pre vývoj
-  firemného softvéru). Tokeny sa počítajú <b>automaticky</b> z Claude Code sessions a nevstupujú do ceny.
+  Cena = čas × sadzba <b><%= rate %> <%= currency %>/h</b>. <b>Čas aj tokeny</b> Claude Code sessions
+  sa počítajú <b>automaticky</b> (reálny spoločný čas – súčet medzier medzi správami, dlhé prestávky
+  sa nerátajú). Stretnutia a staršie míľniky sú zadané ručne. Tokeny nevstupujú do ceny.
 </p>
 
 <div class="section">

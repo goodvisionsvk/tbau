@@ -18,6 +18,7 @@ try {
   if (!secret) process.exit(0);
 
   let total = 0;
+  const times = [];
   for (const line of fs.readFileSync(transcript, 'utf8').split('\n')) {
     if (!line.trim()) continue;
     let obj;
@@ -27,11 +28,24 @@ try {
       total += (u.input_tokens || 0) + (u.output_tokens || 0) +
                (u.cache_creation_input_tokens || 0) + (u.cache_read_input_tokens || 0);
     }
+    if (obj && obj.timestamp) {
+      const t = Date.parse(obj.timestamp);
+      if (!isNaN(t)) times.push(t);
+    }
   }
-  if (!total) process.exit(0);
+
+  // reálny spoločný čas = súčet medzier medzi správami, každá medzera obmedzená na 20 min
+  // (aby sa nerátal čas, keď nikto nie je pri počítači)
+  times.sort((a, b) => a - b);
+  const CAP = 20 * 60 * 1000;
+  let activeMs = 0;
+  for (let i = 1; i < times.length; i++) activeMs += Math.min(times[i] - times[i - 1], CAP);
+  const hours = Math.round((activeMs / 3600000) * 100) / 100;
+
+  if (!total && !activeMs) process.exit(0);
 
   const body = 'session=' + encodeURIComponent(session) +
-    '&tokens=' + total + '&date=' + new Date().toISOString().slice(0, 10);
+    '&tokens=' + total + '&hours=' + hours + '&date=' + new Date().toISOString().slice(0, 10);
   const req = https.request('https://tbau.goodvision.sk/api/worklog', {
     method: 'POST',
     headers: {

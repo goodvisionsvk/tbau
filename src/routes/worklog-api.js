@@ -9,14 +9,16 @@ module.exports = function worklogApi(req, res) {
   }
   const sessionRef = String(req.body.session || '').trim();
   const tokens = parseInt(String(req.body.tokens || '0').replace(/\D/g, ''), 10) || 0;
+  let hours = parseFloat(String(req.body.hours || '0').replace(',', '.'));
+  if (!Number.isFinite(hours) || hours < 0) hours = 0;
   const date = String(req.body.date || '').trim() || new Date().toISOString().slice(0, 10);
   if (!sessionRef) return res.status(400).json({ error: 'missing session' });
 
   db.prepare(
     `INSERT INTO work_log (entry_date, title, hours, tokens, session_ref)
-     VALUES (?, 'Claude Code – tokeny (auto)', 0, ?, ?)
-     ON CONFLICT(session_ref) DO UPDATE SET tokens = excluded.tokens, entry_date = excluded.entry_date`
-  ).run(date, tokens, sessionRef);
+     VALUES (?, 'Claude Code session (auto)', ?, ?, ?)
+     ON CONFLICT(session_ref) DO UPDATE SET hours = excluded.hours, tokens = excluded.tokens, entry_date = excluded.entry_date`
+  ).run(date, hours, tokens, sessionRef);
 
-  res.json({ ok: true, tokens });
+  res.json({ ok: true, hours, tokens });
 };
