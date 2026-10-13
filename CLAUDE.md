@@ -63,7 +63,15 @@ Dátový model (SQLite): `users`, `apps`, `projects` (= stavby), `tasks`,
 (`/reporty/export?year&month&project`). Karty aplikácií vedú na modul cez `constants.appRoutes`
 (napr. `dochadzka → /dochadzka`); nové moduly tam pridaj.
 
-**Menu:** sekcie Používatelia, Aplikácie, Úlohy, Testy sú zoskupené pod položkou
+**HR pozície** (`employees.position`, odlišné od prihlasovacej `users.role`): majitel, obchodnik,
+uctovnik, majster, robotnik; pri robotníkovi aj **druh** (`employees.trade`, napr. Murár, Tesár,
+Zateplovač…). Číselníky v `constants.employeePositions` / `constants.workerTrades`.
+
+**Menu je zoskupené** (`constants.buildNav` vracia skupiny `{label, items}`): **HR** (Zamestnanci,
+Dochádzka, Report dochádzky, Žiadosti), **Projekty** (Stavby), **Systém** (Nastavenia). Hlavičky
+skupín = `.nav-group`. Zamestnanec vidí len Moja dochádzka.
+
+**Menu (Nastavenia):** sekcie Používatelia, Aplikácie, Úlohy, Testy sú zoskupené pod položkou
 **Nastavenia** (`/nastavenia`, rozcestník `views/settings.ejs`, len plný prístup). Tieto routy
 (`/users`, `/apps`, `/tasks`, `/tests`) sú chránené `requireAdmin` (= plný prístup) a nastavujú
 `active: 'settings'`.

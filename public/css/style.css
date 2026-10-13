@@ -47,6 +47,7 @@ h1{font-size:28px;line-height:1.14;margin:0;font-weight:700;letter-spacing:-.02e
 h2{font-size:19px;margin:0;font-weight:600;letter-spacing:-.01em}
 .muted,.sub{color:var(--muted)}
 .ic{display:inline-block;vertical-align:middle;flex:0 0 auto}
+[hidden]{display:none!important}
 
 /* ---------- Topbar ---------- */
 .topbar{height:56px;background:color-mix(in srgb,var(--surface) 80%,transparent);

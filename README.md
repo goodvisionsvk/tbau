@@ -107,6 +107,9 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   oranžový prototypový dizajn. Prepísaný `public/css/style.css`, odstránené Google fonty z layoutov.
 - **2026-10-13** – Emoji ikony nahradené **líniovými SVG** (`src/icons.js`) – menu, karty, aplikácie,
   tlačidlá; čistejší vzhľad ladiaci s Apple dizajnom.
+- **2026-10-13** – **HR sekcia**: menu zoskupené (HR / Projekty / Systém); k zamestnancom pridaná
+  **pozícia** (Majiteľ/Obchodník/Účtovník/Majster/Robotník) a **druh robotníka** (Murár, Tesár,
+  Zateplovač…). Oprava: 500 na `/login` so starou/neplatnou session.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
 
