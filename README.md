@@ -123,6 +123,9 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   automatické meranie reálneho času + tokenov (SessionEnd hook); réžia za vývoj evidencie neúčtovaná.
 - **2026-10-13** – Pridané **testy CRUD** zamestnanca a stavby (v sekcii Testy; bežia v transakcii
   s rollbackom, takže nič v DB neostane). Spolu 3 automatické testy.
+- **2026-10-13** – **Nová doména https://portal.tbau.eu** (A záznam → 80.211.202.23; HTTPS cert
+  rozšírený; nginx obsluhuje portal.tbau.eu + redirect z HTTP). `tbau.goodvision.sk` ostáva záloha.
+  Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
 

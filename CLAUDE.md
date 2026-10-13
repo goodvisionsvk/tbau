@@ -18,7 +18,7 @@
 Firemný portál pre stavebnú firmu **TBAU, s. r. o.** (Žilina). Modulárna platforma,
 ktorá postupne automatizuje firemné procesy. Rozloženie: logo hore, menu vľavo.
 
-- **Naživo:** https://tbau.goodvision.sk (dočasná doména; neskôr `portal.tbau.sk`)
+- **Naživo:** https://portal.tbau.eu (primárna doména; `tbau.goodvision.sk` ostáva ako záloha)
 - **Repo:** https://github.com/goodvisionsvk/tbau (privátne, branch `main`)
 - Podrobný popis, moduly, bezpečnosť a ISO stav sú v [README.md](README.md).
 
@@ -161,7 +161,7 @@ Po práci: commit (po slovensky, s `Co-Authored-By: Claude ...`), `git push`, po
 | systemd služba | `tbau-portal` |
 | nginx konfig | `/etc/nginx/sites-available/tbau` |
 | HTTPS | Let's Encrypt (certbot), auto-obnova |
-| DNS | `tbau.goodvision.sk` A → 80.211.202.23 (spravuje websupport.sk) |
+| DNS | `portal.tbau.eu` A → 80.211.202.23 (tbau.eu @ websupport.sk; pozor na wildcard `*.tbau.eu`). Záloha `tbau.goodvision.sk`. HTTPS cert pokrýva obe + www. |
 
 Užitočné príkazy na serveri (cez SSH ako `tbau`):
 
