@@ -90,7 +90,22 @@ if (db.prepare('SELECT COUNT(*) c FROM work_log').get().c === 0) {
   ];
   const insW = db.prepare('INSERT INTO work_log (entry_date, title, hours, tokens) VALUES (?,?,?,?)');
   work.forEach((w) => insW.run(w[0], w[1], w[2], w[3]));
-  console.log('Evidencia práce: ' + work.length + ' záznamov.');
+
+  // Rozpis vykonaných prác (čo sa spravilo – pre klienta), bez hodín (čas sa meria automaticky)
+  const activities = [
+    ['2026-08-12', 'Založenie projektu a nasadenie na server (doména tbau.goodvision.sk, HTTPS, zabezpečenie, zálohy)'],
+    ['2026-08-23', 'Firemný portál – základ: prihlásenie, používatelia, role, prehľad'],
+    ['2026-08-24', 'Responzívna mobilná verzia + automatické kontroly funkčnosti'],
+    ['2026-10-01', 'Modul Dochádzka: zamestnanci, stavby, prepis smenoviek, hodiny (týždeň/mesiac), žiadosti o zmenu'],
+    ['2026-10-01', 'Mesačné reporty dochádzky + export pre mzdy (CSV)'],
+    ['2026-10-13', 'HR: pozície zamestnancov, druh robotníka, filtre, archivácia; tabuľka so stavbou'],
+    ['2026-10-13', 'Nový moderný dizajn portálu + ikony'],
+    ['2026-10-13', 'Nahrávanie smenoviek ako dokladov; reálna stavba a zamestnanci zo smenovky'],
+    ['2026-10-13', 'Príprava integrácie klientovho CRM (analýza zadania, prototyp)'],
+  ];
+  const insA = db.prepare('INSERT INTO work_log (entry_date, title, hours, tokens) VALUES (?,?,0,0)');
+  activities.forEach((a) => insA.run(a[0], a[1]));
+  console.log('Evidencia práce: ' + work.length + ' + rozpis ' + activities.length + '.');
 }
 
 console.log('Hotovo.');

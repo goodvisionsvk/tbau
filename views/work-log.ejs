@@ -1,52 +1,50 @@
 <p style="margin-top:-8px;"><a class="btn-link" href="/nastavenia">&larr; Späť na Nastavenia</a></p>
-<p class="muted" style="margin-top:0;">Prehľad práce odvedenej na tomto projekte (pre zadávateľa). Čas a tokeny sú vedené po míľnikoch a priebežne dopĺňané.</p>
+<p class="muted" style="margin-top:0;">Prehľad práce odvedenej na tomto projekte pre zadávateľa.</p>
 
 <div class="grid stats">
   <div class="card stat"><span class="ico"><%- icon('clock', 22) %></span><span class="num"><%= totals.hours %> h</span><span class="lbl">Odpracovaný čas</span></div>
-  <div class="card stat"><span class="ico"><%- icon('chart', 22) %></span><span class="num"><%= totals.tokens.toLocaleString('sk-SK') %></span><span class="lbl">Spotrebované tokeny (automaticky)</span></div>
-  <div class="card stat"><span class="ico"><%- icon('receipt', 22) %></span><span class="num"><%= totals.value.toLocaleString('sk-SK') %> <%= currency %></span><span class="lbl">Odhadovaná cena práce</span></div>
+  <div class="card stat"><span class="ico"><%- icon('chart', 22) %></span><span class="num"><%= totals.tokens.toLocaleString('sk-SK') %></span><span class="lbl">Spotrebované tokeny</span></div>
+  <div class="card stat"><span class="ico"><%- icon('receipt', 22) %></span><span class="num"><%= totals.value.toLocaleString('sk-SK') %> <%= currency %></span><span class="lbl">Cena práce</span></div>
 </div>
 
 <p class="muted" style="font-size:.85rem;">
-  Cena = čas × sadzba <b><%= rate %> <%= currency %>/h</b>. <b>Čas aj tokeny</b> Claude Code sessions
-  sa počítajú <b>automaticky</b> (reálny spoločný čas – súčet medzier medzi správami, dlhé prestávky
-  sa nerátajú). Stretnutia a staršie míľniky sú zadané ručne. Tokeny nevstupujú do ceny.
+  Cena = čas × sadzba <b><%= rate %> <%= currency %>/h</b>. Čas aj tokeny práce sa merajú
+  <b>automaticky</b> (reálny spoločný čas; dlhé prestávky sa nerátajú). Tokeny nevstupujú do ceny.
 </p>
 
 <div class="section">
-  <div class="card">
-    <h2 style="margin-top:0;">Pridať záznam</h2>
-    <form method="post" action="/praca">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <div class="form-row">
-        <div class="field"><label for="entry_date">Dátum</label><input id="entry_date" name="entry_date" type="date"></div>
-        <div class="field" style="grid-column: span 2;"><label for="title">Čo sa robilo *</label><input id="title" name="title" required></div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label for="hours">Hodiny</label><input id="hours" name="hours" inputmode="decimal" placeholder="napr. 4,5"></div>
-        <div class="field"><label for="tokens">Tokeny</label><input id="tokens" name="tokens" inputmode="numeric" placeholder="napr. 500000"></div>
-        <div class="field"><label for="note">Poznámka</label><input id="note" name="note"></div>
-      </div>
-      <button class="btn btn-primary">Pridať</button>
-    </form>
-  </div>
+  <h2>Rozpis vykonaných prác</h2>
+  <% if (!activities.length) { %>
+    <div class="card muted">Zatiaľ žiadny rozpis.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th style="width:120px;">Dátum</th><th>Čo sa spravilo</th></tr></thead>
+        <tbody>
+          <% activities.forEach(function(a){ %>
+            <tr><td class="muted"><%= a.entry_date %></td><td><%= a.title %><% if (a.note){ %><br><span class="muted" style="font-size:.85rem;"><%= a.note %></span><% } %></td></tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
 </div>
 
 <div class="section">
-  <h2>Záznamy</h2>
-  <% if (!entries.length) { %>
+  <h2>Čas a náklady</h2>
+  <% if (!billed.length) { %>
     <div class="card muted">Zatiaľ žiadne záznamy.</div>
   <% } else { %>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Dátum</th><th>Práca</th><th style="text-align:right;">Hodiny</th><th style="text-align:right;">Tokeny</th><th style="text-align:right;">Cena</th><th></th></tr></thead>
+        <thead><tr><th>Dátum</th><th>Položka</th><th style="text-align:right;">Hodiny</th><th style="text-align:right;">Tokeny</th><th style="text-align:right;">Cena</th><th></th></tr></thead>
         <tbody>
-          <% entries.forEach(function(e){ %>
+          <% billed.forEach(function(e){ %>
             <tr>
               <td class="muted"><%= e.entry_date %></td>
               <td><%= e.title %><% if (e.note){ %><br><span class="muted" style="font-size:.82rem;"><%= e.note %></span><% } %></td>
               <td style="text-align:right;"><%= e.hours %></td>
-              <td style="text-align:right;" class="muted"><%= e.tokens.toLocaleString('sk-SK') %></td>
+              <td style="text-align:right;" class="muted"><%= e.tokens ? e.tokens.toLocaleString('sk-SK') : '—' %></td>
               <td style="text-align:right;"><%= Math.round(e.hours * rate).toLocaleString('sk-SK') %> <%= currency %></td>
               <td style="text-align:right;">
                 <form class="inline" method="post" action="/praca/<%= e.id %>/delete" onsubmit="return confirm('Zmazať záznam?')">
@@ -69,4 +67,23 @@
       </table>
     </div>
   <% } %>
+</div>
+
+<div class="section">
+  <div class="card">
+    <h2 style="margin-top:0;">Pridať záznam</h2>
+    <form method="post" action="/praca">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field"><label for="entry_date">Dátum</label><input id="entry_date" name="entry_date" type="date"></div>
+        <div class="field" style="grid-column: span 2;"><label for="title">Položka *</label><input id="title" name="title" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="hours">Hodiny</label><input id="hours" name="hours" inputmode="decimal" placeholder="napr. 1,5 (alebo -1 na odpočet)"></div>
+        <div class="field"><label for="tokens">Tokeny</label><input id="tokens" name="tokens" inputmode="numeric"></div>
+        <div class="field"><label for="note">Poznámka</label><input id="note" name="note"></div>
+      </div>
+      <button class="btn btn-primary">Pridať</button>
+    </form>
+  </div>
 </div>

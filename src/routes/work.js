@@ -11,13 +11,19 @@ function totals() {
   return { hours: r.h, tokens: r.t, value: Math.round(r.h * constants.workHourlyRate) };
 }
 
-// GET /praca – evidencia práce (čas, tokeny, odhadovaná cena)
+// GET /praca – evidencia práce (rozpis prác + čas/náklady)
 router.get('/', (req, res) => {
-  const entries = db.prepare('SELECT * FROM work_log ORDER BY entry_date DESC, id DESC').all();
+  const activities = db
+    .prepare('SELECT * FROM work_log WHERE session_ref IS NULL AND hours = 0 ORDER BY entry_date, id')
+    .all();
+  const billed = db
+    .prepare('SELECT * FROM work_log WHERE NOT (session_ref IS NULL AND hours = 0) ORDER BY entry_date DESC, id DESC')
+    .all();
   res.render('work-log', {
     title: 'Vykázaná práca',
     active: 'settings',
-    entries,
+    activities,
+    billed,
     totals: totals(),
     rate: constants.workHourlyRate,
     currency: constants.currency,

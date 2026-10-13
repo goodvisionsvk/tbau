@@ -16,7 +16,7 @@ module.exports = function worklogApi(req, res) {
 
   db.prepare(
     `INSERT INTO work_log (entry_date, title, hours, tokens, session_ref)
-     VALUES (?, 'Claude Code session (auto)', ?, ?, ?)
+     VALUES (?, 'Vývojová práca portálu', ?, ?, ?)
      ON CONFLICT(session_ref) DO UPDATE SET hours = excluded.hours, tokens = excluded.tokens, entry_date = excluded.entry_date`
   ).run(date, hours, tokens, sessionRef);
 
