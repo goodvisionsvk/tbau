@@ -71,7 +71,14 @@ náklady** (účtované: stretnutia + auto sessions + prípadné odpočty so zá
 **Zamestnanci** (`/zamestnanci`): tabuľka s **filtrami** (hľadanie, stavba, pozícia, druh robotníka,
 archivovaní) + tlačidlo „Pridať" → samostatná stránka `/zamestnanci/novy`. Akcie: Upraviť
 (`/zamestnanci/:id`), **Archivovať** (`/:id/archive`, soft = `active=0`), **Zmazať** (`/:id/delete`,
-hard, kaskáda na dochádzku/priradenia).
+hard, kaskáda na dochádzku/priradenia). Tabuľka má stĺpce Pozícia, Druh robotníka, Stavba.
+
+**Stavby** (`/projects`): rovnaký vzor – tabuľka + **filter** (hľadanie, stav) + „Pridať" →
+`/projects/novy`; detail `/projects/:id` = **editovateľné parametre** (podľa zadania klienta:
+názov, kód, zákazník, adresa, **KW od/do, Bauleiter, Polier**, stav, rozpočet, dátumy, poznámka;
+počet ľudí z turnusu zatiaľ 0) + ľudia na stavbe + smenovky. Stavy v `constants.projectStatuses`
+(planned/active/paused/done = Plánovaná/Prebieha/Pozastavená/Ukončená). Nové stĺpce projects:
+`bauleiter, polier, kw_od, kw_do`. Stavba môže byť naša aj pre klienta (CRM prepojenie neskôr).
 
 **Roly** (users.role): `sef` + `admin` = plný prístup; `parcak` = svoje stavby a ľudia;
 `zamestnanec` = len vlastná dochádzka + žiadosti. Prepojenie prihlásenia na zamestnanca:
