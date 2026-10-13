@@ -1,44 +1,39 @@
-<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+<div style="display:flex; justify-content:flex-end;">
+  <a class="btn btn-primary" href="/zamestnanci/novy"><%- icon('plus', 16) %> Pridať nového zamestnanca</a>
+</div>
 
-<div class="grid" style="grid-template-columns:1fr; gap:24px;">
-  <div class="card">
-    <h2 style="margin-top:0;">Nový zamestnanec</h2>
-    <form method="post" action="/zamestnanci">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <div class="form-row">
-        <div class="field"><label for="first_name">Meno *</label><input id="first_name" name="first_name" required></div>
-        <div class="field"><label for="last_name">Priezvisko *</label><input id="last_name" name="last_name" required></div>
-        <div class="field"><label for="employee_number">Osobné číslo</label><input id="employee_number" name="employee_number"></div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label for="birth_date">Dátum narodenia</label><input id="birth_date" name="birth_date" type="date"></div>
-        <div class="field"><label for="phone">Telefón</label><input id="phone" name="phone"></div>
-        <div class="field"><label for="address">Adresa</label><input id="address" name="address"></div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label for="position">Pozícia</label>
-          <select id="position" name="position" data-position>
-            <option value="">— vyber —</option>
-            <% Object.keys(positions).forEach(function(k){ %><option value="<%= k %>"><%= positions[k] %></option><% }) %>
-          </select>
-        </div>
-        <div class="field" data-trade hidden><label for="trade">Druh robotníka</label>
-          <select id="trade" name="trade">
-            <option value="">— vyber —</option>
-            <% trades.forEach(function(t){ %><option value="<%= t %>"><%= t %></option><% }) %>
-          </select>
-        </div>
-      </div>
-      <button class="btn btn-primary">Pridať zamestnanca</button>
-    </form>
-  </div>
+<div class="card">
+  <form method="get" action="/zamestnanci" class="form-row" style="align-items:end; margin:0;">
+    <div class="field" style="margin-bottom:0;"><label>Hľadať</label><input name="q" value="<%= filter.q %>" placeholder="Meno, priezvisko, os. číslo"></div>
+    <div class="field" style="margin-bottom:0;"><label>Stavba</label>
+      <select name="stavba"><option value="">Všetky</option>
+        <% projects.forEach(function(p){ %><option value="<%= p.id %>" <%= String(filter.stavba)===String(p.id)?'selected':'' %>><%= p.name %></option><% }) %>
+      </select>
+    </div>
+    <div class="field" style="margin-bottom:0;"><label>Pozícia</label>
+      <select name="position"><option value="">Všetky</option>
+        <% Object.keys(positions).forEach(function(k){ %><option value="<%= k %>" <%= filter.position===k?'selected':'' %>><%= positions[k] %></option><% }) %>
+      </select>
+    </div>
+    <div class="field" style="margin-bottom:0;"><label>Druh robotníka</label>
+      <select name="trade"><option value="">Všetky</option>
+        <% trades.forEach(function(t){ %><option value="<%= t %>" <%= filter.trade===t?'selected':'' %>><%= t %></option><% }) %>
+      </select>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label style="display:flex; gap:6px; align-items:center;"><input type="checkbox" name="archived" value="1" style="width:auto;" <%= filter.archived?'checked':'' %>> Archivovaní</label>
+    </div>
+    <div class="field" style="margin-bottom:0;"><button class="btn btn-ghost">Filtrovať</button></div>
+  </form>
+</div>
 
+<div class="section">
   <% if (!employees.length) { %>
-    <div class="card muted">Zatiaľ žiadni zamestnanci.</div>
+    <div class="card muted">Žiadni zamestnanci pre zvolený filter.</div>
   <% } else { %>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Priezvisko a meno</th><th>Pozícia</th><th>Os. číslo</th><th>Telefón</th><th>Prihlásenie</th><th>Stav</th><th></th></tr></thead>
+        <thead><tr><th>Priezvisko a meno</th><th>Pozícia</th><th>Os. číslo</th><th>Telefón</th><th>Prihlásenie</th><th></th></tr></thead>
         <tbody>
           <% employees.forEach(function(e){ %>
             <tr>
@@ -46,9 +41,12 @@
               <td class="muted"><%= e.position ? positions[e.position] : '—' %><% if (e.position==='robotnik' && e.trade){ %> · <%= e.trade %><% } %></td>
               <td class="muted"><%= e.employee_number || '—' %></td>
               <td class="muted"><%= e.phone || '—' %></td>
-              <td class="muted"><%= e.login_email ? e.login_email : '—' %></td>
-              <td><span class="pill <%= e.active ? 'active':'paused' %>"><%= e.active ? 'aktívny':'neaktívny' %></span></td>
-              <td><a class="btn btn-ghost btn-sm" href="/zamestnanci/<%= e.id %>">Detail</a></td>
+              <td class="muted"><%= e.login_email || '—' %></td>
+              <td class="actions">
+                <a class="btn btn-ghost btn-sm" href="/zamestnanci/<%= e.id %>">Upraviť</a>
+                <form class="inline" method="post" action="/zamestnanci/<%= e.id %>/archive"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-ghost btn-sm"><%= filter.archived ? 'Obnoviť' : 'Archivovať' %></button></form>
+                <form class="inline" method="post" action="/zamestnanci/<%= e.id %>/delete" onsubmit="return confirm('Úplne zmazať <%= e.last_name %> <%= e.first_name %>? Zmaže sa aj jeho dochádzka a priradenia.')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+              </td>
             </tr>
           <% }) %>
         </tbody>

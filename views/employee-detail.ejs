@@ -1,4 +1,11 @@
-<p style="margin-top:-8px;"><a class="btn-link" href="/zamestnanci">&larr; Späť na zamestnancov</a></p>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:-8px; gap:12px; flex-wrap:wrap;">
+  <a class="btn-link" href="/zamestnanci">&larr; Späť na zamestnancov</a>
+  <div class="actions">
+    <% if (!employee.active) { %><span class="pill paused">archivovaný</span><% } %>
+    <form class="inline" method="post" action="/zamestnanci/<%= employee.id %>/archive"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="back" value="detail"><button class="btn btn-ghost btn-sm"><%= employee.active ? 'Archivovať' : 'Obnoviť' %></button></form>
+    <form class="inline" method="post" action="/zamestnanci/<%= employee.id %>/delete" onsubmit="return confirm('Úplne zmazať zamestnanca? Zmaže sa aj dochádzka a priradenia.')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+  </div>
+</div>
 
 <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 <% if (tempInfo) { %>
@@ -38,9 +45,6 @@
           </select>
         </div>
       </div>
-      <label style="display:flex; gap:8px; align-items:center; margin-bottom:14px;">
-        <input type="checkbox" name="active" value="1" style="width:auto;" <%= employee.active ? 'checked':'' %>> Aktívny
-      </label>
       <button class="btn btn-primary">Uložiť</button>
     </form>
   </div>

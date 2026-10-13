@@ -1,0 +1,36 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/zamestnanci">&larr; Späť na zamestnancov</a></p>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="card" style="max-width:760px;">
+  <form method="post" action="/zamestnanci">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="form-row">
+      <div class="field"><label for="first_name">Meno *</label><input id="first_name" name="first_name" required autofocus></div>
+      <div class="field"><label for="last_name">Priezvisko *</label><input id="last_name" name="last_name" required></div>
+      <div class="field"><label for="employee_number">Osobné číslo</label><input id="employee_number" name="employee_number"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="birth_date">Dátum narodenia</label><input id="birth_date" name="birth_date" type="date"></div>
+      <div class="field"><label for="phone">Telefón</label><input id="phone" name="phone"></div>
+      <div class="field"><label for="address">Adresa</label><input id="address" name="address"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="position">Pozícia</label>
+        <select id="position" name="position" data-position>
+          <option value="">— vyber —</option>
+          <% Object.keys(positions).forEach(function(k){ %><option value="<%= k %>"><%= positions[k] %></option><% }) %>
+        </select>
+      </div>
+      <div class="field" data-trade hidden><label for="trade">Druh robotníka</label>
+        <select id="trade" name="trade">
+          <option value="">— vyber —</option>
+          <% trades.forEach(function(t){ %><option value="<%= t %>"><%= t %></option><% }) %>
+        </select>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary">Pridať zamestnanca</button>
+      <a class="btn btn-ghost" href="/zamestnanci">Zrušiť</a>
+    </div>
+  </form>
+</div>
