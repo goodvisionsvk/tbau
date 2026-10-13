@@ -56,11 +56,13 @@ Dátový model (SQLite): `users`, `apps`, `projects` (= stavby), `tasks`,
 
 **Vykázaná práca** (`/praca`, len full access, v Nastaveniach): čas + tokeny + odhadovaná cena
 práce (`work_log`). Sadzba `constants.workHourlyRate` (**40 €/h**, reálny spoločný čas); cena =
-hodiny × sadzba. **Hodiny** = manuálne míľniky/stretnutia (seed). **Tokeny = automaticky**:
-Claude Code **SessionEnd hook** (`scripts/log-session-tokens.js`) sčíta tokeny z transkriptu a
-pošle ich na chránený endpoint `POST /api/worklog` (hlavička `X-Worklog-Secret`, mountnutý PRED
-session/csrf). Secret: lokálne `.worklog-secret` (gitignored) = server `.env` `WORKLOG_SECRET`.
-Upsert podľa `work_log.session_ref` (bez duplicít). Hook je v `.claude/settings.local.json`.
+hodiny × sadzba. **Čas aj tokeny Claude Code sessions = automaticky**: **SessionEnd hook**
+(`scripts/log-session-tokens.js`) z transkriptu sčíta tokeny a vypočíta reálny spoločný čas
+(súčet medzier medzi správami, každá medzera obmedzená na 20 min, aby sa nerátali prestávky),
+a pošle `hours`+`tokens` na chránený endpoint `POST /api/worklog` (hlavička `X-Worklog-Secret`,
+mountnutý PRED session/csrf). Stretnutia a staršie míľniky sú manuálne (seed). Secret: lokálne
+`.worklog-secret` (gitignored) = server `.env` `WORKLOG_SECRET`. Upsert podľa `work_log.session_ref`
+(bez duplicít). Hook je v `.claude/settings.local.json` (aktívny od najbližšej session).
 
 **Zamestnanci** (`/zamestnanci`): tabuľka s **filtrami** (hľadanie, stavba, pozícia, druh robotníka,
 archivovaní) + tlačidlo „Pridať" → samostatná stránka `/zamestnanci/novy`. Akcie: Upraviť
