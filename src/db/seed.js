@@ -93,7 +93,7 @@ if (db.prepare('SELECT COUNT(*) c FROM work_log').get().c === 0) {
 
   // Rozpis vykonaných prác (čo sa spravilo – pre klienta), bez hodín (čas sa meria automaticky)
   const activities = [
-    ['2026-08-12', 'Založenie projektu a nasadenie na server (doména tbau.goodvision.sk, HTTPS, zabezpečenie, zálohy)'],
+    ['2026-08-12', 'Založenie projektu a nasadenie na server (doména, HTTPS, zabezpečenie, zálohy)'],
     ['2026-08-23', 'Firemný portál – základ: prihlásenie, používatelia, role, prehľad'],
     ['2026-08-24', 'Responzívna mobilná verzia + automatické kontroly funkčnosti'],
     ['2026-10-01', 'Modul Dochádzka: zamestnanci, stavby, prepis smenoviek, hodiny (týždeň/mesiac), žiadosti o zmenu'],
