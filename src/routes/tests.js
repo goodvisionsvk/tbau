@@ -1,7 +1,9 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
 const config = require('../config');
 const db = require('../db');
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { requireAuth, requireAdmin, passwordChangeReason } = require('../middleware/auth');
+const passwordPolicy = require('../util/password');
 
 const router = express.Router();
 router.use(requireAuth, requireAdmin);
@@ -83,9 +85,99 @@ function projectCrud() {
   });
 }
 
+// Logický test (bez DB, bez transakcie).
+function logicTest(name, description, fn) {
+  const started = Date.now();
+  let ok = true;
+  let detail = '';
+  try {
+    detail = fn();
+  } catch (e) {
+    ok = false;
+    detail = e.message;
+  }
+  return { name, description, ok, detail: ok ? (detail || 'OK') : detail, durationMs: Date.now() - started };
+}
+
+// Test: politika sily hesla (validátor).
+function passwordPolicyTest() {
+  return logicTest('Politika hesla', 'Slabé heslá sú odmietnuté, správne prijaté.', () => {
+    const bad = [
+      ['kratke1A', 'krátke'],
+      ['malemale123', 'bez veľkého písmena'],
+      ['VELKEVELKE123', 'bez malého písmena'],
+      ['BezCisiliceee', 'bez číslice'],
+    ];
+    bad.forEach(([pw, why]) => assert(passwordPolicy.validate(pw, { email: 'x@y.sk' }), `malo zlyhať: ${why}`));
+    assert(passwordPolicy.validate('Peterbaca12', { email: 'peterbaca@y.sk' }), 'heslo s e-mailom malo zlyhať');
+    assert(!passwordPolicy.validate('Spravne123', { email: 'x@y.sk' }), 'platné heslo bolo odmietnuté');
+    return 'odmietnuté slabé + heslo s e-mailom, platné prijaté';
+  });
+}
+
+// Test: expirácia hesla (vynútená zmena po roku).
+function passwordExpiryTest() {
+  return logicTest('Expirácia hesla', 'Heslo staršie ako rok vyžaduje zmenu.', () => {
+    const today = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const old = new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 19).replace('T', ' ');
+    assert(passwordPolicy.isExpired(old), 'staré heslo sa nevyhodnotilo ako expirované');
+    assert(!passwordPolicy.isExpired(today), 'nové heslo sa chybne vyhodnotilo ako expirované');
+    assert(passwordChangeReason({ must_change_password: 0, password_changed_at: old }) === 'expired', 'reason != expired');
+    assert(passwordChangeReason({ must_change_password: 1, password_changed_at: today }) === 'forced', 'reason != forced');
+    assert(passwordChangeReason({ must_change_password: 0, password_changed_at: today }) === null, 'reason != null');
+    return 'expirácia + dôvody zmeny (forced/expired/žiadny) OK';
+  });
+}
+
+// Test: prihlásenie a zmena hesla (v transakcii s rollbackom).
+function loginAndPasswordChangeTest() {
+  return crudTest('Prihlásenie a zmena hesla', 'Overenie hesla, blokované konto, zmena hesla.', () => {
+    const hash = bcrypt.hashSync('Spravne123', 12);
+    const id = db.prepare(
+      "INSERT INTO users (email,password_hash,full_name,role,active,must_change_password,password_changed_at) VALUES ('__test_login__@tbau.eu',?,'Test','zamestnanec',1,0,datetime('now'))"
+    ).run(hash).lastInsertRowid;
+    let u = db.prepare('SELECT * FROM users WHERE id=?').get(id);
+    assert(bcrypt.compareSync('Spravne123', u.password_hash), 'správne heslo neprešlo');
+    assert(!bcrypt.compareSync('zleheslo', u.password_hash), 'nesprávne heslo prešlo');
+    // blokované konto sa neprihlási (login kontroluje user.active)
+    db.prepare('UPDATE users SET active=0 WHERE id=?').run(id);
+    assert(db.prepare('SELECT active FROM users WHERE id=?').get(id).active === 0, 'blokovanie konta zlyhalo');
+    db.prepare('UPDATE users SET active=1 WHERE id=?').run(id);
+    // zmena hesla: nový hash, zruší sa must_change, posunie sa dátum
+    const newHash = bcrypt.hashSync('NoveHeslo456', 12);
+    db.prepare("UPDATE users SET password_hash=?, must_change_password=0, password_changed_at=datetime('now') WHERE id=?").run(newHash, id);
+    u = db.prepare('SELECT * FROM users WHERE id=?').get(id);
+    assert(bcrypt.compareSync('NoveHeslo456', u.password_hash), 'nové heslo neprešlo');
+    assert(!bcrypt.compareSync('Spravne123', u.password_hash), 'staré heslo stále platí');
+    assert(u.must_change_password === 0, 'must_change_password sa nezrušilo');
+    return 'overenie hesla, blokovanie, zmena hesla OK';
+  });
+}
+
+// Test: žiadosť o reset hesla (vytvorenie a vybavenie, v transakcii).
+function resetRequestTest() {
+  return crudTest('Žiadosť o reset hesla', 'Vytvorenie žiadosti a jej vybavenie (open → done).', () => {
+    const id = db.prepare("INSERT INTO password_reset_requests (email,status) VALUES ('__test_reset__@tbau.eu','open')").run().lastInsertRowid;
+    let r = db.prepare('SELECT * FROM password_reset_requests WHERE id=?').get(id);
+    assert(r && r.status === 'open', 'žiadosť sa nevytvorila ako otvorená');
+    db.prepare("UPDATE password_reset_requests SET status='done', handled_at=datetime('now') WHERE id=?").run(id);
+    r = db.prepare('SELECT status FROM password_reset_requests WHERE id=?').get(id);
+    assert(r.status === 'done', 'vybavenie žiadosti zlyhalo');
+    return 'vytvorenie + vybavenie žiadosti OK';
+  });
+}
+
 // GET /tests
 router.get('/', async (req, res) => {
-  const results = [await siteWorksTest(), employeeCrud(), projectCrud()];
+  const results = [
+    await siteWorksTest(),
+    employeeCrud(),
+    projectCrud(),
+    passwordPolicyTest(),
+    passwordExpiryTest(),
+    loginAndPasswordChangeTest(),
+    resetRequestTest(),
+  ];
   res.render('tests', {
     title: 'Testy',
     active: 'settings',
