@@ -11,7 +11,8 @@ const router = express.Router();
 
 // Prehľad stavu zálohovania (číta adresár backups/ vytváraný denným timerom).
 function backupStatus() {
-  const dir = process.env.BACKUP_DIR || path.join(__dirname, '..', '..', 'backups');
+  const base = process.env.BACKUP_DIR || path.join(__dirname, '..', '..', 'backups');
+  const dir = path.join(base, 'db');
   try {
     const files = fs
       .readdirSync(dir)

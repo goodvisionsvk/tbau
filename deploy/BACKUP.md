@@ -1,86 +1,87 @@
 # Zálohovanie TBAU portálu
 
-Cieľ: denná záloha databázy a dokumentov portálu, prírastkovo (len nové/zmenené) na
-firemné **NAS Synology**. Dáta tak existujú na dvoch miestach: produkčný server (VPS) + NAS.
+Cieľ: denná záloha databázy a dokumentov, prírastkovo (len nové/zmenené) na firemné
+**NAS Synology DS220+ (DSM 7.4)**. Dáta existujú na dvoch miestach: produkčný server (VPS) + NAS.
+
+Smer: **NAS si ťahá dáta z VPS** (NAS otvára spojenie von, nemusí byť vystavený do internetu).
 
 ## Čo sa zálohuje
 
-| Dáta | Kde na serveri | Poznámka |
-|------|----------------|----------|
-| Databáza (users, dochádzka, obchod…) | `/opt/tbau-portal/data/tbau.db` | denná konzistentná kópia → `backups/` |
-| Nahraté smenovky (JPG/PNG/PDF) | `/opt/tbau-portal/data/uploads/` | súbory, rsync prenesie len nové |
-| Denné zálohy DB (gzip) | `/opt/tbau-portal/backups/tbau-*.db.gz` | rotácia 30 dní |
+Na serveri sa denne (02:30) vytvára **izolovaný export priečinok** `/opt/tbau-portal/backups/`,
+ktorý obsahuje len to, čo má NAS vidieť (žiadne `.env` ani živá DB):
 
-Kód aplikácie netreba zálohovať samostatne – je v Git repozitári (GitHub).
+| Obsah | Cesta na serveri |
+|-------|------------------|
+| Konzistentné kópie DB (gzip, rotácia 30 dní) | `/opt/tbau-portal/backups/db/tbau-*.db.gz` |
+| Zrkadlo nahratých dokumentov (smenovky) | `/opt/tbau-portal/backups/uploads/` |
 
-## Časť 1 – Server (VPS): denná lokálna záloha DB ✅ pripravené
+Kód aplikácie netreba zálohovať – je v Git repozitári (GitHub).
 
-Na serveri beží **systemd timer**, ktorý raz denne (02:30) spraví konzistentnú kópiu databázy,
-skomprimuje ju a uloží do `/opt/tbau-portal/backups/` (ponecháva posledných 30).
+## Časť 1 – Server (VPS) ✅ hotové
 
-Inštalácia (jednorazovo, ako `tbau`):
+Systemd timer `tbau-backup.timer` spúšťa `scripts/backup-db.js` každý deň o 02:30:
+konzistentná kópia DB → gzip → rotácia 30, plus prírastkové zrkadlo uploadov.
+
+Inštalácia (jednorazovo, už vykonané):
 
 ```bash
 sudo cp /opt/tbau-portal/deploy/tbau-backup.service /etc/systemd/system/
 sudo cp /opt/tbau-portal/deploy/tbau-backup.timer   /etc/systemd/system/
-mkdir -p /opt/tbau-portal/backups
-sudo systemctl daemon-reload
-sudo systemctl enable --now tbau-backup.timer
-# overenie:
+sudo systemctl daemon-reload && sudo systemctl enable --now tbau-backup.timer
+node /opt/tbau-portal/scripts/backup-db.js      # ručný test
 systemctl list-timers tbau-backup.timer
-node /opt/tbau-portal/scripts/backup-db.js   # ručné spustenie (test)
-ls -lh /opt/tbau-portal/backups
 ```
 
-Stav poslednej zálohy je vidno aj v portáli: **Nastavenia → Zálohovanie dát**.
+Stav poslednej zálohy: portál → **Nastavenia → Zálohovanie dát**.
 
-## Časť 2 – NAS Synology: prírastkové sťahovanie z VPS 🔧 nastaviť na NAS
+### Prístup pre NAS (read-only) ✅ hotové
 
-Odporúčaný smer: **NAS si dáta ťahá z VPS** (NAS otvára spojenie von, nemusí byť vystavené do
-internetu). Prenos je **prírastkový** – prenesú sa len nové/zmenené súbory.
+Na VPS je vyhradený účet **`nasbackup`** (bez hesla, len SSH kľúč), obmedzený cez `rrsync` na
+**čítanie len priečinka `/opt/tbau-portal/backups`**. Nevie sa prihlásiť do shellu, nevie zapisovať,
+nevidí zvyšok servera. Súkromný kľúč je u správcu (nahrá sa na NAS).
 
-### Prístup pre NAS (vytvorí sa na VPS)
+## Časť 2 – NAS Synology DS220+ 🔧 nastaviť v DSM
 
-Na VPS sa vytvorí vyhradený **read-only** účet `backup` s SSH kľúčom, obmedzený len na čítanie
-záloh a uploadov (cez `rrsync`/`ForceCommand`). NAS sa pripája týmto kľúčom. *(Pripraví správca
-servera – viď „Čo potrebujem od teba“ v chate.)*
+Pull sa na Synology rieši cez **Plánovač úloh + rsync** (Hyper Backup je pre opačný smer).
 
-Zdrojové cesty na VPS:
-- `/opt/tbau-portal/backups/` – gzip zálohy DB
-- `/opt/tbau-portal/data/uploads/` – dokumenty (smenovky)
+### 1. Nahraj súkromný kľúč na NAS
 
-### Možnosť A – Hyper Backup (odporúčané)
-
-1. V DSM nainštaluj **Hyper Backup**.
-2. *Vytvoriť zálohu → Priečinky a balíčky → rsync (server kompatibilný s rsync)* resp.
-   „remote server (rsync)“ a zadaj: adresa VPS, port SSH, používateľ `backup`, kľúč.
-3. Zdroj: vyššie uvedené cesty. Cieľ: napr. `tbau-backup` na zvolenom zväzku.
-4. Plán: **denne** (napr. 03:30, po tom, ako VPS spraví zálohu o 02:30).
-5. Zapni **verziovanie/rotáciu** podľa priestoru (napr. 30 verzií, Smart Recycle).
-
-### Možnosť B – Task Scheduler + rsync
-
-*Control Panel → Task Scheduler → Create → Scheduled Task → User-defined script* (denne):
+Súbor `tbau-nas-backup-key` (súkromný kľúč) ulož na NAS, napr. do
+`/volume1/tbau-backup/.ssh/tbau-nas-backup-key`. Práva kľúča musia byť `600`.
+*(Enable SSH v DSM: Ovládací panel → Terminál a SNMP → Povoliť SSH; po nastavení môžeš vypnúť.)*
 
 ```bash
-rsync -az --delete \
-  -e "ssh -i /volume1/homes/backup/.ssh/tbau_vps -p 22" \
-  backup@80.211.202.23:/opt/tbau-portal/backups/ \
-  /volume1/tbau-backup/db/
-rsync -az \
-  -e "ssh -i /volume1/homes/backup/.ssh/tbau_vps -p 22" \
-  backup@80.211.202.23:/opt/tbau-portal/data/uploads/ \
-  /volume1/tbau-backup/uploads/
+chmod 600 /volume1/tbau-backup/.ssh/tbau-nas-backup-key
+# prvé overenie (prijme fingerprint servera):
+rsync -az -e "ssh -i /volume1/tbau-backup/.ssh/tbau-nas-backup-key -p 22 -o StrictHostKeyChecking=accept-new" \
+  nasbackup@80.211.202.23:db/ /volume1/tbau-backup/db/
 ```
+
+### 2. Plánovaná úloha (denne)
+
+*Ovládací panel → Plánovač úloh → Vytvoriť → Plánovaná úloha → Skript definovaný používateľom*
+- Používateľ: `root`
+- Plán: **denne**, napr. **03:30** (po 02:30, keď VPS spraví zálohu)
+- Príkaz (skript):
+
+```bash
+KEY=/volume1/tbau-backup/.ssh/tbau-nas-backup-key
+SSH="ssh -i $KEY -p 22 -o StrictHostKeyChecking=accept-new"
+# DB zálohy (gzip) – prírastkovo, so zrkadlením rotácie
+rsync -az --delete -e "$SSH" nasbackup@80.211.202.23:db/      /volume1/tbau-backup/db/
+# nahraté dokumenty (smenovky) – prírastkovo
+rsync -az --delete -e "$SSH" nasbackup@80.211.202.23:uploads/ /volume1/tbau-backup/uploads/
+```
+
+> Cesty `db/` a `uploads/` sú relatívne k `backups/` (vďaka rrsync obmedzeniu).
+> `--delete` udrží na NAS presné zrkadlo (vrátane rotácie starých DB záloh). Ak chceš staré
+> zálohy na NAS držať dlhšie ako na serveri, `--delete` z prvého riadku vynechaj.
 
 ## Obnova zo zálohy
 
 ```bash
-# DB (na serveri alebo lokálne):
 gunzip -c tbau-2026-10-14-02-30-00.db.gz > tbau-restore.db
-# skontroluj integritu:
 sqlite3 tbau-restore.db "PRAGMA integrity_check;"
-# nasadenie: zastav službu, nahraď data/tbau.db, zmaž -wal/-shm, naštartuj službu
 sudo systemctl stop tbau-portal
 cp tbau-restore.db /opt/tbau-portal/data/tbau.db
 rm -f /opt/tbau-portal/data/tbau.db-wal /opt/tbau-portal/data/tbau.db-shm
