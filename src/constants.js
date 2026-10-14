@@ -76,7 +76,7 @@ module.exports = {
   appHref(app) {
     return this.appRoutes[app.slug] || null;
   },
-  appIconBySlug: { dochadzka: 'clock', objednavky: 'receipt', rsv: 'building' },
+  appIconBySlug: { dochadzka: 'clock' },
   appIcon(app) {
     return this.appIconBySlug[app.slug] || 'grid';
   },

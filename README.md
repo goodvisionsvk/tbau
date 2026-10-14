@@ -28,8 +28,6 @@ aplikácie sa pridávajú postupne. Rozloženie: **logo hore, menu vľavo**, obs
 | **Obchod – Dopyty (CRM)** | Obchodník vidí voľných ľudí, vytvorí dopyt a vygeneruje e-mail zákazníkovi | ✅ v1 |
 | Úlohy | Úlohy pri budovaní portálu | ✅ základ |
 | Testy | Automatické testy portálu (health check) | ✅ základ (1 test) |
-| **RSV** – Riadenie stavebnej výroby | Priebeh stavieb, kontrola rozpočtu (plán vs. skutočnosť), výkazy | 🔲 plánované |
-| **Objednávkový systém** | Evidencia a schvaľovanie objednávok | 🔲 plánované |
 | Správa faktúr | Vystavovanie a evidencia faktúr | 🔲 plánované |
 
 **Roly:** Šéf + Administratíva = plný prístup · Parťák (majster) = svoje stavby a ľudia ·
@@ -130,6 +128,8 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-14** – Z aplikácie **odstránené moduly RSV a Objednávkový systém** (na želanie) –
+  zo zoznamu aplikácií, seedu aj DB (vrátane súvisiacej úlohy). Prehľad modulov sa tým sprehľadnil.
 - **2026-10-14** – **Zálohovanie dát**: denná konzistentná záloha SQLite DB (online backup +
   gzip + rotácia 30 dní) cez systemd timer `tbau-backup.timer` → `backups/` (`scripts/backup-db.js`).
   Odtiaľ prírastkové sťahovanie na **NAS Synology** (NAS ťahá z VPS cez rsync/Hyper Backup – len

@@ -34,23 +34,6 @@ if (!existingAdmin) {
 // --- Aplikácie (moduly) ---
 const apps = [
   {
-    name: 'RSV – Riadenie stavebnej výroby',
-    slug: 'rsv',
-    description:
-      'Sledovanie priebehu na stavbách, kontrola rozpočtu (plán vs. skutočnosť), výkazy prác.',
-    status: 'planned',
-    icon: '🏗️',
-    sort_order: 1,
-  },
-  {
-    name: 'Objednávkový systém',
-    slug: 'objednavky',
-    description: 'Evidencia a schvaľovanie objednávok materiálu a služieb.',
-    status: 'planned',
-    icon: '🧾',
-    sort_order: 2,
-  },
-  {
     name: 'Dochádzka',
     slug: 'dochadzka',
     description:
@@ -71,7 +54,6 @@ if (db.prepare('SELECT COUNT(*) c FROM tasks').get().c === 0) {
   const tasks = [
     ['Nasadiť HTTPS (Let’s Encrypt) pre tbau.goodvision.sk', 'high'],
     ['Opraviť DNS – pridať A záznam namiesto TXT', 'high'],
-    ['Modul RSV – návrh dátového modelu a obrazoviek', 'medium'],
     ['Import zamestnancov / používateľov TBAU', 'medium'],
     ['Neskôr: prechod na doménu portal.tbau.sk', 'low'],
   ];
