@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const db = require('../db');
+const mailer = require('../mailer');
 const { requireAuth, passwordChangeReason } = require('../middleware/auth');
 const passwordPolicy = require('../util/password');
 
@@ -71,9 +72,25 @@ router.post('/forgot', (req, res) => {
   const open = db.prepare("SELECT id FROM password_reset_requests WHERE email = ? AND status = 'open'").get(email);
   if (!open) {
     db.prepare('INSERT INTO password_reset_requests (email, user_id) VALUES (?,?)').run(email, user ? user.id : null);
+    notifyAdminsAboutReset(email); // fire-and-forget (ak je SMTP nakonfigurované)
   }
   render({ sent: true });
 });
+
+// Upozorní adminov e-mailom na novú žiadosť o reset hesla (neblokuje odpoveď).
+function notifyAdminsAboutReset(email) {
+  if (!mailer.isConfigured()) return;
+  try {
+    const admins = db.prepare("SELECT email FROM users WHERE role IN ('sef','admin') AND active = 1 AND email IS NOT NULL").all();
+    if (!admins.length) return;
+    mailer.sendMail({
+      to: admins.map((a) => a.email).join(', '),
+      subject: 'TBAU portál – žiadosť o reset hesla',
+      text: `Používateľ s e-mailom "${email}" požiadal o reset hesla.\n\n` +
+        'Vybav ju v portáli: Nastavenia → Používatelia → Žiadosti o reset hesla.',
+    }).catch(() => {});
+  } catch (e) { /* ignore */ }
+}
 
 // GET /account/password – zmena vlastného hesla
 router.get('/account/password', requireAuth, (req, res) => {

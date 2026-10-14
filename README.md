@@ -27,7 +27,7 @@ aplikácie sa pridávajú postupne. Rozloženie: **logo hore, menu vľavo**, obs
 | **Obchod – Zákazníci** | Zoznam nemeckých firiem (dopytujeme ich), kontakty, parametre spolupráce | ✅ v1 |
 | **Obchod – Dopyty (CRM)** | Obchodník vidí voľných ľudí, vytvorí dopyt a vygeneruje e-mail zákazníkovi | ✅ v1 |
 | Úlohy | Úlohy pri budovaní portálu | ✅ základ |
-| Testy | Automatické testy portálu (health check) | ✅ základ (1 test) |
+| Testy | Automatické testy portálu (health, CRUD, heslá, SMTP) | ✅ 8 testov |
 | Správa faktúr | Vystavovanie a evidencia faktúr | 🔲 plánované |
 
 **Roly:** Šéf + Administratíva = plný prístup · Parťák (majster) = svoje stavby a ľudia ·
@@ -128,6 +128,13 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-14** – **SMTP e-mail** (`src/mailer.js`, nodemailer): odosielanie e-mailov cez firemný
+  SMTP (konfigurácia v `.env`: `SMTP_HOST/PORT/SECURE/USER/PASS`, `MAIL_FROM`). Napojené na **Dopyty**
+  (tlačidlo „Odoslať zo servera" pošle ponuku priamo zákazníkovi; inak ostáva `mailto`) a na
+  **žiadosti o reset** (e-mailová notifikácia adminom). Test „SMTP e-mail" v sekcii Testy overí
+  spojenie. *(Čaká na doplnenie SMTP údajov do `.env` na serveri – dovtedy portál funguje cez mailto.)*
+- **2026-10-14** – **Testy rozšírené na 8**: pribudli Politika hesla, Expirácia hesla, Prihlásenie
+  a zmena hesla, Žiadosť o reset, SMTP spojenie (DB testy bežia v transakcii s rollbackom).
 - **2026-10-14** – Z aplikácie **odstránené moduly RSV a Objednávkový systém** (na želanie) –
   zo zoznamu aplikácií, seedu aj DB (vrátane súvisiacej úlohy). Prehľad modulov sa tým sprehľadnil.
 - **2026-10-14** – **Zálohovanie dát**: denná konzistentná záloha SQLite DB (online backup +

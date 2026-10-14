@@ -31,14 +31,24 @@
 
   <div class="card">
     <h2 style="margin-top:0;">E-mail pre zákazníka</h2>
+    <% if (sent) { %><div class="alert alert-info">E-mail bol odoslaný zákazníkovi na <b><%= toEmail %></b>. Stav dopytu je „Odoslaný".</div><% } %>
+    <% if (sendError) { %><div class="alert alert-error"><%= sendError %></div><% } %>
     <p class="muted" style="margin-top:0;">
       <% if (toEmail) { %>Príjemca: <b><%= toEmail %></b><% } else { %>Zákazník nemá e-mailový kontakt — doplň ho v <% if (customer) { %><a href="/zakaznici/<%= customer.id %>">karte zákazníka</a><% } else { %>karte zákazníka<% } %>.<% } %>
     </p>
     <div class="field"><label>Predmet</label><input value="<%= subject %>" readonly></div>
     <div class="field"><label>Text e-mailu</label><textarea rows="12" readonly style="font-family:inherit;"><%= body %></textarea></div>
     <div class="actions">
-      <a class="btn btn-primary" href="<%= mailto %>"><%- icon('send', 16) %> Otvoriť v e-maile</a>
+      <% if (smtpReady && toEmail) { %>
+        <form class="inline" method="post" action="/dopyty/<%= inquiry.id %>/send" onsubmit="return confirm('Odoslať e-mail zákazníkovi na <%= toEmail %>?')">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn btn-primary"><%- icon('send', 16) %> Odoslať zo servera</button>
+        </form>
+      <% } %>
+      <a class="btn <%= (smtpReady && toEmail) ? 'btn-ghost' : 'btn-primary' %>" href="<%= mailto %>"><%- icon('send', 16) %> Otvoriť v e-maile</a>
     </div>
-    <p class="muted" style="font-size:.82rem; margin-top:8px;">„Otvoriť v e-maile" otvorí tvojho e-mailového klienta s predvyplneným textom. (Automatické odosielanie cez server doplníme neskôr.)</p>
+    <p class="muted" style="font-size:.82rem; margin-top:8px;">
+      <% if (smtpReady) { %>„Odoslať zo servera" pošle e-mail priamo cez firemný SMTP. „Otvoriť v e-maile" otvorí tvojho poštového klienta s predvyplneným textom.<% } else { %>„Otvoriť v e-maile" otvorí tvojho poštového klienta s predvyplneným textom. (Priame odosielanie zo servera sa zapne po nastavení SMTP.)<% } %>
+    </p>
   </div>
 </div>

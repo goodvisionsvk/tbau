@@ -14,4 +14,12 @@ module.exports = {
   trustProxy: process.env.TRUST_PROXY === '1',
   secureCookies: process.env.SECURE_COOKIES === '1',
   worklogSecret: process.env.WORKLOG_SECRET || '',
+  smtp: {
+    host: process.env.SMTP_HOST || '',
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
+    secure: process.env.SMTP_SECURE === '1', // true pre port 465 (SSL), inak STARTTLS
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || '',
+    from: process.env.MAIL_FROM || '', // napr. "TBAU portál <portal@tbau.eu>"
+  },
 };

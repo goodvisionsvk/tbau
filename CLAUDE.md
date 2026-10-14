@@ -140,8 +140,17 @@ ukazuje `/nastavenia` (funkcia `backupStatus()` v `pages.js`, odsek v `views/set
 Inštalácia timera na serveri podľa `deploy/BACKUP.md` (nie je súčasťou `deploy.sh`).
 
 Health check: `GET /health` (verejný, server + DB) — používa ho sekcia **Testy** a je vhodný aj na monitoring.
-**Testy** (`/tests`, `src/routes/tests.js`): „Stránka funguje" (self /health) + **CRUD zamestnanca** a
-**CRUD stavby** — bežia v transakcii s `ROLLBACK`, takže v DB nič neostane. Nové CRUD testy pridávaj sem.
+**Testy** (`/tests`, `src/routes/tests.js`, 8 testov): „Stránka funguje" (self /health), **CRUD
+zamestnanca/stavby**, **Politika hesla**, **Expirácia hesla**, **Prihlásenie a zmena hesla**,
+**Žiadosť o reset**, **SMTP e-mail**. DB testy bežia v transakcii s `ROLLBACK` (nič neostane);
+logické testy cez `logicTest()`. Nové testy pridávaj sem.
+
+**SMTP / e-mail** (`src/mailer.js`, nodemailer; `config.smtp` z `.env`): `isConfigured()`,
+`verify()`, `sendMail({to,subject,text,html})`. Ak nie je nakonfigurované, portál funguje ďalej
+(dopyty cez `mailto`). Napojené: **Dopyty** `POST /dopyty/:id/send` (pošle ponuku zákazníkovi na
+hlavný e-mail kontaktu, nastaví status `sent`; tlačidlo v `inquiry-detail.ejs` len ak `smtpReady`),
+**žiadosti o reset** – `notifyAdminsAboutReset()` v `auth.js` upozorní adminov. ENV: `SMTP_HOST`,
+`SMTP_PORT` (587 STARTTLS / 465 SSL), `SMTP_SECURE` (1 pre 465), `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`.
 
 ## Klientov CRM (TBAU 360 – modul Obchod)
 

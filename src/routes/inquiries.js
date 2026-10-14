@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('../db');
+const mailer = require('../mailer');
 const { requireAuth, requireFullAccess } = require('../middleware/auth');
 
 const router = express.Router();
@@ -89,10 +90,10 @@ router.post('/', (req, res) => {
   res.redirect('/dopyty/' + info.lastInsertRowid);
 });
 
-// GET /dopyty/:id – detail + email náhľad
-router.get('/:id', (req, res) => {
-  const inquiry = db.prepare('SELECT * FROM inquiries WHERE id = ?').get(req.params.id);
-  if (!inquiry) return res.redirect('/dopyty');
+// Poskladá všetky údaje dopytu + e-mailový náhľad (pre detail aj odoslanie).
+function buildInquiryView(id) {
+  const inquiry = db.prepare('SELECT * FROM inquiries WHERE id = ?').get(id);
+  if (!inquiry) return null;
   const customer = inquiry.customer_id ? db.prepare('SELECT * FROM customers WHERE id = ?').get(inquiry.customer_id) : null;
   const emps = inquiryEmployees(inquiry.id);
   const primary = customer
@@ -100,13 +101,40 @@ router.get('/:id', (req, res) => {
     : null;
   const subject = inquiry.title || 'Ponuka voľných pracovníkov – TBAU';
   const body = emailDraft(inquiry, customer, emps);
-  const mailto = 'mailto:' + (primary && primary.email ? encodeURIComponent(primary.email) : '') +
+  const toEmail = primary && primary.email ? primary.email : null;
+  const mailto = 'mailto:' + (toEmail ? encodeURIComponent(toEmail) : '') +
     '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  return { inquiry, customer, emps, toEmail, subject, body, mailto };
+}
+
+// GET /dopyty/:id – detail + email náhľad
+router.get('/:id', (req, res) => {
+  const v = buildInquiryView(req.params.id);
+  if (!v) return res.redirect('/dopyty');
   res.render('inquiry-detail', {
-    title: subject, active: 'inquiries', inquiry, customer, emps,
-    toEmail: primary && primary.email ? primary.email : null,
-    subject, body, mailto, statuses: STATUSES, statusClass: STATUS_CLASS,
+    title: v.subject, active: 'inquiries', inquiry: v.inquiry, customer: v.customer, emps: v.emps,
+    toEmail: v.toEmail, subject: v.subject, body: v.body, mailto: v.mailto,
+    statuses: STATUSES, statusClass: STATUS_CLASS,
+    smtpReady: mailer.isConfigured(),
+    sent: req.query.sent === '1',
+    sendError: req.query.err ? decodeURIComponent(req.query.err) : null,
   });
+});
+
+// POST /dopyty/:id/send – odoslať dopyt priamo zo servera cez SMTP
+router.post('/:id/send', async (req, res) => {
+  const v = buildInquiryView(req.params.id);
+  if (!v) return res.redirect('/dopyty');
+  const back = '/dopyty/' + req.params.id;
+  if (!mailer.isConfigured()) return res.redirect(back + '?err=' + encodeURIComponent('SMTP nie je nakonfigurované. Doplňte údaje v .env na serveri.'));
+  if (!v.toEmail) return res.redirect(back + '?err=' + encodeURIComponent('Zákazník nemá e-mailový kontakt.'));
+  try {
+    await mailer.sendMail({ to: v.toEmail, subject: v.subject, text: v.body });
+    db.prepare("UPDATE inquiries SET status = 'sent' WHERE id = ?").run(req.params.id);
+    res.redirect(back + '?sent=1');
+  } catch (e) {
+    res.redirect(back + '?err=' + encodeURIComponent('Odoslanie zlyhalo: ' + e.message));
+  }
 });
 
 // POST /dopyty/:id/status

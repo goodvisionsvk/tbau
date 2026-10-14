@@ -4,6 +4,7 @@ const config = require('../config');
 const db = require('../db');
 const { requireAuth, requireAdmin, passwordChangeReason } = require('../middleware/auth');
 const passwordPolicy = require('../util/password');
+const mailer = require('../mailer');
 
 const router = express.Router();
 router.use(requireAuth, requireAdmin);
@@ -167,6 +168,21 @@ function resetRequestTest() {
   });
 }
 
+// Test: SMTP spojenie (ak je nakonfigurované; inak informatívne preskočené).
+async function smtpTest() {
+  const started = Date.now();
+  const base = { name: 'SMTP e-mail', description: 'Overí spojenie s e-mailovým serverom (ak je nakonfigurované).' };
+  if (!mailer.isConfigured()) {
+    return { ...base, ok: true, detail: 'SMTP zatiaľ nenakonfigurované (preskočené).', durationMs: Date.now() - started };
+  }
+  try {
+    await mailer.verify();
+    return { ...base, ok: true, detail: 'Spojenie so SMTP serverom OK.', durationMs: Date.now() - started };
+  } catch (e) {
+    return { ...base, ok: false, detail: 'SMTP spojenie zlyhalo: ' + e.message, durationMs: Date.now() - started };
+  }
+}
+
 // GET /tests
 router.get('/', async (req, res) => {
   const results = [
@@ -177,6 +193,7 @@ router.get('/', async (req, res) => {
     passwordExpiryTest(),
     loginAndPasswordChangeTest(),
     resetRequestTest(),
+    await smtpTest(),
   ];
   res.render('tests', {
     title: 'Testy',
