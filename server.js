@@ -81,7 +81,7 @@ app.use(
 app.use((req, res, next) => {
   if (req.session.userId) {
     req.user = db
-      .prepare('SELECT id, email, full_name, role, active, must_change_password FROM users WHERE id = ?')
+      .prepare('SELECT id, email, full_name, role, active, must_change_password, password_changed_at FROM users WHERE id = ?')
       .get(req.session.userId);
     if (!req.user || !req.user.active) {
       req.session.userId = null; // odhlás neplatného/zmazaného používateľa, session ponechaj platnú

@@ -8,6 +8,33 @@
   </div>
 <% } %>
 
+<% if (typeof resetRequests !== 'undefined' && resetRequests.length) { %>
+  <div class="card" style="border-left:3px solid var(--accent);">
+    <h2 style="margin-top:0;">Žiadosti o reset hesla (<%= resetRequests.length %>)</h2>
+    <p class="muted" style="margin-top:-6px;">Používatelia požiadali o nové heslo cez „Zabudnuté heslo". Vybav žiadosť (vygeneruje dočasné heslo) a odovzdaj ho bezpečne mimo systému.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>E-mail</th><th>Konto</th><th>Požiadané</th><th></th></tr></thead>
+        <tbody>
+          <% resetRequests.forEach(function(r){ %>
+            <tr>
+              <td><b><%= r.email %></b></td>
+              <td><% if (r.user_id) { %><span class="pill active">existuje</span><% } else { %><span class="pill paused">neznáme</span><% } %></td>
+              <td class="muted"><%= r.created_at %></td>
+              <td class="actions">
+                <% if (r.user_id) { %>
+                  <form class="inline" method="post" action="/users/reset-request/<%= r.id %>/resolve"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-primary btn-sm">Resetovať heslo</button></form>
+                <% } %>
+                <form class="inline" method="post" action="/users/reset-request/<%= r.id %>/dismiss"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-ghost btn-sm">Zamietnuť</button></form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } %>
+
 <div class="grid" style="grid-template-columns: 1fr; gap:24px;">
   <div class="card">
     <h2 style="margin-top:0;">Nový používateľ</h2>
@@ -30,7 +57,7 @@
 
   <div class="table-wrap">
     <table>
-      <thead><tr><th>E-mail</th><th>Meno</th><th>Rola</th><th>Stav</th><th>Posl. prihlásenie</th><th></th></tr></thead>
+      <thead><tr><th>E-mail</th><th>Meno</th><th>Rola</th><th>Stav</th><th>Heslo zmenené</th><th>Posl. prihlásenie</th><th></th></tr></thead>
       <tbody>
         <% users.forEach(function(u){ %>
           <tr>
@@ -47,12 +74,13 @@
                 </select>
               </form>
             </td>
-            <td><span class="pill <%= u.active ? 'active':'paused' %>"><%= u.active ? 'aktívny':'neaktívny' %></span></td>
+            <td><span class="pill <%= u.active ? 'active':'danger' %>"><%= u.active ? 'aktívny':'zablokovaný' %></span></td>
+            <td class="muted"><%= u.password_changed_at ? u.password_changed_at.slice(0,10) : '—' %></td>
             <td class="muted"><%= u.last_login || '—' %></td>
             <td class="actions">
               <form class="inline" method="post" action="/users/<%= u.id %>/reset"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-ghost btn-sm">Reset hesla</button></form>
               <% if (u.id !== currentUser.id) { %>
-                <form class="inline" method="post" action="/users/<%= u.id %>/toggle"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-ghost btn-sm"><%= u.active ? 'Deaktivovať':'Aktivovať' %></button></form>
+                <form class="inline" method="post" action="/users/<%= u.id %>/toggle"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-ghost btn-sm"><%= u.active ? 'Zablokovať':'Odblokovať' %></button></form>
                 <form class="inline" method="post" action="/users/<%= u.id %>/delete" onsubmit="return confirm('Zmazať používateľa <%= u.email %>?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
               <% } %>
             </td>

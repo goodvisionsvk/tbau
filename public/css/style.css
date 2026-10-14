@@ -117,7 +117,7 @@ tfoot th{text-transform:none;font-size:.9rem;color:var(--ink)}
 .pill.active,.pill.done{background:var(--green-bg);color:var(--green-fg)}
 .pill.in_progress{background:var(--blue-bg);color:var(--blue-fg)}
 .pill.medium{background:var(--amber-bg);color:var(--amber-fg)}
-.pill.high{background:var(--red-bg);color:var(--red-fg)}
+.pill.high,.pill.danger{background:var(--red-bg);color:var(--red-fg)}
 
 /* ---------- Forms ---------- */
 form.inline{display:inline;margin:0}

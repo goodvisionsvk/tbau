@@ -225,6 +225,25 @@ ensureColumn('projects', 'kw_do', 'INTEGER'); // kalendárny týždeň do
 ensureColumn('work_log', 'session_ref', 'TEXT'); // Claude Code session id (pre automatické tokeny)
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_worklog_session ON work_log(session_ref)'); // SQLite povoľuje viac NULL
 
+// Bezpečnosť hesiel: kedy bolo heslo naposledy zmenené (pre vynútenú obmenu raz za rok).
+ensureColumn('users', 'password_changed_at', 'TEXT');
+// Doplň chýbajúce hodnoty dátumom vytvorenia účtu (odvtedy sa počíta vek hesla).
+db.exec("UPDATE users SET password_changed_at = COALESCE(created_at, datetime('now')) WHERE password_changed_at IS NULL");
+
+// Samoobslužné žiadosti o reset hesla (bez SMTP – vybavuje admin, heslo odovzdá mimo systému).
+db.exec(`
+CREATE TABLE IF NOT EXISTS password_reset_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL,
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'open',   -- open | done
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  handled_by INTEGER REFERENCES users(id),
+  handled_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_resetreq_status ON password_reset_requests(status);
+`);
+
 // Poznámka: tabuľku "sessions" si vytvára a spravuje better-sqlite3-session-store.
 
 module.exports = db;

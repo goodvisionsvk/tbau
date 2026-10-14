@@ -1,0 +1,26 @@
+<div class="public-wrap">
+  <div class="auth-card">
+    <img class="logo" src="/static/img/logo.png" alt="TBAU">
+    <div class="sub">Zabudnuté heslo</div>
+
+    <% if (sent) { %>
+      <div class="alert alert-info">
+        Ak pre tento e-mail existuje konto, administrátor dostane žiadosť o reset hesla
+        a nové dočasné heslo ti odovzdá. Potom sa prihlásiš a heslo si zmeníš.
+      </div>
+      <a class="btn btn-ghost" style="width:100%; justify-content:center;" href="/login">Späť na prihlásenie</a>
+    <% } else { %>
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+      <p class="muted" style="margin-top:0;">Zadaj svoj e-mail. Administrátorovi príde žiadosť o reset hesla.</p>
+      <form method="post" action="/forgot">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" autocomplete="username" required autofocus>
+        </div>
+        <button class="btn btn-primary" style="width:100%; justify-content:center;">Odoslať žiadosť</button>
+      </form>
+      <a class="btn-link" href="/login" style="display:block; text-align:center; margin-top:12px;">Späť na prihlásenie</a>
+    <% } %>
+  </div>
+</div>

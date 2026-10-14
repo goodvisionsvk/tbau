@@ -21,13 +21,32 @@ function genPassword() {
 
 function listUsers() {
   return db
-    .prepare('SELECT id, email, full_name, role, active, last_login, created_at FROM users ORDER BY created_at')
+    .prepare('SELECT id, email, full_name, role, active, last_login, created_at, password_changed_at FROM users ORDER BY created_at')
     .all();
+}
+
+// otvorené samoobslužné žiadosti o reset hesla
+function listResetRequests() {
+  return db
+    .prepare("SELECT id, email, user_id, created_at FROM password_reset_requests WHERE status = 'open' ORDER BY created_at")
+    .all();
+}
+
+function renderUsers(res, extra = {}) {
+  res.render('users', Object.assign({
+    title: 'Používatelia',
+    active: 'settings',
+    users: listUsers(),
+    roles: constants.roles,
+    resetRequests: listResetRequests(),
+    tempInfo: null,
+    error: null,
+  }, extra));
 }
 
 // GET /users
 router.get('/', (req, res) => {
-  res.render('users', { title: 'Používatelia', active: 'settings', users: listUsers(), roles: constants.roles, tempInfo: null });
+  renderUsers(res);
 });
 
 // POST /users – vytvorenie používateľa (dočasné heslo sa zobrazí raz)
@@ -42,6 +61,7 @@ router.post('/', (req, res) => {
       active: 'settings',
       users: listUsers(),
       roles: constants.roles,
+      resetRequests: listResetRequests(),
       error,
       tempInfo,
     });
@@ -53,28 +73,51 @@ router.post('/', (req, res) => {
   const tempPassword = genPassword();
   const hash = bcrypt.hashSync(tempPassword, 12);
   db.prepare(
-    'INSERT INTO users (email, password_hash, full_name, role, must_change_password) VALUES (?,?,?,?,1)'
+    "INSERT INTO users (email, password_hash, full_name, role, must_change_password, password_changed_at) VALUES (?,?,?,?,1,datetime('now'))"
   ).run(email, hash, fullName, role);
 
   render(null, { email, password: tempPassword });
 });
 
+// reset hesla pre daného používateľa (vygeneruje dočasné heslo, vybaví prípadnú žiadosť)
+function resetUserPassword(user, adminId) {
+  const tempPassword = genPassword();
+  db.prepare(
+    "UPDATE users SET password_hash = ?, must_change_password = 1, password_changed_at = datetime('now') WHERE id = ?"
+  ).run(bcrypt.hashSync(tempPassword, 12), user.id);
+  // vybav otvorené žiadosti o reset pre tento e-mail
+  db.prepare(
+    "UPDATE password_reset_requests SET status = 'done', handled_by = ?, handled_at = datetime('now') WHERE email = ? AND status = 'open'"
+  ).run(adminId, user.email);
+  return tempPassword;
+}
+
 // POST /users/:id/reset – reset hesla
 router.post('/:id/reset', (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
   if (!user) return res.redirect('/users');
-  const tempPassword = genPassword();
-  db.prepare('UPDATE users SET password_hash = ?, must_change_password = 1 WHERE id = ?').run(
-    bcrypt.hashSync(tempPassword, 12),
-    user.id
-  );
-  res.render('users', {
-    title: 'Používatelia',
-    active: 'settings',
-    users: listUsers(),
-    roles: constants.roles,
-    tempInfo: { email: user.email, password: tempPassword, reset: true },
-  });
+  const tempPassword = resetUserPassword(user, req.user.id);
+  renderUsers(res, { tempInfo: { email: user.email, password: tempPassword, reset: true } });
+});
+
+// POST /users/reset-request/:id/resolve – vybaviť žiadosť o reset (reset hesla ak účet existuje)
+router.post('/reset-request/:id/resolve', (req, res) => {
+  const reqRow = db.prepare("SELECT * FROM password_reset_requests WHERE id = ? AND status = 'open'").get(req.params.id);
+  if (!reqRow) return res.redirect('/users');
+  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(reqRow.email);
+  if (user) {
+    const tempPassword = resetUserPassword(user, req.user.id);
+    return renderUsers(res, { tempInfo: { email: user.email, password: tempPassword, reset: true } });
+  }
+  // účet s týmto e-mailom neexistuje – len zavri žiadosť
+  db.prepare("UPDATE password_reset_requests SET status = 'done', handled_by = ?, handled_at = datetime('now') WHERE id = ?").run(req.user.id, reqRow.id);
+  renderUsers(res, { error: 'Pre tento e-mail neexistuje konto. Žiadosť bola uzavretá.' });
+});
+
+// POST /users/reset-request/:id/dismiss – zamietnuť/zahodiť žiadosť bez resetu
+router.post('/reset-request/:id/dismiss', (req, res) => {
+  db.prepare("UPDATE password_reset_requests SET status = 'done', handled_by = ?, handled_at = datetime('now') WHERE id = ? AND status = 'open'").run(req.user.id, req.params.id);
+  res.redirect('/users');
 });
 
 // POST /users/:id/role – zmena roly

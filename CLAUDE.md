@@ -95,6 +95,17 @@ počet ľudí z turnusu zatiaľ 0) + ľudia na stavbe + smenovky. Stavy v `const
 (planned/active/paused/done = Plánovaná/Prebieha/Pozastavená/Ukončená). Nové stĺpce projects:
 `bauleiter, polier, kw_od, kw_do`. Stavba môže byť naša aj pre klienta (CRM prepojenie neskôr).
 
+**Bezpečnosť hesiel a prihlasovania** (`src/util/password.js`, `src/routes/auth.js`,
+`src/middleware/auth.js`): politika sily hesla `password.validate(pw,{email})` (min. 10 znakov,
+malé+veľké písmeno, číslica, nesmie obsahovať e-mail; pravidlá = `password.RULES`). **Vynútená
+obmena 1×/rok**: `users.password_changed_at` + `password.isExpired()`; `passwordChangeReason(user)`
+vráti `forced` (dočasné heslo/reset = `must_change_password`) / `expired` (>365 dní) / null a
+`requireAuth` podľa toho presmeruje na `/account/password`. **Remember-me**: checkbox na logine →
+`req.session.cookie.maxAge = 30d`. **Zabudnuté heslo** `/forgot` → zápis do `password_reset_requests`
+(open|done), admin vybaví v `/users` (`/users/reset-request/:id/resolve|dismiss`) – bez SMTP, heslo
+odovzdá mimo systému; neprezrádza existenciu konta. **Blokovanie**: `users.active=0` (login to kontroluje),
+v `/users` tlačidlo Zablokovať/Odblokovať (`/users/:id/toggle`). Nová tabuľka `password_reset_requests`.
+
 **Roly** (users.role): `sef` + `admin` = plný prístup; `parcak` = svoje stavby a ľudia;
 `zamestnanec` = len vlastná dochádzka + žiadosti. Prepojenie prihlásenia na zamestnanca:
 `employees.user_id`. Dochádzka = **denné** hodiny (týždenná mriežka), report sčíta za mesiac.

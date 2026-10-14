@@ -130,6 +130,15 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-14** – **Bezpečnosť hesiel a prihlasovania**: (1) **politika sily hesla** – min. 10
+  znakov, malé + veľké písmeno, číslica, nesmie obsahovať e-mail (`src/util/password.js`),
+  pravidlá sa zobrazujú pri zmene; (2) **vynútená obmena hesla raz za rok** – stĺpec
+  `users.password_changed_at`, po 365 dňoch portál presmeruje na zmenu hesla (ako pri dočasnom);
+  (3) **„Zapamätať prihlásenie"** na logine → platnosť prihlásenia 30 dní (inak 8 h);
+  (4) **samoobslužná žiadosť o reset** – „Zabudnuté heslo?" (`/forgot`) vytvorí žiadosť, admin ju
+  vidí v Používateľoch a vybaví (bez SMTP – dočasné heslo odovzdá mimo systému); neprezrádza, či
+  e-mail existuje; (5) admin vie **zablokovať/odblokovať prihlásenie** používateľovi (zablokovaný
+  sa neprihlási). Tabuľka Používatelia má stĺpec „Heslo zmenené" a stavy aktívny/zablokovaný.
 - **2026-10-13** – **Modul Obchod** (ako HR, nová skupina v menu): **Zákazníci** (`/zakaznici`) –
   zoznam nemeckých firiem, ktoré robia stavby a ktorým posielame dopyty: tabuľka + filter (stav,
   hľadanie, archivovaní), samostatná stránka pridania, detail s parametrami spolupráce (typ práce,
@@ -209,7 +218,11 @@ Aktualizuje sa po každej práci na projekte.
 - [x] **HTTPS/TLS** – vynútené (HTTP→HTTPS redirect), HSTS, Let's Encrypt s auto-obnovou.
 - [x] **Firewall (ufw)** – povolené len SSH a 80/443.
 - [x] **Hashovanie hesiel** – bcrypt (cost 12), vynútená zmena dočasného hesla.
-- [x] **Bezpečné session** – HttpOnly + Secure cookies, expirácia 8 h, regenerácia po prihlásení.
+- [x] **Politika hesiel** – min. 10 znakov, malé + veľké písmeno + číslica, heslo nesmie obsahovať e-mail.
+- [x] **Pravidelná obmena hesla** – vynútená zmena po max. 1 roku (`password_changed_at`).
+- [x] **Samoobslužný reset** – „Zabudnuté heslo" (žiadosť pre admina; neodhaľuje existenciu konta).
+- [x] **Blokovanie prihlásenia** – admin vie deaktivovať (zablokovať) konto; zablokovaný sa neprihlási.
+- [x] **Bezpečné session** – HttpOnly + Secure cookies, expirácia 8 h (voliteľne „zapamätať" 30 dní), regenerácia po prihlásení.
 - [x] **Ochrana pred útokmi** – CSRF tokeny, parametrizované SQL (proti injection), CSP proti XSS.
 - [x] **Správa tajomstiev** – žiadne heslá/kľúče v kóde; `.env` mimo gitu (`.gitignore`).
 - [x] **Audit log** – logovanie požiadaviek (morgan) + systemd/journald.
