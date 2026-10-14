@@ -53,7 +53,7 @@ Súbor `tbau-nas-backup-key` (súkromný kľúč) ulož na NAS, napr. do
 ```bash
 chmod 600 /volume1/tbau-backup/.ssh/tbau-nas-backup-key
 # prvé overenie (prijme fingerprint servera):
-rsync -az -e "ssh -i /volume1/tbau-backup/.ssh/tbau-nas-backup-key -p 22 -o StrictHostKeyChecking=accept-new" \
+rsync -rtz -e "ssh -i /volume1/tbau-backup/.ssh/tbau-nas-backup-key -p 22 -o StrictHostKeyChecking=accept-new" \
   nasbackup@80.211.202.23:db/ /volume1/tbau-backup/db/
 ```
 
@@ -67,15 +67,16 @@ rsync -az -e "ssh -i /volume1/tbau-backup/.ssh/tbau-nas-backup-key -p 22 -o Stri
 ```bash
 KEY=/volume1/tbau-backup/.ssh/tbau-nas-backup-key
 SSH="ssh -i $KEY -p 22 -o StrictHostKeyChecking=accept-new"
-# DB zálohy (gzip) – prírastkovo, so zrkadlením rotácie
-rsync -az --delete -e "$SSH" nasbackup@80.211.202.23:db/      /volume1/tbau-backup/db/
+# DB zálohy (gzip) – prírastkovo
+rsync -rtz -e "$SSH" nasbackup@80.211.202.23:db/      /volume1/tbau-backup/db/
 # nahraté dokumenty (smenovky) – prírastkovo
-rsync -az --delete -e "$SSH" nasbackup@80.211.202.23:uploads/ /volume1/tbau-backup/uploads/
+rsync -rtz -e "$SSH" nasbackup@80.211.202.23:uploads/ /volume1/tbau-backup/uploads/
 ```
 
 > Cesty `db/` a `uploads/` sú relatívne k `backups/` (vďaka rrsync obmedzeniu).
-> `--delete` udrží na NAS presné zrkadlo (vrátane rotácie starých DB záloh). Ak chceš staré
-> zálohy na NAS držať dlhšie ako na serveri, `--delete` z prvého riadku vynechaj.
+> `--delete` zámerne NEpoužívame – read-only rrsync ho blokuje a pre zálohu je lepšie, aby si NAS
+> držal aj staršiu históriu, než má server (server rotuje 30 dní, NAS môže viac).
+> Prenesie sa vždy len to, čo je nové/zmenené.
 
 ## Obnova zo zálohy
 
