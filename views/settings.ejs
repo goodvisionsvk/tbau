@@ -11,6 +11,26 @@
 </div>
 
 <div class="card" style="margin-top:24px;">
+  <div style="display:flex; align-items:center; gap:10px; justify-content:space-between; flex-wrap:wrap;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="app-ico"><%- icon('send', 22) %></div>
+      <div>
+        <h2 style="margin:0;">E-mail (SMTP)</h2>
+        <% if (typeof smtp !== 'undefined' && smtp) { %>
+          <span class="pill <%= smtp.configured ? 'active' : 'paused' %>"><%= smtp.configured ? 'nakonfigurované' : 'nenakonfigurované' %></span>
+          <% if (smtp.configured && smtp.from) { %><span class="muted" style="font-size:.85rem;">· <%= smtp.from %></span><% } %>
+        <% } %>
+      </div>
+    </div>
+    <a class="btn btn-primary btn-sm" href="/nastavenia/smtp">Nastaviť SMTP</a>
+  </div>
+  <p class="muted" style="margin:10px 0 0;">
+    Server na odosielanie e-mailov – posielanie dopytov zákazníkom priamo z portálu a notifikácie
+    (napr. žiadosti o reset hesla). Údaje (vrátane hesla schránky) zadáš v <a href="/nastavenia/smtp">nastavení SMTP</a>.
+  </p>
+</div>
+
+<div class="card" style="margin-top:24px;">
   <div style="display:flex; align-items:center; gap:10px;">
     <div class="app-ico"><%- icon('save', 22) %></div>
     <h2 style="margin:0;">Zálohovanie dát</h2>

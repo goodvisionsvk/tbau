@@ -230,6 +230,15 @@ ensureColumn('users', 'password_changed_at', 'TEXT');
 // Doplň chýbajúce hodnoty dátumom vytvorenia účtu (odvtedy sa počíta vek hesla).
 db.exec("UPDATE users SET password_changed_at = COALESCE(created_at, datetime('now')) WHERE password_changed_at IS NULL");
 
+// Nastavenia aplikácie (kľúč–hodnota), napr. SMTP konfigurácia editovateľná z portálu.
+db.exec(`
+CREATE TABLE IF NOT EXISTS app_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+`);
+
 // Samoobslužné žiadosti o reset hesla (bez SMTP – vybavuje admin, heslo odovzdá mimo systému).
 db.exec(`
 CREATE TABLE IF NOT EXISTS password_reset_requests (

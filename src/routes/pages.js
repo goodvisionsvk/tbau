@@ -5,6 +5,8 @@ const db = require('../db');
 const constants = require('../constants');
 const perm = require('../permissions');
 const dates = require('../util/dates');
+const store = require('../settings-store');
+const mailer = require('../mailer');
 const { requireAuth, requireFullAccess } = require('../middleware/auth');
 
 const router = express.Router();
@@ -33,6 +35,7 @@ router.get('/nastavenia', requireAuth, requireFullAccess, (req, res) => {
     title: 'Nastavenia',
     active: 'settings',
     backup: backupStatus(),
+    smtp: { configured: mailer.isConfigured(), from: store.getSmtp().from },
     items: [
       { label: 'Používatelia', href: '/users', icon: 'users', desc: 'Účty, role, reset hesla.' },
       { label: 'Aplikácie', href: '/apps', icon: 'grid', desc: 'Moduly portálu a ich stav.' },
@@ -41,6 +44,48 @@ router.get('/nastavenia', requireAuth, requireFullAccess, (req, res) => {
       { label: 'Vykázaná práca', href: '/praca', icon: 'receipt', desc: 'Čas, tokeny a odhadovaná cena práce na projekte.' },
     ],
   });
+});
+
+// GET /nastavenia/smtp – konfigurácia e-mailu (SMTP)
+router.get('/nastavenia/smtp', requireAuth, requireFullAccess, (req, res) => {
+  const c = store.getSmtp();
+  res.render('smtp', {
+    title: 'E-mail (SMTP)',
+    active: 'settings',
+    cfg: { host: c.host, port: c.port, secure: c.secure, user: c.user, from: c.from },
+    passSet: !!c.pass,
+    configured: mailer.isConfigured(),
+    saved: req.query.saved === '1',
+    testOk: req.query.test === 'ok',
+    testError: req.query.err ? decodeURIComponent(req.query.err) : null,
+    myEmail: req.user.email,
+  });
+});
+
+// POST /nastavenia/smtp – uloženie konfigurácie
+router.post('/nastavenia/smtp', requireAuth, requireFullAccess, (req, res) => {
+  store.set('smtp_host', (req.body.host || '').trim());
+  store.set('smtp_port', (req.body.port || '587').trim());
+  store.set('smtp_secure', req.body.secure ? '1' : '0');
+  store.set('smtp_user', (req.body.user || '').trim());
+  store.set('smtp_from', (req.body.from || '').trim());
+  // heslo meníme iba ak bolo zadané (prázdne pole = ponechať pôvodné)
+  if ((req.body.pass || '').length) store.set('smtp_pass', req.body.pass);
+  res.redirect('/nastavenia/smtp?saved=1');
+});
+
+// POST /nastavenia/smtp/test – odoslanie testovacieho e-mailu prihlásenému používateľovi
+router.post('/nastavenia/smtp/test', requireAuth, requireFullAccess, async (req, res) => {
+  try {
+    await mailer.sendMail({
+      to: req.user.email,
+      subject: 'TBAU portál – testovací e-mail',
+      text: 'Toto je testovací e-mail z portálu TBAU. Ak ho vidíš, SMTP je nastavené správne.',
+    });
+    res.redirect('/nastavenia/smtp?test=ok');
+  } catch (e) {
+    res.redirect('/nastavenia/smtp?err=' + encodeURIComponent(e.message));
+  }
 });
 
 // GET /health – jednoduchý health check (pre testy a monitoring)

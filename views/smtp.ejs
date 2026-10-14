@@ -1,0 +1,51 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/nastavenia">&larr; Späť na nastavenia</a></p>
+
+<% if (saved) { %><div class="alert alert-info">Nastavenia SMTP boli uložené.</div><% } %>
+<% if (testOk) { %><div class="alert alert-info">Testovací e-mail bol odoslaný na <b><%= myEmail %></b>. Skontroluj doručenú poštu.</div><% } %>
+<% if (testError) { %><div class="alert alert-error">Test zlyhal: <%= testError %></div><% } %>
+
+<div class="grid" style="grid-template-columns:1fr; gap:24px; max-width:620px;">
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="app-ico"><%- icon('send', 22) %></div>
+      <div>
+        <h2 style="margin:0;">E-mail (SMTP)</h2>
+        <span class="pill <%= configured ? 'active' : 'paused' %>"><%= configured ? 'nakonfigurované' : 'nenakonfigurované' %></span>
+      </div>
+    </div>
+    <p class="muted" style="margin:10px 0 0;">
+      Server na odosielanie e-mailov (dopyty zákazníkom, notifikácie). Pre Websupport použi
+      <code>smtp.m1.websupport.sk</code>, port <code>465</code>, zapni SSL/TLS, prihlasovacie meno = celý e-mail.
+    </p>
+
+    <form method="post" action="/nastavenia/smtp" style="margin-top:14px;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field" style="grid-column: span 2;"><label>SMTP server (host)</label><input name="host" value="<%= cfg.host %>" placeholder="smtp.m1.websupport.sk"></div>
+        <div class="field"><label>Port</label><input name="port" inputmode="numeric" value="<%= cfg.port %>" placeholder="465"></div>
+      </div>
+      <div class="field">
+        <label style="display:flex; align-items:center; gap:8px; font-weight:normal; cursor:pointer;">
+          <input type="checkbox" name="secure" value="1" style="width:auto;" <%= cfg.secure ? 'checked' : '' %>>
+          Použiť SSL/TLS (zapni pre port 465; pre 587 nechaj vypnuté – STARTTLS)
+        </label>
+      </div>
+      <div class="field"><label>Prihlasovacie meno (e-mail)</label><input name="user" value="<%= cfg.user %>" placeholder="notifikacie@tbau.eu" autocomplete="off"></div>
+      <div class="field">
+        <label>Heslo <% if (passSet) { %><span class="muted">(uložené – nechaj prázdne pre ponechanie)</span><% } %></label>
+        <input name="pass" type="password" value="" placeholder="<%= passSet ? '•••••••• (nezmenené)' : 'heslo k schránke' %>" autocomplete="new-password">
+      </div>
+      <div class="field"><label>Odosielateľ (From)</label><input name="from" value="<%= cfg.from %>" placeholder="TBAU portál <notifikacie@tbau.eu>"></div>
+      <button class="btn btn-primary">Uložiť nastavenia</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Test odoslania</h2>
+    <p class="muted" style="margin-top:0;">Pošle testovací e-mail na tvoju adresu <b><%= myEmail %></b>. Najprv ulož nastavenia vyššie.</p>
+    <form method="post" action="/nastavenia/smtp/test">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-dark" <%= configured ? '' : 'disabled' %>><%- icon('send', 16) %> Poslať testovací e-mail</button>
+    </form>
+  </div>
+</div>

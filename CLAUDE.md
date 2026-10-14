@@ -145,12 +145,16 @@ zamestnanca/stavby**, **Politika hesla**, **Expirácia hesla**, **Prihlásenie a
 **Žiadosť o reset**, **SMTP e-mail**. DB testy bežia v transakcii s `ROLLBACK` (nič neostane);
 logické testy cez `logicTest()`. Nové testy pridávaj sem.
 
-**SMTP / e-mail** (`src/mailer.js`, nodemailer; `config.smtp` z `.env`): `isConfigured()`,
-`verify()`, `sendMail({to,subject,text,html})`. Ak nie je nakonfigurované, portál funguje ďalej
-(dopyty cez `mailto`). Napojené: **Dopyty** `POST /dopyty/:id/send` (pošle ponuku zákazníkovi na
-hlavný e-mail kontaktu, nastaví status `sent`; tlačidlo v `inquiry-detail.ejs` len ak `smtpReady`),
-**žiadosti o reset** – `notifyAdminsAboutReset()` v `auth.js` upozorní adminov. ENV: `SMTP_HOST`,
-`SMTP_PORT` (587 STARTTLS / 465 SSL), `SMTP_SECURE` (1 pre 465), `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`.
+**SMTP / e-mail** (`src/mailer.js`, nodemailer): `isConfigured()`, `verify()`,
+`sendMail({to,subject,text,html})`. Konfigurácia sa číta **dynamicky z DB** cez `settings-store.js`
+(`getSmtp()`) – tabuľka `app_settings` (kľúč–hodnota), s fallbackom na `.env` (`config.smtp`).
+**Edituje sa priamo v portáli**: Nastavenia → **E-mail (SMTP)** (`/nastavenia/smtp`, `views/smtp.ejs`):
+host, port, SSL/TLS, používateľ, heslo (ukladá sa len ak je zadané), odosielateľ + **tlačidlo
+„Poslať testovací e-mail"** (`POST /nastavenia/smtp/test` pošle na e-mail prihláseného). Kľúče v
+`app_settings`: `smtp_host/port/secure/user/pass/from`. Napojené: **Dopyty** `POST /dopyty/:id/send`
+(pošle ponuku na hlavný e-mail kontaktu, status `sent`; tlačidlo len ak `smtpReady`), **žiadosti
+o reset** `notifyAdminsAboutReset()` v `auth.js`. Websupport TBAU: `smtp.m1.websupport.sk:465` SSL,
+schránka `notifikacie@tbau.eu`. `settings-store.set(key,val)`/`get(key,fallback)` je všeobecné úložisko nastavení.
 
 ## Klientov CRM (TBAU 360 – modul Obchod)
 
