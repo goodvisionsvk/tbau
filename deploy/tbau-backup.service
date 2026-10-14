@@ -1,0 +1,16 @@
+[Unit]
+Description=TBAU portál – denná záloha databázy
+After=network.target
+
+[Service]
+Type=oneshot
+User=tbau
+WorkingDirectory=/opt/tbau-portal
+ExecStart=/usr/bin/node /opt/tbau-portal/scripts/backup-db.js
+
+# Bezpečnostné obmedzenia (rovnako ako hlavná služba; zápis len do backups/)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/tbau-portal/backups

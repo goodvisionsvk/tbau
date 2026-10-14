@@ -130,6 +130,11 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-14** – **Zálohovanie dát**: denná konzistentná záloha SQLite DB (online backup +
+  gzip + rotácia 30 dní) cez systemd timer `tbau-backup.timer` → `backups/` (`scripts/backup-db.js`).
+  Odtiaľ prírastkové sťahovanie na **NAS Synology** (NAS ťahá z VPS cez rsync/Hyper Backup – len
+  nové/zmenené súbory + uploady). Stav poslednej zálohy v **Nastavenia → Zálohovanie dát**. Návod
+  a obnova: `deploy/BACKUP.md`. (Server-side hotové; nastavenie NAS je na strane Synology.)
 - **2026-10-14** – **Bezpečnosť hesiel a prihlasovania**: (1) **politika sily hesla** – min. 10
   znakov, malé + veľké písmeno, číslica, nesmie obsahovať e-mail (`src/util/password.js`),
   pravidlá sa zobrazujú pri zmene; (2) **vynútená obmena hesla raz za rok** – stĺpec
@@ -206,7 +211,7 @@ Aktualizuje sa po každej práci na projekte.
 - [ ] **Autorizácia / role** – jemnejšie rozdelenie prístupu (admin, účtovník, zamestnanec…).
 - [ ] **Šifrovanie dát v pokoji** – citlivé údaje (osobné, mzdové) šifrované v DB.
 - [ ] **Rate-limiting prihlásenia** – ochrana proti hádaniu hesla (brute-force).
-- [ ] **Zálohovanie** – pravidelné zálohy DB a overený postup obnovy.
+- [x] **Zálohovanie** – denná automatická záloha DB + rotácia + prírastkovo na NAS Synology; postup obnovy v `deploy/BACKUP.md`. *(ostáva: jednorazové nastavenie na strane NAS)*
 - [ ] **Aktualizácie závislostí** – sledovanie zraniteľností (napr. Dependabot).
 - [ ] **GDPR** – spracovanie osobných údajov zamestnancov v súlade s legislatívou.
 - [ ] **Monitoring/alerting** – dostupnosť a bezpečnostné udalosti.
@@ -243,7 +248,8 @@ bezpečnosti – ISMS). Aktualizuje sa po každej práci na projekte.
 - [ ] **Analýza rizík** – identifikácia aktív, hrozieb a zraniteľností + hodnotenie.
 - [ ] **Plán zvládania rizík** – opatrenia na zníženie identifikovaných rizík.
 - [ ] **Politiky bezpečnosti** – smernice (heslá, prístupy, práca s dátami).
-- [ ] **Bezpečnosť prevádzky (A.12)** – doplniť **zálohy** a **monitoring** (logovanie už je).
+- [ ] **Bezpečnosť prevádzky (A.12)** – **zálohy hotové** (denné + NAS); ostáva **monitoring** (logovanie už je).
+- [ ] **Kontinuita (A.17)** – zálohy na 2 miestach (VPS + NAS) + dokumentovaný postup obnovy *(základ hotový)*.
 - [ ] **Riadenie incidentov (A.16)** – postup pri bezpečnostných incidentoch.
 - [ ] **Kontinuita činností (A.17)** – plán obnovy po výpadku/havárii.
 - [ ] **Súlad (A.18)** – legislatíva (GDPR) a interné pravidlá.

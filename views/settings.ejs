@@ -9,3 +9,32 @@
     </a>
   <% }) %>
 </div>
+
+<div class="card" style="margin-top:24px;">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div class="app-ico"><%- icon('save', 22) %></div>
+    <h2 style="margin:0;">Zálohovanie dát</h2>
+  </div>
+  <p class="muted" style="margin:10px 0 6px;">
+    Databáza portálu sa <b>automaticky zálohuje každý deň</b> (konzistentná kópia, komprimovaná,
+    s rotáciou posledných 30 dní) do priečinka <code>backups/</code> na serveri. Odtiaľ sa zálohy
+    aj nahraté dokumenty (smenovky) <b>prírastkovo sťahujú na firemné NAS Synology</b> – prenášajú
+    sa len nové a zmenené súbory. Takto sú dáta na dvoch miestach (server + NAS v sídle firmy).
+  </p>
+  <% if (typeof backup !== 'undefined' && backup) { %>
+    <p style="margin:6px 0 0;">
+      <% if (backup.last) { %>
+        <span class="pill active">posledná záloha</span>
+        <b><%= new Date(backup.last).toLocaleString('sk-SK') %></b>
+        <span class="muted">· <%= backup.count %> záloh · <%= (backup.lastSize/1024).toFixed(0) %> kB</span>
+      <% } else { %>
+        <span class="pill paused">zatiaľ bez zálohy</span>
+        <span class="muted">denný plán sa aktivuje po nasadení (systemd timer <code>tbau-backup.timer</code>).</span>
+      <% } %>
+    </p>
+  <% } %>
+  <p class="muted" style="font-size:.82rem; margin:12px 0 0;">
+    Nastavenie NAS (Synology) je popísané v <code>deploy/BACKUP.md</code>. Sťahovanie na NAS je
+    potrebné jednorazovo nastaviť na strane Synology (Hyper Backup / plánovaná rsync úloha).
+  </p>
+</div>

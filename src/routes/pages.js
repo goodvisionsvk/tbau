@@ -1,4 +1,6 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const db = require('../db');
 const constants = require('../constants');
 const perm = require('../permissions');
@@ -7,11 +9,29 @@ const { requireAuth, requireFullAccess } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Prehľad stavu zálohovania (číta adresár backups/ vytváraný denným timerom).
+function backupStatus() {
+  const dir = process.env.BACKUP_DIR || path.join(__dirname, '..', '..', 'backups');
+  try {
+    const files = fs
+      .readdirSync(dir)
+      .filter((f) => /^tbau-.*\.db\.gz$/.test(f))
+      .sort();
+    if (!files.length) return { count: 0, last: null, lastSize: null };
+    const last = files[files.length - 1];
+    const st = fs.statSync(path.join(dir, last));
+    return { count: files.length, last: st.mtime, lastSize: st.size };
+  } catch (e) {
+    return { count: 0, last: null, lastSize: null, error: true };
+  }
+}
+
 // GET /nastavenia – rozcestník nastavení portálu (len plný prístup)
 router.get('/nastavenia', requireAuth, requireFullAccess, (req, res) => {
   res.render('settings', {
     title: 'Nastavenia',
     active: 'settings',
+    backup: backupStatus(),
     items: [
       { label: 'Používatelia', href: '/users', icon: 'users', desc: 'Účty, role, reset hesla.' },
       { label: 'Aplikácie', href: '/apps', icon: 'grid', desc: 'Moduly portálu a ich stav.' },

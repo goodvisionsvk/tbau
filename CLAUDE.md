@@ -132,6 +132,13 @@ skupín = `.nav-group`. Zamestnanec vidí len Moja dochádzka.
 Nahraté smenovky (JPG/PNG/PDF) sú mimo gitu v `data/uploads/` a servírujú sa chránene
 cez `/dochadzka/smenovka/:id/subor` (kontrola prístupu k stavbe).
 
+**Zálohovanie** (`scripts/backup-db.js`, `deploy/tbau-backup.{service,timer}`, `deploy/BACKUP.md`):
+denná konzistentná záloha DB (better-sqlite3 online `.backup()` + gzip + rotácia `BACKUP_KEEP`=30)
+do `backups/` (mimo gitu) cez systemd timer o 02:30. NAS Synology si zálohy + `data/uploads/`
+**prírastkovo ťahá z VPS** (rsync/Hyper Backup, read-only účet `backup`). Stav poslednej zálohy
+ukazuje `/nastavenia` (funkcia `backupStatus()` v `pages.js`, odsek v `views/settings.ejs`).
+Inštalácia timera na serveri podľa `deploy/BACKUP.md` (nie je súčasťou `deploy.sh`).
+
 Health check: `GET /health` (verejný, server + DB) — používa ho sekcia **Testy** a je vhodný aj na monitoring.
 **Testy** (`/tests`, `src/routes/tests.js`): „Stránka funguje" (self /health) + **CRUD zamestnanca** a
 **CRUD stavby** — bežia v transakcii s `ROLLBACK`, takže v DB nič neostane. Nové CRUD testy pridávaj sem.

@@ -26,3 +26,6 @@ data/
 
 # tajomstvo pre worklog hook (lokálne)
 .worklog-secret
+
+# Zálohy DB (lokálne na serveri; na NAS sa ťahajú cez rsync)
+backups/
