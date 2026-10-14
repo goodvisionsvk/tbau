@@ -57,6 +57,7 @@ router.get('/nastavenia/smtp', requireAuth, requireFullAccess, (req, res) => {
     configured: mailer.isConfigured(),
     saved: req.query.saved === '1',
     testOk: req.query.test === 'ok',
+    testTo: req.query.to ? decodeURIComponent(req.query.to) : null,
     testError: req.query.err ? decodeURIComponent(req.query.err) : null,
     myEmail: req.user.email,
   });
@@ -74,15 +75,19 @@ router.post('/nastavenia/smtp', requireAuth, requireFullAccess, (req, res) => {
   res.redirect('/nastavenia/smtp?saved=1');
 });
 
-// POST /nastavenia/smtp/test – odoslanie testovacieho e-mailu prihlásenému používateľovi
+// POST /nastavenia/smtp/test – odoslanie testovacieho e-mailu na zadanú adresu
 router.post('/nastavenia/smtp/test', requireAuth, requireFullAccess, async (req, res) => {
+  const to = (req.body.to || req.user.email || '').trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) {
+    return res.redirect('/nastavenia/smtp?err=' + encodeURIComponent('Zadaj platnú e-mailovú adresu príjemcu.'));
+  }
   try {
     await mailer.sendMail({
-      to: req.user.email,
+      to,
       subject: 'TBAU portál – testovací e-mail',
       text: 'Toto je testovací e-mail z portálu TBAU. Ak ho vidíš, SMTP je nastavené správne.',
     });
-    res.redirect('/nastavenia/smtp?test=ok');
+    res.redirect('/nastavenia/smtp?test=ok&to=' + encodeURIComponent(to));
   } catch (e) {
     res.redirect('/nastavenia/smtp?err=' + encodeURIComponent(e.message));
   }

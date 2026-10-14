@@ -1,7 +1,7 @@
 <p style="margin-top:-8px;"><a class="btn-link" href="/nastavenia">&larr; Späť na nastavenia</a></p>
 
 <% if (saved) { %><div class="alert alert-info">Nastavenia SMTP boli uložené.</div><% } %>
-<% if (testOk) { %><div class="alert alert-info">Testovací e-mail bol odoslaný na <b><%= myEmail %></b>. Skontroluj doručenú poštu.</div><% } %>
+<% if (testOk) { %><div class="alert alert-info">Testovací e-mail bol odoslaný na <b><%= testTo || myEmail %></b>. Skontroluj doručenú poštu.</div><% } %>
 <% if (testError) { %><div class="alert alert-error">Test zlyhal: <%= testError %></div><% } %>
 
 <div class="grid" style="grid-template-columns:1fr; gap:24px; max-width:620px;">
@@ -42,10 +42,11 @@
 
   <div class="card">
     <h2 style="margin-top:0;">Test odoslania</h2>
-    <p class="muted" style="margin-top:0;">Pošle testovací e-mail na tvoju adresu <b><%= myEmail %></b>. Najprv ulož nastavenia vyššie.</p>
-    <form method="post" action="/nastavenia/smtp/test">
+    <p class="muted" style="margin-top:0;">Pošle testovací e-mail na zadanú adresu. Najprv ulož nastavenia vyššie (vrátane hesla).</p>
+    <form method="post" action="/nastavenia/smtp/test" style="display:flex; gap:10px; align-items:end; flex-wrap:wrap;">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button class="btn btn-dark" <%= configured ? '' : 'disabled' %>><%- icon('send', 16) %> Poslať testovací e-mail</button>
+      <div class="field" style="margin:0; flex:1; min-width:220px;"><label>Príjemca</label><input name="to" type="email" value="<%= myEmail %>" required></div>
+      <button class="btn btn-dark" <%= configured ? '' : 'disabled' %>><%- icon('send', 16) %> Poslať test</button>
     </form>
   </div>
 </div>
