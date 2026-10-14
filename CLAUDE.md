@@ -220,6 +220,9 @@ Produkčný `.env` je len na serveri v `/opt/tbau-portal/.env` (nie v gite).
 
 - **Portál:** `admin@tbau.sk` (admin) — heslo sa mení pri prvom prihlásení.
 - **SSH server:** `tbau` (sudo). `tomas` (Tomáš Kuriak, sudo) — ✅ aktívny (kľúč nahraný).
+- **SSH `nasbackup`** (uid 1003, skup. tbau): read-only účet pre zálohy na NAS Synology DS220+
+  (QuickConnect `ODUTRADE`). Bez hesla, kľúč obmedzený cez `rrsync -ro /opt/tbau-portal/backups`
+  (nevie shell/zápis/zvyšok servera). Súkromný kľúč je u používateľa (na NAS), nie v gite.
 - Nový SSH kolega = pošle verejný `.pub`, založí sa mu vlastný účet (nikdy nezdieľať súkromné kľúče).
 
 ## Otvorené úlohy / pozor
