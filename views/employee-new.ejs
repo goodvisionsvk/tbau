@@ -27,6 +27,11 @@
           <% trades.forEach(function(t){ %><option value="<%= t %>"><%= t %></option><% }) %>
         </select>
       </div>
+      <div class="field"><label for="german_level">Úroveň nemčiny</label>
+        <select id="german_level" name="german_level">
+          <% germanLevels.forEach(function(g){ %><option value="<%= g %>"><%= g || '— neuvedené —' %></option><% }) %>
+        </select>
+      </div>
     </div>
     <div class="actions">
       <button class="btn btn-primary">Pridať zamestnanca</button>

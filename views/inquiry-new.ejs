@@ -31,13 +31,14 @@
     <% } else { %>
       <div class="table-wrap">
         <table>
-          <thead><tr><th></th><th>Zamestnanec</th><th>Druh</th><th>Aktuálna stavba</th><th>Voľný od (KW)</th></tr></thead>
+          <thead><tr><th></th><th>Zamestnanec</th><th>Profesia (DE)</th><th>Nemčina</th><th>Aktuálna stavba</th><th>Voľný od (KW)</th></tr></thead>
           <tbody>
             <% employees.forEach(function(e){ %>
               <tr>
                 <td><input type="checkbox" name="employee_id" value="<%= e.id %>" style="width:auto;"></td>
                 <td><b><%= e.last_name %> <%= e.first_name %></b></td>
-                <td class="muted"><%= e.trade || (e.position || '—') %></td>
+                <td class="muted"><%= e.prof_de || e.trade || (e.position || '—') %></td>
+                <td class="muted"><%= e.german_level || '—' %></td>
                 <td class="muted"><%= e.sites || '—' %></td>
                 <td class="muted"><%= e.free_kw != null ? ('KW ' + e.free_kw) : '—' %></td>
               </tr>

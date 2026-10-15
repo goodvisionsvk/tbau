@@ -128,6 +128,12 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-15** – **Dopyt vylepšený podľa reálneho e-mailu obchodníka**: e-mail sa generuje
+  **po nemecky** (zoznam pracovníkov = krstné meno + nemecká profesia + úroveň nemčiny, veta o
+  oblastiach/Bereiche, dostupnosť, ponuka referencie a podkladov, profesionálny podpis + pätička).
+  Zamestnanec má nové pole **úroveň nemčiny**; druhy robotníka rozšírené o Debniar (Schalungsbauer)
+  a Žeriavnik (Kranführer) + prekladová tabuľka SK→DE. Text e-mailu je **editovateľný** pred
+  odoslaním. (Prílohy – fotky projektu – a smer „zákazník → požiadavka" zatiaľ nie.)
 - **2026-10-14** – Úvodná (verejná) stránka sprehľadnená – len **logo, „FIREMNÝ PORTÁL" a tlačidlo
   Prihlásiť sa** (odstránený popis firmy a firemné údaje).
 - **2026-10-14** – **SMTP e-mail** (`src/mailer.js`, nodemailer): odosielanie e-mailov cez firemný

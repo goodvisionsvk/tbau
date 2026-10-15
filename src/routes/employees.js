@@ -16,11 +16,12 @@ function genPassword() {
   return out;
 }
 
-// pozícia + druh robotníka z formulára (druh len pre robotníka)
+// pozícia + druh robotníka + úroveň nemčiny z formulára (druh len pre robotníka)
 function parsePosition(body) {
   const position = Object.keys(constants.employeePositions).includes(body.position) ? body.position : null;
   const trade = position === 'robotnik' ? ((body.trade || '').trim() || null) : null;
-  return { position, trade };
+  const german_level = constants.germanLevels.includes(body.german_level) ? (body.german_level || null) : null;
+  return { position, trade, german_level };
 }
 
 // zoznam zamestnancov s filtrami (stavba, pozícia, druh, hľadanie, archivovaní)
@@ -70,7 +71,7 @@ router.get('/', (req, res) => {
     filter: f,
     projects: projectsList(),
     positions: constants.employeePositions,
-    trades: constants.workerTrades,
+    trades: constants.workerTrades, germanLevels: constants.germanLevels,
   });
 });
 
@@ -80,7 +81,7 @@ router.get('/novy', (req, res) => {
     title: 'Nový zamestnanec',
     active: 'employees',
     positions: constants.employeePositions,
-    trades: constants.workerTrades,
+    trades: constants.workerTrades, germanLevels: constants.germanLevels,
     error: null,
   });
 });
@@ -92,21 +93,21 @@ router.post('/', (req, res) => {
   if (!first || !last) {
     return res.status(400).render('employee-new', {
       title: 'Nový zamestnanec', active: 'employees',
-      positions: constants.employeePositions, trades: constants.workerTrades,
+      positions: constants.employeePositions, trades: constants.workerTrades, germanLevels: constants.germanLevels,
       error: 'Meno a priezvisko sú povinné.',
     });
   }
-  const { position, trade } = parsePosition(req.body);
+  const { position, trade, german_level } = parsePosition(req.body);
   const info = db.prepare(
-    `INSERT INTO employees (first_name, last_name, employee_number, birth_date, phone, address, position, trade)
-     VALUES (?,?,?,?,?,?,?,?)`
+    `INSERT INTO employees (first_name, last_name, employee_number, birth_date, phone, address, position, trade, german_level)
+     VALUES (?,?,?,?,?,?,?,?,?)`
   ).run(
     first, last,
     (req.body.employee_number || '').trim() || null,
     (req.body.birth_date || '').trim() || null,
     (req.body.phone || '').trim() || null,
     (req.body.address || '').trim() || null,
-    position, trade
+    position, trade, german_level
   );
   res.redirect('/zamestnanci/' + info.lastInsertRowid);
 });
@@ -132,7 +133,7 @@ function renderDetail(res, status, id, extra) {
   res.status(status).render('employee-detail', Object.assign({
     title: d.employee.first_name + ' ' + d.employee.last_name,
     active: 'employees', employee: d.employee, login: d.login, sites: d.sites,
-    roles: constants.roles, positions: constants.employeePositions, trades: constants.workerTrades,
+    roles: constants.roles, positions: constants.employeePositions, trades: constants.workerTrades, germanLevels: constants.germanLevels,
     tempInfo: null, error: null,
   }, extra));
 }
@@ -147,9 +148,9 @@ router.post('/:id', (req, res) => {
   const first = (req.body.first_name || '').trim();
   const last = (req.body.last_name || '').trim();
   if (!first || !last) return renderDetail(res, 400, employee.id, { error: 'Meno a priezvisko sú povinné.' });
-  const { position, trade } = parsePosition(req.body);
+  const { position, trade, german_level } = parsePosition(req.body);
   db.prepare(
-    `UPDATE employees SET first_name=?, last_name=?, employee_number=?, birth_date=?, phone=?, address=?, position=?, trade=?
+    `UPDATE employees SET first_name=?, last_name=?, employee_number=?, birth_date=?, phone=?, address=?, position=?, trade=?, german_level=?
      WHERE id=?`
   ).run(
     first, last,
@@ -157,7 +158,7 @@ router.post('/:id', (req, res) => {
     (req.body.birth_date || '').trim() || null,
     (req.body.phone || '').trim() || null,
     (req.body.address || '').trim() || null,
-    position, trade,
+    position, trade, german_level,
     employee.id
   );
   res.redirect('/zamestnanci/' + employee.id);

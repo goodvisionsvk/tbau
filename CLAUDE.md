@@ -65,9 +65,14 @@ ponúkaní zamestnanci).
 = CRUD firiem + kontakty + archivácia/zmazanie, filter podľa stavu/hľadania. **Dopyty/CRM**
 (`/dopyty`, `src/routes/inquiries.js`, pohľady `inquiries.ejs` / `inquiry-new.ejs` /
 `inquiry-detail.ejs`): `availableEmployees()` vráti aktívnych zamestnancov s odhadom „voľný od
-KW" (z MAX `kw_do` ich stavby), `emailDraft()` poskladá slovenský e-mail + `mailto` na hlavný
-kontakt zákazníka. Enumy (stavy, typy práce, platobná disciplína, zdroje, roly kontaktov…) sú
-v `src/constants.js`. Automatické odosielanie e-mailu (SMTP) zatiaľ nie je – len `mailto`.
+KW" (z MAX `kw_do` ich stavby). `emailDraft()` generuje **nemecký** e-mail (podľa reálnej šablóny
+obchodníka: zoznam pracovníkov – krstné meno + DE profesia + „Deutschkenntnisse …", veta o Bereiche,
+dostupnosť, ponuka referencie/podkladov, podpis prihláseného obchodníka + pätička firmy). Preklad
+SK→DE a riadok pracovníka = `src/util/trades-de.js` (`tradeDe`, `workerLine`, `bereicheFrom`).
+Na detaile je **predmet aj text editovateľný** a odošle sa upravený (`POST /dopyty/:id/send` cez SMTP,
+status→`sent`; fallback `mailto`). Zamestnanec má pole `german_level` (`constants.germanLevels`),
+druhy robotníka rozšírené o Debniar/Žeriavnik (DE: Schalungsbauer/Kranführer). Enumy v `src/constants.js`.
+Prílohy (fotky z projektu) a smer „zákazník → požiadavka" zatiaľ nie sú (plán).
 
 **Vykázaná práca** (`/praca`, len full access, v Nastaveniach): čas + tokeny + odhadovaná cena
 práce (`work_log`). Sadzba `constants.workHourlyRate` (**40 €/h**, reálny spoločný čas); cena =

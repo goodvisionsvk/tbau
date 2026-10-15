@@ -65,9 +65,12 @@ module.exports = {
 
   // druh robotníka (len pre pozíciu Robotník); rozšíriteľné
   workerTrades: [
-    'Murár', 'Tesár', 'Zateplovač', 'Betonár', 'Železiar', 'Obkladač',
-    'Maliar', 'Elektrikár', 'Inštalatér', 'Pomocný pracovník', 'Iné',
+    'Murár', 'Debniar', 'Betonár', 'Železiar', 'Žeriavnik', 'Tesár', 'Zateplovač',
+    'Obkladač', 'Maliar', 'Elektrikár', 'Inštalatér', 'Pomocný pracovník', 'Iné',
   ],
+
+  // úroveň nemčiny zamestnanca (pre nemecký dopyt – „Deutschkenntnisse …")
+  germanLevels: ['', 'žiadna', 'základy', 'Niveau 1', 'Niveau 2', 'Niveau 3', 'v stavebníctve'],
 
   // mapovanie aplikácií (slug) na ich reálnu adresu v portáli
   appRoutes: {

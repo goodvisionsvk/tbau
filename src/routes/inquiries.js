@@ -1,12 +1,15 @@
 const express = require('express');
 const db = require('../db');
 const mailer = require('../mailer');
+const constants = require('../constants');
+const de = require('../util/trades-de');
 const { requireAuth, requireFullAccess } = require('../middleware/auth');
 
 const router = express.Router();
 router.use(requireAuth, requireFullAccess);
 
 const S = (v) => ((v || '').trim() || null);
+const DEFAULT_SUBJECT = 'Verfügbare Mitarbeiter / freie Kapazitäten';
 const STATUSES = { new: 'Nový', sent: 'Odoslaný', responded: 'Odpovedané', closed: 'Uzavretý' };
 const STATUS_CLASS = { new: 'in_progress', sent: 'medium', responded: 'active', closed: 'planned' };
 
@@ -14,12 +17,13 @@ const STATUS_CLASS = { new: 'in_progress', sent: 'medium', responded: 'active', 
 function availableEmployees() {
   return db
     .prepare(
-      `SELECT e.id, e.first_name, e.last_name, e.position, e.trade,
+      `SELECT e.id, e.first_name, e.last_name, e.position, e.trade, e.german_level,
          (SELECT GROUP_CONCAT(p.name, ', ') FROM site_members sm JOIN projects p ON p.id=sm.project_id WHERE sm.employee_id=e.id) AS sites,
          (SELECT MAX(p.kw_do) FROM site_members sm JOIN projects p ON p.id=sm.project_id WHERE sm.employee_id=e.id) AS free_kw
        FROM employees e WHERE e.active = 1 ORDER BY e.last_name, e.first_name`
     )
-    .all();
+    .all()
+    .map((e) => Object.assign(e, { prof_de: de.tradeDe(e.trade) }));
 }
 
 function inquiryEmployees(inquiryId) {
@@ -31,24 +35,35 @@ function inquiryEmployees(inquiryId) {
     .all(inquiryId);
 }
 
-function emailDraft(inq, customer, emps) {
+// Nemecký e-mail s ponukou voľných pracovníkov (podľa reálnej šablóny obchodníka).
+function emailDraft(inq, customer, emps, senderName) {
+  const co = constants.company;
   const L = [];
-  L.push('Dobrý deň' + (customer && customer.name ? ', ' + customer.name : '') + ',');
+  L.push('Sehr geehrte Damen und Herren,');
   L.push('');
-  L.push('máme voľných pracovníkov' + (inq.free_from ? ' od ' + inq.free_from : '') + ' a radi by sme Vám ponúkli našu pracovnú silu.');
-  if (inq.profession) L.push('Profesia: ' + inq.profession);
+  L.push('ich möchte Sie kurz darüber informieren, dass wir derzeit bzw. in Kürze folgende Mitarbeiter zur Verfügung stellen können:');
   L.push('');
-  if (emps.length) {
-    L.push('Pracovníci:');
-    emps.forEach((e) => L.push('• ' + e.last_name + ' ' + e.first_name + (e.trade ? ' – ' + e.trade : '')));
-    L.push('');
-  }
-  if (inq.price) L.push('Cena: ' + inq.price);
-  if (inq.references_text) { L.push(''); L.push('Referencie stavieb:'); L.push(inq.references_text); }
+  emps.forEach((e) => L.push('• ' + de.workerLine(e)));
+  if (emps.length) L.push('');
+  L.push('Die Mitarbeiter können je nach Bedarf auch in kleinere Gruppen aufgeteilt werden.');
+  if (inq.free_from) L.push('Die Mannschaft wird voraussichtlich ab ' + inq.free_from + ' wieder frei sein.');
+  L.push('');
+  const bereiche = de.bereicheFrom(emps);
+  const bList = bereiche.length ? bereiche.join(', ') : 'Schalungsbau, Betonbau, Eisenflechten, Maurerarbeiten, Kranführung';
+  L.push('Falls Sie aktuell oder in nächster Zeit Bedarf an Personal in den Bereichen ' + bList +
+    ' haben, geben Sie mir bitte kurz Bescheid. Gerne können wir die genaue Besetzung und den möglichen Einsatztermin abstimmen.');
+  if (inq.price) { L.push(''); L.push('Unser Stundensatz: ' + inq.price + '.'); }
+  if (inq.references_text) { L.push(''); L.push('Referenzprojekte: ' + inq.references_text); }
   if (inq.message) { L.push(''); L.push(inq.message); }
   L.push('');
-  L.push('S pozdravom,');
-  L.push('TBAU, s. r. o.');
+  L.push('Falls Sie Interesse haben, stellen wir Ihnen gerne den Kontakt zum Bauleiter der betreffenden Baustelle zur Verfügung. Alle erforderlichen Unternehmensunterlagen senden wir Ihnen auf Anfrage gerne zu.');
+  L.push('');
+  L.push('Für Rückfragen stehe ich Ihnen jederzeit gerne zur Verfügung.');
+  L.push('');
+  L.push('Mit freundlichen Grüßen');
+  if (senderName) L.push(senderName);
+  L.push(co.name);
+  L.push(co.address + ' · Tel.: ' + co.phone + ' · ' + co.email + ' · www.tbau.eu');
   return L.join('\n');
 }
 
@@ -90,8 +105,8 @@ router.post('/', (req, res) => {
   res.redirect('/dopyty/' + info.lastInsertRowid);
 });
 
-// Poskladá všetky údaje dopytu + e-mailový náhľad (pre detail aj odoslanie).
-function buildInquiryView(id) {
+// Poskladá všetky údaje dopytu + nemecký e-mailový náhľad (pre detail aj odoslanie).
+function buildInquiryView(id, senderName) {
   const inquiry = db.prepare('SELECT * FROM inquiries WHERE id = ?').get(id);
   if (!inquiry) return null;
   const customer = inquiry.customer_id ? db.prepare('SELECT * FROM customers WHERE id = ?').get(inquiry.customer_id) : null;
@@ -99,8 +114,8 @@ function buildInquiryView(id) {
   const primary = customer
     ? db.prepare('SELECT email FROM contacts WHERE customer_id = ? AND email IS NOT NULL ORDER BY is_primary DESC LIMIT 1').get(customer.id)
     : null;
-  const subject = inquiry.title || 'Ponuka voľných pracovníkov – TBAU';
-  const body = emailDraft(inquiry, customer, emps);
+  const subject = inquiry.title || DEFAULT_SUBJECT;
+  const body = emailDraft(inquiry, customer, emps, senderName);
   const toEmail = primary && primary.email ? primary.email : null;
   const mailto = 'mailto:' + (toEmail ? encodeURIComponent(toEmail) : '') +
     '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
@@ -109,7 +124,7 @@ function buildInquiryView(id) {
 
 // GET /dopyty/:id – detail + email náhľad
 router.get('/:id', (req, res) => {
-  const v = buildInquiryView(req.params.id);
+  const v = buildInquiryView(req.params.id, req.user.full_name);
   if (!v) return res.redirect('/dopyty');
   res.render('inquiry-detail', {
     title: v.subject, active: 'inquiries', inquiry: v.inquiry, customer: v.customer, emps: v.emps,
@@ -121,15 +136,17 @@ router.get('/:id', (req, res) => {
   });
 });
 
-// POST /dopyty/:id/send – odoslať dopyt priamo zo servera cez SMTP
+// POST /dopyty/:id/send – odoslať dopyt priamo zo servera cez SMTP (text sa dá pred odoslaním upraviť)
 router.post('/:id/send', async (req, res) => {
-  const v = buildInquiryView(req.params.id);
+  const v = buildInquiryView(req.params.id, req.user.full_name);
   if (!v) return res.redirect('/dopyty');
   const back = '/dopyty/' + req.params.id;
-  if (!mailer.isConfigured()) return res.redirect(back + '?err=' + encodeURIComponent('SMTP nie je nakonfigurované. Doplňte údaje v .env na serveri.'));
+  if (!mailer.isConfigured()) return res.redirect(back + '?err=' + encodeURIComponent('SMTP nie je nakonfigurované. Nastav ho v Nastavenia → E-mail (SMTP).'));
   if (!v.toEmail) return res.redirect(back + '?err=' + encodeURIComponent('Zákazník nemá e-mailový kontakt.'));
+  const subject = S(req.body.subject) || v.subject;
+  const body = (req.body.body != null && req.body.body.trim()) ? req.body.body : v.body;
   try {
-    await mailer.sendMail({ to: v.toEmail, subject: v.subject, text: v.body });
+    await mailer.sendMail({ to: v.toEmail, subject, text: body });
     db.prepare("UPDATE inquiries SET status = 'sent' WHERE id = ?").run(req.params.id);
     res.redirect(back + '?sent=1');
   } catch (e) {
