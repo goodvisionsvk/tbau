@@ -1,0 +1,35 @@
+<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+  <form method="get" action="/referencie" style="display:flex; gap:8px; flex-wrap:wrap;">
+    <input name="q" value="<%= filter.q %>" placeholder="Hľadať (názov, miesto, práce)…" style="min-width:220px;">
+    <% if (filter.archived) { %><input type="hidden" name="archived" value="1"><% } %>
+    <button class="btn btn-ghost btn-sm">Hľadať</button>
+  </form>
+  <a class="btn btn-primary" href="/referencie/novy"><%- icon('plus', 16) %> Nová referencia</a>
+</div>
+
+<div class="section">
+  <p class="muted" style="margin-top:0;">Portfólio referenčných stavieb – popis a fotky sa dajú priložiť k dopytu pre zákazníka.
+    <% if (!filter.archived) { %><a href="/referencie?archived=1">Zobraziť archivované</a><% } else { %><a href="/referencie">Zobraziť aktívne</a><% } %>
+  </p>
+  <% if (!refs.length) { %>
+    <div class="card muted">Zatiaľ žiadne referenčné stavby. Pridaj prvú – napíš, čo sa robilo, a nahraj fotky.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Názov</th><th>Miesto</th><th>Obdobie</th><th>Práce</th><th>Fotky</th><th></th></tr></thead>
+        <tbody>
+          <% refs.forEach(function(r){ %>
+            <tr>
+              <td><a href="/referencie/<%= r.id %>"><b><%= r.title %></b></a></td>
+              <td class="muted"><%= r.location || '—' %></td>
+              <td class="muted"><%= r.period || '—' %></td>
+              <td class="muted"><%= r.work_type || '—' %></td>
+              <td class="muted"><%= r.img_count %></td>
+              <td><a class="btn btn-ghost btn-sm" href="/referencie/<%= r.id %>">Otvoriť</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

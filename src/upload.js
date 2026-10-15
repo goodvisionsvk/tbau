@@ -31,4 +31,27 @@ const uploadSheet = multer({
   },
 }).single('file');
 
-module.exports = { uploadSheet, sheetsDir };
+// --- Fotky k referenčným stavbám (len obrázky, viac naraz) ---
+const refDir = path.join(config.uploadsDir, 'references');
+fs.mkdirSync(refDir, { recursive: true });
+
+const IMG = { 'image/jpeg': '.jpg', 'image/png': '.png' };
+
+const refStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, refDir),
+  filename: (req, file, cb) => {
+    const ext = IMG[file.mimetype] || path.extname(file.originalname) || '';
+    cb(null, 'ref_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex') + ext);
+  },
+});
+
+const uploadRefImages = multer({
+  storage: refStorage,
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB na fotku
+  fileFilter: (req, file, cb) => {
+    if (IMG[file.mimetype]) return cb(null, true);
+    cb(new Error('Povolené sú len obrázky JPG alebo PNG.'));
+  },
+}).array('images', 12);
+
+module.exports = { uploadSheet, sheetsDir, uploadRefImages, refDir };

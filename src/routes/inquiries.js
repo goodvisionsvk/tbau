@@ -1,8 +1,10 @@
 const express = require('express');
+const path = require('path');
 const db = require('../db');
 const mailer = require('../mailer');
 const constants = require('../constants');
 const de = require('../util/trades-de');
+const { refDir } = require('../upload');
 const { requireAuth, requireFullAccess } = require('../middleware/auth');
 
 const router = express.Router();
@@ -35,8 +37,26 @@ function inquiryEmployees(inquiryId) {
     .all(inquiryId);
 }
 
+// aktívne referenčné stavby (pre výber v dopyte)
+function allReferences() {
+  return db.prepare(
+    `SELECT r.*, (SELECT COUNT(*) FROM reference_images i WHERE i.reference_id = r.id) AS img_count
+     FROM reference_sites r WHERE r.active = 1 ORDER BY r.title`
+  ).all();
+}
+
+// referencie priložené k dopytu + ich fotky
+function inquiryReferences(inquiryId) {
+  const refs = db.prepare(
+    `SELECT r.* FROM inquiry_references ir JOIN reference_sites r ON r.id = ir.reference_id
+     WHERE ir.inquiry_id = ? ORDER BY r.title`
+  ).all(inquiryId);
+  refs.forEach((r) => { r.images = db.prepare('SELECT * FROM reference_images WHERE reference_id = ? ORDER BY id').all(r.id); });
+  return refs;
+}
+
 // Nemecký e-mail s ponukou voľných pracovníkov (podľa reálnej šablóny obchodníka).
-function emailDraft(inq, customer, emps, senderName) {
+function emailDraft(inq, customer, emps, senderName, refs) {
   const co = constants.company;
   const L = [];
   L.push('Sehr geehrte Damen und Herren,');
@@ -53,7 +73,20 @@ function emailDraft(inq, customer, emps, senderName) {
   L.push('Falls Sie aktuell oder in nächster Zeit Bedarf an Personal in den Bereichen ' + bList +
     ' haben, geben Sie mir bitte kurz Bescheid. Gerne können wir die genaue Besetzung und den möglichen Einsatztermin abstimmen.');
   if (inq.price) { L.push(''); L.push('Unser Stundensatz: ' + inq.price + '.'); }
-  if (inq.references_text) { L.push(''); L.push('Referenzprojekte: ' + inq.references_text); }
+  if ((refs && refs.length) || inq.references_text) {
+    L.push('');
+    L.push('Referenzprojekte:');
+    (refs || []).forEach((r) => {
+      const meta = [r.location, r.period].filter(Boolean).join(', ');
+      let line = '• ' + r.title + (meta ? ' (' + meta + ')' : '');
+      if (r.work_type) line += ' – ' + r.work_type;
+      L.push(line);
+      if (r.description) L.push('  ' + r.description);
+    });
+    if (inq.references_text) L.push('• ' + inq.references_text);
+    const totalImgs = (refs || []).reduce((n, r) => n + (r.images ? r.images.length : 0), 0);
+    if (totalImgs) L.push('(Im Anhang senden wir Ihnen ' + totalImgs + ' Fotos von unseren Referenzprojekten.)');
+  }
   if (inq.message) { L.push(''); L.push(inq.message); }
   L.push('');
   L.push('Falls Sie Interesse haben, stellen wir Ihnen gerne den Kontakt zum Bauleiter der betreffenden Baustelle zur Verfügung. Alle erforderlichen Unternehmensunterlagen senden wir Ihnen auf Anfrage gerne zu.');
@@ -86,6 +119,7 @@ router.get('/novy', (req, res) => {
     title: 'Nový dopyt', active: 'inquiries', error: null,
     customers: db.prepare("SELECT id, name FROM customers WHERE active = 1 ORDER BY name").all(),
     employees: availableEmployees(),
+    references: allReferences(),
   });
 });
 
@@ -102,6 +136,9 @@ router.post('/', (req, res) => {
   const ids = [].concat(req.body.employee_id || []).map(Number).filter(Boolean);
   const ins = db.prepare('INSERT OR IGNORE INTO inquiry_employees (inquiry_id, employee_id) VALUES (?,?)');
   ids.forEach((id) => ins.run(info.lastInsertRowid, id));
+  const refIds = [].concat(req.body.reference_id || []).map(Number).filter(Boolean);
+  const insR = db.prepare('INSERT OR IGNORE INTO inquiry_references (inquiry_id, reference_id) VALUES (?,?)');
+  refIds.forEach((id) => insR.run(info.lastInsertRowid, id));
   res.redirect('/dopyty/' + info.lastInsertRowid);
 });
 
@@ -114,26 +151,46 @@ function buildInquiryView(id, senderName) {
   const primary = customer
     ? db.prepare('SELECT email FROM contacts WHERE customer_id = ? AND email IS NOT NULL ORDER BY is_primary DESC LIMIT 1').get(customer.id)
     : null;
+  const refs = inquiryReferences(inquiry.id);
   const subject = inquiry.title || DEFAULT_SUBJECT;
-  const body = emailDraft(inquiry, customer, emps, senderName);
+  const body = emailDraft(inquiry, customer, emps, senderName, refs);
   const toEmail = primary && primary.email ? primary.email : null;
   const mailto = 'mailto:' + (toEmail ? encodeURIComponent(toEmail) : '') +
     '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-  return { inquiry, customer, emps, toEmail, subject, body, mailto };
+  // prílohy e-mailu = fotky z vybraných referencií
+  const attachments = [];
+  refs.forEach((r) => (r.images || []).forEach((im) => {
+    attachments.push({ filename: im.original_name || path.basename(im.file_path), path: path.join(refDir, path.basename(im.file_path)) });
+  }));
+  return { inquiry, customer, emps, refs, toEmail, subject, body, mailto, attachments };
 }
 
 // GET /dopyty/:id – detail + email náhľad
 router.get('/:id', (req, res) => {
   const v = buildInquiryView(req.params.id, req.user.full_name);
   if (!v) return res.redirect('/dopyty');
+  const selectedRefIds = v.refs.map((r) => r.id);
   res.render('inquiry-detail', {
     title: v.subject, active: 'inquiries', inquiry: v.inquiry, customer: v.customer, emps: v.emps,
     toEmail: v.toEmail, subject: v.subject, body: v.body, mailto: v.mailto,
+    refs: v.refs, attachCount: v.attachments.length,
+    allRefs: allReferences(), selectedRefIds,
     statuses: STATUSES, statusClass: STATUS_CLASS,
     smtpReady: mailer.isConfigured(),
     sent: req.query.sent === '1',
     sendError: req.query.err ? decodeURIComponent(req.query.err) : null,
   });
+});
+
+// POST /dopyty/:id/references – úprava výberu priložených referencií
+router.post('/:id/references', (req, res) => {
+  const inq = db.prepare('SELECT id FROM inquiries WHERE id = ?').get(req.params.id);
+  if (!inq) return res.redirect('/dopyty');
+  db.prepare('DELETE FROM inquiry_references WHERE inquiry_id = ?').run(req.params.id);
+  const refIds = [].concat(req.body.reference_id || []).map(Number).filter(Boolean);
+  const insR = db.prepare('INSERT OR IGNORE INTO inquiry_references (inquiry_id, reference_id) VALUES (?,?)');
+  refIds.forEach((id) => insR.run(req.params.id, id));
+  res.redirect('/dopyty/' + req.params.id);
 });
 
 // POST /dopyty/:id/send – odoslať dopyt priamo zo servera cez SMTP (text sa dá pred odoslaním upraviť)
@@ -146,7 +203,7 @@ router.post('/:id/send', async (req, res) => {
   const subject = S(req.body.subject) || v.subject;
   const body = (req.body.body != null && req.body.body.trim()) ? req.body.body : v.body;
   try {
-    await mailer.sendMail({ to: v.toEmail, subject, text: body });
+    await mailer.sendMail({ to: v.toEmail, subject, text: body, attachments: v.attachments });
     db.prepare("UPDATE inquiries SET status = 'sent' WHERE id = ?").run(req.params.id);
     res.redirect(back + '?sent=1');
   } catch (e) {

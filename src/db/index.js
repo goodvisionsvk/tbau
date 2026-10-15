@@ -209,6 +209,39 @@ CREATE TABLE IF NOT EXISTS inquiry_employees (
 
 CREATE INDEX IF NOT EXISTS idx_contacts_customer ON contacts(customer_id);
 CREATE INDEX IF NOT EXISTS idx_inquiries_customer ON inquiries(customer_id);
+
+-- Referenčné stavby (portfólio) – popis čo sa robilo + fotky, ťahajú sa do dopytu
+CREATE TABLE IF NOT EXISTS reference_sites (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  location TEXT,
+  period TEXT,                 -- obdobie (napr. 2024 / KW 10–30)
+  work_type TEXT,              -- čo sa robilo (profesie/práce)
+  description TEXT,            -- popis pre e-mail (DE/SK)
+  note TEXT,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_by INTEGER REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS reference_images (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference_id INTEGER NOT NULL REFERENCES reference_sites(id) ON DELETE CASCADE,
+  file_path TEXT NOT NULL,
+  original_name TEXT,
+  mime TEXT,
+  size INTEGER,
+  uploaded_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- výber referencií priložených k dopytu
+CREATE TABLE IF NOT EXISTS inquiry_references (
+  inquiry_id INTEGER NOT NULL REFERENCES inquiries(id) ON DELETE CASCADE,
+  reference_id INTEGER NOT NULL REFERENCES reference_sites(id) ON DELETE CASCADE,
+  PRIMARY KEY (inquiry_id, reference_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_refimg_ref ON reference_images(reference_id);
 `);
 
 // --- Migrácie: doplnenie stĺpcov do existujúcich tabuliek (idempotentné) ---

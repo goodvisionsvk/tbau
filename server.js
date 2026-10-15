@@ -114,6 +114,7 @@ app.use('/reporty', require('./src/routes/reports'));
 app.use('/praca', require('./src/routes/work'));
 app.use('/zakaznici', require('./src/routes/customers'));
 app.use('/dopyty', require('./src/routes/inquiries'));
+app.use('/referencie', require('./src/routes/references'));
 
 // --- 404 ---
 app.use((req, res) => {

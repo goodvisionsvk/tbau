@@ -128,6 +128,10 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-15** – **Referenčné stavby** (`/referencie`, Obchod): portfólio stavieb – názov, miesto,
+  obdobie, čo sa robilo, popis + **nahrávanie fotiek** (JPG/PNG). Pri dopyte sa dajú referencie
+  **zaškrtnúť** → ich popis sa doplní do nemeckého e-mailu a **fotky sa pripoja ako prílohy** (ako
+  v reálnom e-maile). Nové tabuľky `reference_sites`, `reference_images`, `inquiry_references`.
 - **2026-10-15** – **Dopyt vylepšený podľa reálneho e-mailu obchodníka**: e-mail sa generuje
   **po nemecky** (zoznam pracovníkov = krstné meno + nemecká profesia + úroveň nemčiny, veta o
   oblastiach/Bereiche, dostupnosť, ponuka referencie a podkladov, profesionálny podpis + pätička).

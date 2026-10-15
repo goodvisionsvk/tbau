@@ -1,0 +1,52 @@
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:-8px; gap:12px; flex-wrap:wrap;">
+  <a class="btn-link" href="/referencie">&larr; Späť na referencie</a>
+  <div class="actions">
+    <% if (!ref.active) { %><span class="pill paused">archivovaná</span><% } %>
+    <form class="inline" method="post" action="/referencie/<%= ref.id %>/archive"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="back" value="detail"><button class="btn btn-ghost btn-sm"><%= ref.active ? 'Archivovať' : 'Obnoviť' %></button></form>
+    <form class="inline" method="post" action="/referencie/<%= ref.id %>/delete" onsubmit="return confirm('Úplne zmazať referenciu aj s fotkami?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+  </div>
+</div>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+<% if (saved) { %><div class="alert alert-info">Uložené.</div><% } %>
+
+<div class="grid" style="grid-template-columns:1fr; gap:24px;">
+  <div class="card">
+    <h2 style="margin-top:0;">Údaje stavby</h2>
+    <form method="post" action="/referencie/<%= ref.id %>">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field" style="grid-column: span 2;"><label>Názov stavby *</label><input name="title" value="<%= ref.title %>" required></div>
+        <div class="field"><label>Miesto</label><input name="location" value="<%= ref.location || '' %>"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Obdobie</label><input name="period" value="<%= ref.period || '' %>"></div>
+        <div class="field" style="grid-column: span 2;"><label>Čo sa robilo (práce)</label><input name="work_type" value="<%= ref.work_type || '' %>"></div>
+      </div>
+      <div class="field"><label>Popis (ide do e-mailu)</label><textarea name="description" rows="3"><%= ref.description || '' %></textarea></div>
+      <div class="field"><label>Interná poznámka</label><textarea name="note" rows="2"><%= ref.note || '' %></textarea></div>
+      <button class="btn btn-primary">Uložiť</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Fotky (<%= imgs.length %>)</h2>
+    <% if (!imgs.length) { %>
+      <p class="muted">Zatiaľ žiadne fotky.</p>
+    <% } else { %>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-bottom:14px;">
+        <% imgs.forEach(function(im){ %>
+          <div style="border:1px solid var(--line-soft); border-radius:10px; overflow:hidden;">
+            <a href="/referencie/<%= ref.id %>/foto/<%= im.id %>" target="_blank"><img src="/referencie/<%= ref.id %>/foto/<%= im.id %>" alt="<%= im.original_name || 'foto' %>" style="width:100%; height:120px; object-fit:cover; display:block;"></a>
+            <form method="post" action="/referencie/<%= ref.id %>/foto/<%= im.id %>/delete" onsubmit="return confirm('Zmazať fotku?')" style="padding:6px; text-align:center;"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+    <form method="post" action="/referencie/<%= ref.id %>/fotky" enctype="multipart/form-data" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="file" name="images" accept="image/jpeg,image/png" multiple required>
+      <button class="btn btn-dark"><%- icon('save', 16) %> Nahrať fotky</button>
+    </form>
+    <p class="muted" style="font-size:.82rem; margin-top:8px;">JPG/PNG, max 15 MB na fotku, viac naraz. Priložia sa k dopytu ako prílohy e-mailu.</p>
+  </div>
+</div>

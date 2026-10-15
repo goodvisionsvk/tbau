@@ -30,6 +30,25 @@
   </div>
 
   <div class="card">
+    <h2 style="margin-top:0;">Referenčné stavby (prílohy)</h2>
+    <% if (attachCount) { %><p class="muted" style="margin-top:0;">K e-mailu sa priloží <b><%= attachCount %></b> fotiek z vybraných referencií.</p><% } %>
+    <% if (!allRefs.length) { %>
+      <p class="muted">Žiadne referenčné stavby. Pridáš ich v sekcii <a href="/referencie">Referenčné stavby</a>.</p>
+    <% } else { %>
+      <form method="post" action="/dopyty/<%= inquiry.id %>/references">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <% allRefs.forEach(function(r){ %>
+          <label style="display:flex; gap:10px; align-items:flex-start; padding:6px 0; border-bottom:1px solid var(--line-soft);">
+            <input type="checkbox" name="reference_id" value="<%= r.id %>" style="width:auto; margin-top:3px;" <%= selectedRefIds.indexOf(r.id)>=0 ? 'checked' : '' %>>
+            <span><b><%= r.title %></b><% if (r.location){ %> <span class="muted">· <%= r.location %></span><% } %> <span class="muted" style="font-size:.85rem;">· <%= r.img_count %> fotiek</span></span>
+          </label>
+        <% }) %>
+        <button class="btn btn-dark btn-sm" style="margin-top:10px;">Uložiť výber referencií</button>
+      </form>
+    <% } %>
+  </div>
+
+  <div class="card">
     <h2 style="margin-top:0;">E-mail pre zákazníka <span class="pill planned" style="vertical-align:middle;">🇩🇪 nemecky</span></h2>
     <% if (sent) { %><div class="alert alert-info">E-mail bol odoslaný zákazníkovi na <b><%= toEmail %></b>. Stav dopytu je „Odoslaný".</div><% } %>
     <% if (sendError) { %><div class="alert alert-error"><%= sendError %></div><% } %>

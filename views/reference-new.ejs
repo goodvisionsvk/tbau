@@ -1,0 +1,23 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/referencie">&larr; Späť na referencie</a></p>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<form method="post" action="/referencie">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="card">
+    <h2 style="margin-top:0;">Referenčná stavba</h2>
+    <div class="form-row">
+      <div class="field" style="grid-column: span 2;"><label>Názov stavby *</label><input name="title" required placeholder="napr. Mehrfamilienhaus Leiblfing"></div>
+      <div class="field"><label>Miesto</label><input name="location" placeholder="napr. Leiblfing, DE"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Obdobie</label><input name="period" placeholder="napr. 2024 / KW 10–30"></div>
+      <div class="field" style="grid-column: span 2;"><label>Čo sa robilo (práce)</label><input name="work_type" placeholder="napr. Schalung, Betonbau, Eisenflechten"></div>
+    </div>
+    <div class="field"><label>Popis (ide do e-mailu)</label><textarea name="description" rows="3" placeholder="Krátky popis projektu pre zákazníka (nemecky/slovensky)."></textarea></div>
+    <div class="field"><label>Interná poznámka</label><textarea name="note" rows="2"></textarea></div>
+  </div>
+  <div class="actions" style="margin-top:18px;">
+    <button class="btn btn-primary">Vytvoriť (fotky pridáš na detaile)</button>
+    <a class="btn btn-ghost" href="/referencie">Zrušiť</a>
+  </div>
+</form>

@@ -109,6 +109,7 @@ module.exports = {
       groups.push({ label: 'Obchod', items: [
         { key: 'customers', label: 'Zákazníci', href: '/zakaznici', icon: 'briefcase' },
         { key: 'inquiries', label: 'Dopyty', href: '/dopyty', icon: 'send' },
+        { key: 'references', label: 'Referenčné stavby', href: '/referencie', icon: 'building' },
       ] });
       groups.push({ label: 'Projekty', items: [
         { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },

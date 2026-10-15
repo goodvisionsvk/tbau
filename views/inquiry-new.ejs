@@ -49,6 +49,21 @@
     <% } %>
   </div>
 
+  <div class="card" style="margin-top:18px;">
+    <h2 style="margin-top:0;">Referenčné stavby</h2>
+    <p class="muted" style="margin-top:0;">Zaškrtni, ktoré referencie priložiť – ich popis sa doplní do e-mailu a fotky sa pošlú ako prílohy.</p>
+    <% if (!references.length) { %>
+      <p class="muted">Žiadne referenčné stavby. Pridáš ich v sekcii <a href="/referencie">Referenčné stavby</a>.</p>
+    <% } else { %>
+      <% references.forEach(function(r){ %>
+        <label style="display:flex; gap:10px; align-items:flex-start; padding:6px 0; border-bottom:1px solid var(--line-soft);">
+          <input type="checkbox" name="reference_id" value="<%= r.id %>" style="width:auto; margin-top:3px;">
+          <span><b><%= r.title %></b><% if (r.location){ %> <span class="muted">· <%= r.location %></span><% } %><% if (r.work_type){ %><br><span class="muted" style="font-size:.85rem;"><%= r.work_type %></span><% } %> <span class="muted" style="font-size:.85rem;">· <%= r.img_count %> fotiek</span></span>
+        </label>
+      <% }) %>
+    <% } %>
+  </div>
+
   <div class="actions" style="margin-top:18px;">
     <button class="btn btn-primary">Vytvoriť dopyt</button>
     <a class="btn btn-ghost" href="/dopyty">Zrušiť</a>

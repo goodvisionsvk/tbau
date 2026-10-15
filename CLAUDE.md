@@ -72,7 +72,15 @@ SK→DE a riadok pracovníka = `src/util/trades-de.js` (`tradeDe`, `workerLine`,
 Na detaile je **predmet aj text editovateľný** a odošle sa upravený (`POST /dopyty/:id/send` cez SMTP,
 status→`sent`; fallback `mailto`). Zamestnanec má pole `german_level` (`constants.germanLevels`),
 druhy robotníka rozšírené o Debniar/Žeriavnik (DE: Schalungsbauer/Kranführer). Enumy v `src/constants.js`.
-Prílohy (fotky z projektu) a smer „zákazník → požiadavka" zatiaľ nie sú (plán).
+Smer „zákazník → požiadavka" zatiaľ nie je (plán).
+
+**Referenčné stavby** (`/referencie`, `src/routes/references.js`, pohľady `references.ejs` /
+`reference-new.ejs` / `reference-detail.ejs`): portfólio stavieb + fotky (upload cez
+`upload.uploadRefImages` do `data/uploads/references`, servírované chránene cez
+`/referencie/:id/foto/:imgId`). Tabuľky `reference_sites`, `reference_images`. V dopyte sa referencie
+vyberú (`inquiry_references`) → popis ide do e-mailu (blok „Referenzprojekte") a **fotky sa pripoja
+ako prílohy** (`buildInquiryView` zostaví `attachments`, `mailer.sendMail` ich pošle). Výber sa dá
+meniť aj na detaile dopytu (`POST /dopyty/:id/references`).
 
 **Vykázaná práca** (`/praca`, len full access, v Nastaveniach): čas + tokeny + odhadovaná cena
 práce (`work_log`). Sadzba `constants.workHourlyRate` (**40 €/h**, reálny spoločný čas); cena =
