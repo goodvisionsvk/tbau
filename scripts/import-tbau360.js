@@ -27,8 +27,8 @@ const insContact = db.prepare(
 );
 const findProject = db.prepare('SELECT id FROM projects WHERE LOWER(name) = LOWER(?)');
 const insProject = db.prepare(
-  `INSERT INTO projects (name, code, client, address, status, bauleiter, polier, kw_od, kw_do, customer_id)
-   VALUES (?,?,?,?,?,?,?,?,?,?)`
+  `INSERT INTO projects (name, code, client, address, status, bauleiter, polier, kw_od, kw_do)
+   VALUES (?,?,?,?,?,?,?,?,?)`
 );
 const findEmployee = db.prepare('SELECT id FROM employees WHERE LOWER(first_name)=LOWER(?) AND LOWER(last_name)=LOWER(?)');
 const insEmployee = db.prepare(
@@ -57,9 +57,8 @@ const run = db.transaction(() => {
     const name = S(s.name);
     if (!name) continue;
     if (findProject.get(name)) { stat.site_skip++; continue; }
-    const cust = s.customer_name ? findCustomer.get(S(s.customer_name)) : null;
     insProject.run(name, null, S(s.customer_name), S(s.address), S(s.status) || 'planned',
-      S(s.bauleiter), S(s.polier), s.kw_od ?? null, s.kw_do ?? null, cust ? cust.id : null);
+      S(s.bauleiter), S(s.polier), s.kw_od ?? null, s.kw_do ?? null);
     stat.site_new++;
   }
   // --- Pracovníci (zamestnanci) ---
