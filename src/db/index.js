@@ -264,6 +264,26 @@ ensureColumn('users', 'password_changed_at', 'TEXT');
 // Doplň chýbajúce hodnoty dátumom vytvorenia účtu (odvtedy sa počíta vek hesla).
 db.exec("UPDATE users SET password_changed_at = COALESCE(created_at, datetime('now')) WHERE password_changed_at IS NULL");
 
+// --- HR: Dovolenky / neprítomnosti ---
+db.exec(`
+CREATE TABLE IF NOT EXISTS leaves (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+  leave_type TEXT NOT NULL DEFAULT 'Dovolenka',  -- Dovolenka/PN/Náhradné voľno/Neplatené/OČR/Iné
+  date_from TEXT NOT NULL,                        -- YYYY-MM-DD
+  date_to TEXT NOT NULL,
+  days REAL,                                      -- počet pracovných dní
+  status TEXT NOT NULL DEFAULT 'pending',         -- pending | approved | rejected
+  note TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_by INTEGER REFERENCES users(id),
+  approved_by INTEGER REFERENCES users(id),
+  approved_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_leaves_emp ON leaves(employee_id);
+CREATE INDEX IF NOT EXISTS idx_leaves_from ON leaves(date_from);
+`);
+
 // --- Majetok spoločnosti: Vozidlá ---
 db.exec(`
 CREATE TABLE IF NOT EXISTS vehicles (

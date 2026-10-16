@@ -72,6 +72,11 @@ module.exports = {
   // úroveň nemčiny zamestnanca (pre nemecký dopyt – „Deutschkenntnisse …")
   germanLevels: ['', 'žiadna', 'základy', 'Niveau 1', 'Niveau 2', 'Niveau 3', 'v stavebníctve'],
 
+  // --- HR: Dovolenky / neprítomnosti ---
+  leaveTypes: ['Dovolenka', 'PN (práceneschopnosť)', 'Náhradné voľno', 'Neplatené voľno', 'OČR', 'Iné'],
+  leaveStatuses: { pending: 'Čaká', approved: 'Schválená', rejected: 'Zamietnutá' },
+  leaveStatusClass: { pending: 'medium', approved: 'active', rejected: 'danger' },
+
   // --- Majetok: Vozidlá ---
   vehicleTypes: ['firemné', 'prenajaté', 'súkromné'],
   vehicleDocTypes: ['STK', 'Emisná kontrola (EK)', 'Poistka (PZP)', 'Havarijné poistenie',
@@ -109,6 +114,7 @@ module.exports = {
       groups.push({ label: 'HR', items: [
         { key: 'employees', label: 'Zamestnanci', href: '/zamestnanci', icon: 'hardhat' },
         { key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' },
+        { key: 'leaves', label: 'Dovolenky', href: '/dovolenky', icon: 'calendar' },
         { key: 'reports', label: 'Report dochádzky', href: '/reporty', icon: 'chart' },
         { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
       ] });

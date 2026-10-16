@@ -1,0 +1,30 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/dovolenky">&larr; Späť na dovolenky</a></p>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<form method="post" action="/dovolenky">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="card" style="max-width:620px;">
+    <h2 style="margin-top:0;">Nová dovolenka / neprítomnosť</h2>
+    <div class="form-row">
+      <div class="field" style="grid-column: span 2;"><label>Zamestnanec *</label>
+        <select name="employee_id" required><option value="">— vyber —</option>
+          <% employees.forEach(function(e){ %><option value="<%= e.id %>" <%= preEmp===e.id?'selected':'' %>><%= e.last_name %> <%= e.first_name %></option><% }) %>
+        </select>
+      </div>
+      <div class="field"><label>Typ</label><select name="leave_type">
+        <% types.forEach(function(t){ %><option><%= t %></option><% }) %>
+      </select></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Od *</label><input name="date_from" type="date" required></div>
+      <div class="field"><label>Do *</label><input name="date_to" type="date" required></div>
+      <div class="field"><label>Dni (nepovinné)</label><input name="days" inputmode="decimal" placeholder="auto z Po–Pi"></div>
+    </div>
+    <div class="field"><label>Poznámka</label><textarea name="note" rows="2"></textarea></div>
+    <p class="muted" style="font-size:.82rem; margin-top:0;">Ak „Dni" nevyplníš, spočítajú sa automaticky ako pracovné dni (Po–Pi) v období.</p>
+  </div>
+  <div class="actions" style="margin-top:18px;">
+    <button class="btn btn-primary">Vytvoriť</button>
+    <a class="btn btn-ghost" href="/dovolenky">Zrušiť</a>
+  </div>
+</form>

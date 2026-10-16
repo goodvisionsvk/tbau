@@ -116,6 +116,7 @@ app.use('/zakaznici', require('./src/routes/customers'));
 app.use('/dopyty', require('./src/routes/inquiries'));
 app.use('/referencie', require('./src/routes/references'));
 app.use('/vozidla', require('./src/routes/vehicles'));
+app.use('/dovolenky', require('./src/routes/leaves'));
 
 // --- 404 ---
 app.use((req, res) => {

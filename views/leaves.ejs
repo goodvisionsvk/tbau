@@ -1,0 +1,57 @@
+<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+  <form method="get" action="/dovolenky" style="display:flex; gap:8px; flex-wrap:wrap;">
+    <select name="year" onchange="this.form.submit()"><% years.forEach(function(y){ %><option <%= filter.year===y?'selected':'' %>><%= y %></option><% }) %></select>
+    <select name="employee" onchange="this.form.submit()"><option value="">— zamestnanec —</option>
+      <% employees.forEach(function(e){ %><option value="<%= e.id %>" <%= String(filter.employee)===String(e.id)?'selected':'' %>><%= e.last_name %> <%= e.first_name %></option><% }) %>
+    </select>
+    <select name="type" onchange="this.form.submit()"><option value="">— typ —</option>
+      <% types.forEach(function(t){ %><option <%= filter.type===t?'selected':'' %>><%= t %></option><% }) %>
+    </select>
+    <select name="status" onchange="this.form.submit()"><option value="">— stav —</option>
+      <% Object.keys(statuses).forEach(function(k){ %><option value="<%= k %>" <%= filter.status===k?'selected':'' %>><%= statuses[k] %></option><% }) %>
+    </select>
+  </form>
+  <a class="btn btn-primary" href="/dovolenky/nova"><%- icon('plus', 16) %> Nová dovolenka</a>
+</div>
+
+<div class="section">
+  <% if (!leaves.length) { %>
+    <div class="card muted">Žiadne záznamy pre zvolený filter.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Zamestnanec</th><th>Typ</th><th>Od</th><th>Do</th><th>Dni</th><th>Stav</th><th></th></tr></thead>
+        <tbody>
+          <% leaves.forEach(function(l){ %>
+            <tr>
+              <td><a href="/dovolenky/<%= l.id %>"><b><%= l.last_name %> <%= l.first_name %></b></a></td>
+              <td class="muted"><%= l.leave_type %></td>
+              <td class="muted"><%= l.date_from %></td>
+              <td class="muted"><%= l.date_to %></td>
+              <td><%= l.days != null ? l.days : '—' %></td>
+              <td><span class="pill <%= statusClass[l.status] || 'planned' %>"><%= statuses[l.status] || l.status %></span></td>
+              <td><a class="btn btn-ghost btn-sm" href="/dovolenky/<%= l.id %>">Otvoriť</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+
+  <% if (summary.length) { %>
+    <div class="card" style="margin-top:20px;">
+      <h2 style="margin-top:0;">Súhrn schválenej dovolenky <%= filter.year %> (dni)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Zamestnanec</th><th>Schválené dni dovolenky</th></tr></thead>
+          <tbody>
+            <% summary.forEach(function(s){ %>
+              <tr><td><%= s.last_name %> <%= s.first_name %></td><td><b><%= s.days %></b></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted" style="font-size:.82rem; margin-top:8px;">Počíta sa len typ „Dovolenka" v stave Schválená (pracovné dni Po–Pi).</p>
+    </div>
+  <% } %>
+</div>

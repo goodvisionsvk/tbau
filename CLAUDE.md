@@ -74,6 +74,12 @@ status→`sent`; fallback `mailto`). Zamestnanec má pole `german_level` (`const
 druhy robotníka rozšírené o Debniar/Žeriavnik (DE: Schalungsbauer/Kranführer). Enumy v `src/constants.js`.
 Smer „zákazník → požiadavka" zatiaľ nie je (plán).
 
+**HR → Dovolenky** (`/dovolenky`, `src/routes/leaves.js`, pohľady `leaves.ejs` / `leave-new.ejs` /
+`leave-detail.ejs`): tabuľka `leaves` (employee_id, leave_type, date_from, date_to, days, status
+pending/approved/rejected, approved_by). `workingDays(from,to)` počíta pracovné dni Po–Pi; filtre
+rok/zamestnanec/typ/stav; ročný súhrn schválenej „Dovolenky". Číselníky `constants.leaveTypes` /
+`leaveStatuses` / `leaveStatusClass`. Schvaľovanie cez `POST /dovolenky/:id/status`.
+
 **Majetok spoločnosti → Vozidlá** (`/vozidla`, `src/routes/vehicles.js`, pohľady `vehicles.ejs` /
 `vehicle-new.ejs` / `vehicle-detail.ejs`): register vozidiel (`vehicles`: code, name, spz, vin,
 vehicle_type, seats, year, holder_employee_id→vodič, project_id→stavba, note, active) + **doklady**

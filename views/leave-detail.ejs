@@ -1,0 +1,33 @@
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:-8px; gap:12px; flex-wrap:wrap;">
+  <a class="btn-link" href="/dovolenky">&larr; Späť na dovolenky</a>
+  <div class="actions">
+    <span class="pill <%= statusClass[l.status] || 'planned' %>"><%= statuses[l.status] || l.status %></span>
+    <% if (l.status !== 'approved') { %>
+      <form class="inline" method="post" action="/dovolenky/<%= l.id %>/status"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="status" value="approved"><button class="btn btn-primary btn-sm">Schváliť</button></form>
+    <% } %>
+    <% if (l.status !== 'rejected') { %>
+      <form class="inline" method="post" action="/dovolenky/<%= l.id %>/status"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="status" value="rejected"><button class="btn btn-ghost btn-sm">Zamietnuť</button></form>
+    <% } %>
+    <form class="inline" method="post" action="/dovolenky/<%= l.id %>/delete" onsubmit="return confirm('Zmazať záznam?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+  </div>
+</div>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+<% if (saved) { %><div class="alert alert-info">Uložené.</div><% } %>
+
+<div class="card" style="max-width:620px;">
+  <h2 style="margin-top:0;"><%= l.last_name %> <%= l.first_name %></h2>
+  <% if (l.status === 'approved' && l.approver_name) { %><p class="muted" style="margin-top:-6px;">Schválil: <%= l.approver_name %> · <%= l.approved_at %></p><% } %>
+  <form method="post" action="/dovolenky/<%= l.id %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="form-row">
+      <div class="field"><label>Typ</label><select name="leave_type">
+        <% types.forEach(function(t){ %><option <%= l.leave_type===t?'selected':'' %>><%= t %></option><% }) %>
+      </select></div>
+      <div class="field"><label>Od</label><input name="date_from" type="date" value="<%= l.date_from %>"></div>
+      <div class="field"><label>Do</label><input name="date_to" type="date" value="<%= l.date_to %>"></div>
+    </div>
+    <div class="field" style="max-width:200px;"><label>Dni (nepovinné)</label><input name="days" inputmode="decimal" value="<%= l.days != null ? l.days : '' %>"></div>
+    <div class="field"><label>Poznámka</label><textarea name="note" rows="2"><%= l.note || '' %></textarea></div>
+    <button class="btn btn-primary">Uložiť</button>
+  </form>
+</div>

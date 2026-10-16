@@ -128,6 +128,10 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-16** – **HR → Dovolenky** (`/dovolenky`): evidencia dovoleniek a neprítomností
+  (typ: Dovolenka/PN/Náhradné voľno/Neplatené/OČR/Iné), obdobie od–do s **automatickým výpočtom
+  pracovných dní** (Po–Pi), stav Čaká/Schválená/Zamietnutá, schvaľovanie, filtre (rok, zamestnanec,
+  typ, stav) a **ročný súhrn** schválenej dovolenky na zamestnanca. Nová tabuľka `leaves`.
 - **2026-10-16** – **Majetok spoločnosti → Vozidlá** (`/vozidla`): menu „Projekty" premenované na
   **Firma** (Stavby + Majetok); **Majetok** (`/majetok`) je rozcestník. Vozidlá: register (označenie,
   názov, ŠPZ, VIN, typ, miesta, rok), **pridelenie vodičovi a stavbe**, **nahrávanie dokladov**
