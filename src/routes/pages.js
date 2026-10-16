@@ -93,6 +93,18 @@ router.post('/nastavenia/smtp/test', requireAuth, requireFullAccess, async (req,
   }
 });
 
+// GET /majetok – rozcestník majetku spoločnosti (len plný prístup)
+router.get('/majetok', requireAuth, requireFullAccess, (req, res) => {
+  res.render('assets', {
+    title: 'Majetok spoločnosti',
+    active: 'assets',
+    items: [
+      { label: 'Vozidlá', href: '/vozidla', icon: 'truck', desc: 'Evidencia vozidiel, pridelenie vodičom a stavbám, doklady.',
+        count: db.prepare('SELECT COUNT(*) c FROM vehicles WHERE active = 1').get().c },
+    ],
+  });
+});
+
 // GET /health – jednoduchý health check (pre testy a monitoring)
 router.get('/health', (req, res) => {
   try {

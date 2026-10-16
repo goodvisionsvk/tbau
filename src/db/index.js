@@ -264,6 +264,41 @@ ensureColumn('users', 'password_changed_at', 'TEXT');
 // Doplň chýbajúce hodnoty dátumom vytvorenia účtu (odvtedy sa počíta vek hesla).
 db.exec("UPDATE users SET password_changed_at = COALESCE(created_at, datetime('now')) WHERE password_changed_at IS NULL");
 
+// --- Majetok spoločnosti: Vozidlá ---
+db.exec(`
+CREATE TABLE IF NOT EXISTS vehicles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT,                      -- interné označenie (napr. T002)
+  name TEXT,                      -- model/názov (napr. VW Transporter)
+  spz TEXT,                       -- ŠPZ
+  vin TEXT,
+  vehicle_type TEXT,              -- firemné / prenajaté / súkromné
+  seats INTEGER,                  -- kapacita (počet miest)
+  year INTEGER,
+  holder_employee_id INTEGER REFERENCES employees(id) ON DELETE SET NULL,  -- vodič/držiteľ
+  project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,           -- pridelená stavba
+  note TEXT,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_by INTEGER REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS vehicle_documents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  doc_type TEXT,                  -- STK, EK, Poistka, Diaľničná známka, Servis, Technický preukaz, Iné
+  file_path TEXT NOT NULL,
+  original_name TEXT,
+  mime TEXT,
+  size INTEGER,
+  valid_until TEXT,               -- platnosť do (YYYY-MM-DD), nepovinné
+  note TEXT,
+  uploaded_by INTEGER REFERENCES users(id),
+  uploaded_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_vehdoc_vehicle ON vehicle_documents(vehicle_id);
+`);
+
 // Nastavenia aplikácie (kľúč–hodnota), napr. SMTP konfigurácia editovateľná z portálu.
 db.exec(`
 CREATE TABLE IF NOT EXISTS app_settings (

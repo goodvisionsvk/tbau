@@ -1,0 +1,37 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/vozidla">&larr; Späť na vozidlá</a></p>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<form method="post" action="/vozidla">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="card">
+    <h2 style="margin-top:0;">Nové vozidlo</h2>
+    <div class="form-row">
+      <div class="field"><label>Interné označenie</label><input name="code" placeholder="napr. T002"></div>
+      <div class="field" style="grid-column: span 2;"><label>Názov / model</label><input name="name" placeholder="napr. VW Transporter"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>ŠPZ</label><input name="spz" placeholder="napr. ZA123AB"></div>
+      <div class="field"><label>VIN</label><input name="vin"></div>
+      <div class="field"><label>Typ</label><select name="vehicle_type"><option value="">—</option>
+        <% types.forEach(function(t){ %><option><%= t %></option><% }) %>
+      </select></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Počet miest</label><input name="seats" inputmode="numeric" placeholder="napr. 8"></div>
+      <div class="field"><label>Rok</label><input name="year" inputmode="numeric" placeholder="napr. 2020"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Vodič / držiteľ</label><select name="holder_employee_id"><option value="">—</option>
+        <% employees.forEach(function(e){ %><option value="<%= e.id %>"><%= e.last_name %> <%= e.first_name %></option><% }) %>
+      </select></div>
+      <div class="field"><label>Pridelená stavba</label><select name="project_id"><option value="">—</option>
+        <% projects.forEach(function(p){ %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
+      </select></div>
+    </div>
+    <div class="field"><label>Poznámka</label><textarea name="note" rows="2"></textarea></div>
+  </div>
+  <div class="actions" style="margin-top:18px;">
+    <button class="btn btn-primary">Vytvoriť (doklady pridáš na detaile)</button>
+    <a class="btn btn-ghost" href="/vozidla">Zrušiť</a>
+  </div>
+</form>

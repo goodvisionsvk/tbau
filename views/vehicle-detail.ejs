@@ -1,0 +1,78 @@
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:-8px; gap:12px; flex-wrap:wrap;">
+  <a class="btn-link" href="/vozidla">&larr; Späť na vozidlá</a>
+  <div class="actions">
+    <% if (!vehicle.active) { %><span class="pill paused">archivované</span><% } %>
+    <form class="inline" method="post" action="/vozidla/<%= vehicle.id %>/archive"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="back" value="detail"><button class="btn btn-ghost btn-sm"><%= vehicle.active ? 'Archivovať' : 'Obnoviť' %></button></form>
+    <form class="inline" method="post" action="/vozidla/<%= vehicle.id %>/delete" onsubmit="return confirm('Úplne zmazať vozidlo aj s dokladmi?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form>
+  </div>
+</div>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+<% if (saved) { %><div class="alert alert-info">Uložené.</div><% } %>
+
+<div class="grid" style="grid-template-columns:1fr; gap:24px;">
+  <div class="card">
+    <h2 style="margin-top:0;">Údaje vozidla</h2>
+    <form method="post" action="/vozidla/<%= vehicle.id %>">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <div class="field"><label>Interné označenie</label><input name="code" value="<%= vehicle.code || '' %>"></div>
+        <div class="field" style="grid-column: span 2;"><label>Názov / model</label><input name="name" value="<%= vehicle.name || '' %>"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>ŠPZ</label><input name="spz" value="<%= vehicle.spz || '' %>"></div>
+        <div class="field"><label>VIN</label><input name="vin" value="<%= vehicle.vin || '' %>"></div>
+        <div class="field"><label>Typ</label><select name="vehicle_type"><option value="">—</option>
+          <% types.forEach(function(t){ %><option <%= vehicle.vehicle_type===t?'selected':'' %>><%= t %></option><% }) %>
+        </select></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Počet miest</label><input name="seats" inputmode="numeric" value="<%= vehicle.seats != null ? vehicle.seats : '' %>"></div>
+        <div class="field"><label>Rok</label><input name="year" inputmode="numeric" value="<%= vehicle.year != null ? vehicle.year : '' %>"></div>
+      </div>
+      <h3 style="margin:6px 0 2px; font-size:1rem;">Pridelenie</h3>
+      <div class="form-row">
+        <div class="field"><label>Vodič / držiteľ</label><select name="holder_employee_id"><option value="">—</option>
+          <% employees.forEach(function(e){ %><option value="<%= e.id %>" <%= vehicle.holder_employee_id===e.id?'selected':'' %>><%= e.last_name %> <%= e.first_name %></option><% }) %>
+        </select></div>
+        <div class="field"><label>Pridelená stavba</label><select name="project_id"><option value="">—</option>
+          <% projects.forEach(function(p){ %><option value="<%= p.id %>" <%= vehicle.project_id===p.id?'selected':'' %>><%= p.name %></option><% }) %>
+        </select></div>
+      </div>
+      <div class="field"><label>Poznámka</label><textarea name="note" rows="2"><%= vehicle.note || '' %></textarea></div>
+      <button class="btn btn-primary">Uložiť</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Doklady (<%= docs.length %>)</h2>
+    <% if (!docs.length) { %>
+      <p class="muted">Žiadne doklady. Nahraj STK, EK, poistku, diaľničnú známku, servis…</p>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Typ</th><th>Platnosť do</th><th>Súbor</th><th>Poznámka</th><th></th></tr></thead>
+          <tbody>
+            <% docs.forEach(function(d){ var past = d.valid_until && d.valid_until < (new Date().toISOString().slice(0,10)); %>
+              <tr>
+                <td><b><%= d.doc_type || '—' %></b></td>
+                <td><% if (d.valid_until) { %><span class="pill <%= past ? 'danger' : 'active' %>"><%= d.valid_until %></span><% } else { %><span class="muted">—</span><% } %></td>
+                <td><a href="/vozidla/<%= vehicle.id %>/doklad/<%= d.id %>/subor" target="_blank"><%= d.original_name || 'súbor' %></a></td>
+                <td class="muted"><%= d.note || '—' %></td>
+                <td><form class="inline" method="post" action="/vozidla/<%= vehicle.id %>/doklad/<%= d.id %>/delete" onsubmit="return confirm('Zmazať doklad?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm">Zmazať</button></form></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+    <form method="post" action="/vozidla/<%= vehicle.id %>/doklad" enctype="multipart/form-data" class="form-row" style="align-items:end; margin-top:14px;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="field" style="margin-bottom:0;"><label>Typ dokladu</label><select name="doc_type"><% docTypes.forEach(function(t){ %><option><%= t %></option><% }) %></select></div>
+      <div class="field" style="margin-bottom:0;"><label>Platnosť do</label><input name="valid_until" type="date"></div>
+      <div class="field" style="margin-bottom:0;"><label>Súbor (JPG/PNG/PDF)</label><input type="file" name="file" accept="image/jpeg,image/png,application/pdf" required></div>
+      <div class="field" style="margin-bottom:0;"><label>Poznámka</label><input name="note"></div>
+      <div class="field" style="margin-bottom:0;"><button class="btn btn-dark"><%- icon('save', 16) %> Nahrať</button></div>
+    </form>
+    <p class="muted" style="font-size:.82rem; margin-top:8px;">Max 15 MB na súbor. Pri doklade s platnosťou „do" sa dátum po expirácii zvýrazní červeno.</p>
+  </div>
+</div>

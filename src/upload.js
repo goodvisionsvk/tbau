@@ -54,4 +54,25 @@ const uploadRefImages = multer({
   },
 }).array('images', 12);
 
-module.exports = { uploadSheet, sheetsDir, uploadRefImages, refDir };
+// --- Dokumenty k vozidlám (JPG/PNG/PDF, po jednom) ---
+const vehDir = path.join(config.uploadsDir, 'vehicles');
+fs.mkdirSync(vehDir, { recursive: true });
+
+const vehStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, vehDir),
+  filename: (req, file, cb) => {
+    const ext = ALLOWED[file.mimetype] || path.extname(file.originalname) || '';
+    cb(null, 'veh_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex') + ext);
+  },
+});
+
+const uploadVehicleDoc = multer({
+  storage: vehStorage,
+  limits: { fileSize: 15 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED[file.mimetype]) return cb(null, true);
+    cb(new Error('Povolené sú len súbory JPG, PNG alebo PDF.'));
+  },
+}).single('file');
+
+module.exports = { uploadSheet, sheetsDir, uploadRefImages, refDir, uploadVehicleDoc, vehDir };

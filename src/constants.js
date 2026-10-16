@@ -72,6 +72,12 @@ module.exports = {
   // úroveň nemčiny zamestnanca (pre nemecký dopyt – „Deutschkenntnisse …")
   germanLevels: ['', 'žiadna', 'základy', 'Niveau 1', 'Niveau 2', 'Niveau 3', 'v stavebníctve'],
 
+  // --- Majetok: Vozidlá ---
+  vehicleTypes: ['firemné', 'prenajaté', 'súkromné'],
+  vehicleDocTypes: ['STK', 'Emisná kontrola (EK)', 'Poistka (PZP)', 'Havarijné poistenie',
+    'Diaľničná známka SK', 'Diaľničná známka DE', 'Diaľničná známka CZ', 'Servis',
+    'Technický preukaz', 'Leasingová zmluva', 'Iné'],
+
   // mapovanie aplikácií (slug) na ich reálnu adresu v portáli
   appRoutes: {
     dochadzka: '/dochadzka',
@@ -111,8 +117,9 @@ module.exports = {
         { key: 'inquiries', label: 'Dopyty', href: '/dopyty', icon: 'send' },
         { key: 'references', label: 'Referenčné stavby', href: '/referencie', icon: 'building' },
       ] });
-      groups.push({ label: 'Projekty', items: [
+      groups.push({ label: 'Firma', items: [
         { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },
+        { key: 'assets', label: 'Majetok', href: '/majetok', icon: 'box' },
       ] });
       groups.push({ label: 'Systém', items: [
         { key: 'settings', label: 'Nastavenia', href: '/nastavenia', icon: 'settings' },
@@ -124,7 +131,7 @@ module.exports = {
         { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
         { key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: 'user' },
       ] });
-      groups.push({ label: 'Projekty', items: [
+      groups.push({ label: 'Firma', items: [
         { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },
       ] });
     }

@@ -1,0 +1,41 @@
+<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+  <form method="get" action="/vozidla" style="display:flex; gap:8px; flex-wrap:wrap;">
+    <input name="q" value="<%= filter.q %>" placeholder="Hľadať (označenie, názov, ŠPZ)…" style="min-width:200px;">
+    <select name="type" onchange="this.form.submit()">
+      <option value="">— typ —</option>
+      <% types.forEach(function(t){ %><option value="<%= t %>" <%= filter.type===t?'selected':'' %>><%= t %></option><% }) %>
+    </select>
+    <% if (filter.archived) { %><input type="hidden" name="archived" value="1"><% } %>
+    <button class="btn btn-ghost btn-sm">Hľadať</button>
+  </form>
+  <a class="btn btn-primary" href="/vozidla/novy"><%- icon('plus', 16) %> Nové vozidlo</a>
+</div>
+
+<div class="section">
+  <p class="muted" style="margin-top:0;"><a href="/majetok">&larr; Majetok</a> ·
+    <% if (!filter.archived) { %><a href="/vozidla?archived=1">Zobraziť archivované</a><% } else { %><a href="/vozidla">Zobraziť aktívne</a><% } %>
+  </p>
+  <% if (!vehicles.length) { %>
+    <div class="card muted">Žiadne vozidlá. Pridaj prvé cez „Nové vozidlo".</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Označenie</th><th>Názov</th><th>ŠPZ</th><th>Typ</th><th>Vodič</th><th>Stavba</th><th>Doklady</th><th></th></tr></thead>
+        <tbody>
+          <% vehicles.forEach(function(v){ %>
+            <tr>
+              <td><a href="/vozidla/<%= v.id %>"><b><%= v.code || '—' %></b></a></td>
+              <td class="muted"><%= v.name || '—' %></td>
+              <td class="muted"><%= v.spz || '—' %></td>
+              <td class="muted"><%= v.vehicle_type || '—' %></td>
+              <td class="muted"><%= (v.h_last ? v.h_last + ' ' + (v.h_first||'') : '—') %></td>
+              <td class="muted"><%= v.project_name || '—' %></td>
+              <td class="muted"><%= v.doc_count %></td>
+              <td><a class="btn btn-ghost btn-sm" href="/vozidla/<%= v.id %>">Otvoriť</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
