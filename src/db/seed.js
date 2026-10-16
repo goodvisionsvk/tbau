@@ -84,6 +84,14 @@ if (db.prepare('SELECT COUNT(*) c FROM work_log').get().c === 0) {
     ['2026-10-13', 'Nový moderný dizajn portálu + ikony'],
     ['2026-10-13', 'Nahrávanie smenoviek ako dokladov; reálna stavba a zamestnanci zo smenovky'],
     ['2026-10-13', 'Príprava integrácie klientovho CRM (analýza zadania, prototyp)'],
+    ['2026-10-14', 'Bezpečnosť hesiel a prihlásenia: politika sily hesla, povinná zmena 1×/rok, zapamätať prihlásenie, zabudnuté heslo, blokovanie konta'],
+    ['2026-10-14', 'Automatické denné zálohovanie databázy + príprava zálohovania na firemné NAS Synology'],
+    ['2026-10-14', 'Rozšírené automatické testy (prihlásenie, heslá, reset, SMTP)'],
+    ['2026-10-14', 'SMTP e-mail: odosielanie dopytov zákazníkom priamo z portálu + notifikácie (nastaviteľné v portáli)'],
+    ['2026-10-14', 'Sprehľadnenie úvodnej stránky; odstránené nepoužívané moduly (RSV, Objednávkový systém)'],
+    ['2026-10-15', 'Dopyt vylepšený: automatický nemecký e-mail s dostupnými pracovníkmi podľa reálnej šablóny'],
+    ['2026-10-15', 'Referenčné stavby: evidencia realizovaných stavieb + fotky, priložené k dopytu ako prílohy e-mailu'],
+    ['2026-10-16', 'Migrácia reálnych dát (zákazníci, stavby, pracovníci) z klientovho systému do portálu'],
   ];
   const insA = db.prepare('INSERT INTO work_log (entry_date, title, hours, tokens) VALUES (?,?,0,0)');
   activities.forEach((a) => insA.run(a[0], a[1]));
