@@ -128,6 +128,12 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-16** – **Majetok spoločnosti → Vozidlá** (`/vozidla`): menu „Projekty" premenované na
+  **Firma** (Stavby + Majetok); **Majetok** (`/majetok`) je rozcestník. Vozidlá: register (označenie,
+  názov, ŠPZ, VIN, typ, miesta, rok), **pridelenie vodičovi a stavbe**, **nahrávanie dokladov**
+  (STK, EK, poistka, diaľničná známka, servis…) s platnosťou „do" (po expirácii červené). Predregistrovaných
+  9 kódov vozidiel z TBAU360 (ŠPZ/doklady doplní používateľ – v prototype neboli). Nové tabuľky
+  `vehicles`, `vehicle_documents`.
 - **2026-10-16** – **Migrácia reálnych dát z TBAU360 prototypu** (od Tomáša): naimportovaných
   **189 zákazníkov** (+183 kontaktov), **9 stavieb** (SEITZ, MAYER, NEULINGER, GROSSMANN,
   EICHENSEHER, JÄGER, Wilhelm Bauer, SWIETELSKY…) a **47 pracovníkov** do portálu (sekcie Obchod,

@@ -74,6 +74,15 @@ status→`sent`; fallback `mailto`). Zamestnanec má pole `german_level` (`const
 druhy robotníka rozšírené o Debniar/Žeriavnik (DE: Schalungsbauer/Kranführer). Enumy v `src/constants.js`.
 Smer „zákazník → požiadavka" zatiaľ nie je (plán).
 
+**Majetok spoločnosti → Vozidlá** (`/vozidla`, `src/routes/vehicles.js`, pohľady `vehicles.ejs` /
+`vehicle-new.ejs` / `vehicle-detail.ejs`): register vozidiel (`vehicles`: code, name, spz, vin,
+vehicle_type, seats, year, holder_employee_id→vodič, project_id→stavba, note, active) + **doklady**
+(`vehicle_documents`: doc_type, file_path, valid_until, note; upload `upload.uploadVehicleDoc` do
+`data/uploads/vehicles`, servírované chránene cez `/vozidla/:id/doklad/:docId/subor`). Číselníky
+`constants.vehicleTypes` / `vehicleDocTypes`. Menu: skupina **Firma** (predtým Projekty) = Stavby +
+**Majetok** (`/majetok` rozcestník, `active:'assets'`, `views/assets.ejs`). Platnosť dokladu po
+expirácii = červený pill. Predregistrovaných 9 kódov vozidiel z TBAU360 (T002…T013).
+
 **Import reálnych dát z TBAU360** (`scripts/import-tbau360.js`): jednorazový idempotentný import
 zákazníkov (+kontaktov), stavieb a pracovníkov z prototypu Tomáša do `customers`/`contacts`/`projects`/
 `employees`. Dedup podľa mena (LOWER). **Dáta NIE sú v gite** (dôverné) – JSON `{customers,sites,workers}`
