@@ -74,6 +74,15 @@ status→`sent`; fallback `mailto`). Zamestnanec má pole `german_level` (`const
 druhy robotníka rozšírené o Debniar/Žeriavnik (DE: Schalungsbauer/Kranführer). Enumy v `src/constants.js`.
 Smer „zákazník → požiadavka" zatiaľ nie je (plán).
 
+**Import reálnych dát z TBAU360** (`scripts/import-tbau360.js`): jednorazový idempotentný import
+zákazníkov (+kontaktov), stavieb a pracovníkov z prototypu Tomáša do `customers`/`contacts`/`projects`/
+`employees`. Dedup podľa mena (LOWER). **Dáta NIE sú v gite** (dôverné) – JSON `{customers,sites,workers}`
+sa dodáva argumentom (`node scripts/import-tbau360.js <json>`), na server sa scp-ne do `/tmp` a po
+importe zmaže. Stavba sa viaže na zákazníka cez textové `projects.client` (projects nemá customer_id).
+Zdroj dát = `TBAU360_prototyp_v33.html` (viď memory [[tbau360-prototyp]]): premenné `C` (zákazníci),
+`XD.firms` (databáza firiem), `ST` (stavby), `W` (pracovníci cez `mkW`). Prvý import 16.10.2026:
+189 zák. / 183 kont. / 9 stavieb / 47 prac.
+
 **Referenčné stavby** (`/referencie`, `src/routes/references.js`, pohľady `references.ejs` /
 `reference-new.ejs` / `reference-detail.ejs`): portfólio stavieb + fotky (upload cez
 `upload.uploadRefImages` do `data/uploads/references`, servírované chránene cez

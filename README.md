@@ -128,6 +128,11 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-16** – **Migrácia reálnych dát z TBAU360 prototypu** (od Tomáša): naimportovaných
+  **189 zákazníkov** (+183 kontaktov), **9 stavieb** (SEITZ, MAYER, NEULINGER, GROSSMANN,
+  EICHENSEHER, JÄGER, Wilhelm Bauer, SWIETELSKY…) a **47 pracovníkov** do portálu (sekcie Obchod,
+  Stavby, Zamestnanci). Importér `scripts/import-tbau360.js` (idempotentný, dedup podľa mena);
+  **dáta sú mimo gitu** (dôverné reálne dáta firmy) – JSON sa dodáva ako argument a po importe sa maže.
 - **2026-10-15** – **Referenčné stavby** (`/referencie`, Obchod): portfólio stavieb – názov, miesto,
   obdobie, čo sa robilo, popis + **nahrávanie fotiek** (JPG/PNG). Pri dopyte sa dajú referencie
   **zaškrtnúť** → ich popis sa doplní do nemeckého e-mailu a **fotky sa pripoja ako prílohy** (ako
