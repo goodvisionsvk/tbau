@@ -107,7 +107,7 @@
     var btn = form.querySelector('button');
     if (btn) { btn.disabled = true; btn.textContent = 'Čítam…'; }
     try {
-      var blob = await resize(file, 1600, 0.85);
+      var blob = await resize(file, 2000, 0.92);
       var fd = new FormData(form);
       fd.set('file', blob, 'smenovka.jpg');
       var res = await fetch(form.action, { method: 'POST', body: fd });

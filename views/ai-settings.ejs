@@ -21,8 +21,10 @@
     </div>
     <div class="field"><label>Model</label>
       <select name="model">
-        <option value="gemini-flash-latest" <%= cfg.model==='gemini-flash-latest'?'selected':'' %>>gemini-flash-latest (odporúčané)</option>
-        <option value="gemini-flash-lite-latest" <%= cfg.model==='gemini-flash-lite-latest'?'selected':'' %>>gemini-flash-lite-latest (lacnejší)</option>
+        <option value="gemini-3.8-flash" <%= cfg.model==='gemini-3.8-flash'?'selected':'' %>>gemini-3.8-flash (najnovší, odporúčané)</option>
+        <option value="gemini-3.5-flash" <%= cfg.model==='gemini-3.5-flash'?'selected':'' %>>gemini-3.5-flash</option>
+        <option value="gemini-3-flash-preview" <%= cfg.model==='gemini-3-flash-preview'?'selected':'' %>>gemini-3-flash-preview</option>
+        <option value="gemini-flash-latest" <%= cfg.model==='gemini-flash-latest'?'selected':'' %>>gemini-flash-latest (starší)</option>
       </select>
     </div>
     <div class="field">
