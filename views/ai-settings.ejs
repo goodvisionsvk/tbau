@@ -42,6 +42,17 @@
       <input name="api_key" type="password" value="" placeholder="<%= keySet ? '•••••••• (nezmenené)' : 'Claude: sk-ant-… / Gemini: AIza…' %>" autocomplete="new-password">
       <p class="muted" style="font-size:.8rem; margin:4px 0 0;">Pri zmene poskytovateľa vlož aj zodpovedajúci kľúč (Claude začína <code>sk-ant-</code>, z console.anthropic.com).</p>
     </div>
+
+    <h3 style="margin:14px 0 2px; font-size:1rem;">Limity (ochrana nákladov)</h3>
+    <div class="form-row">
+      <div class="field"><label>Max. čítaní za deň</label><input name="max_reads_day" inputmode="numeric" value="<%= limits.maxReadsDay %>"></div>
+      <div class="field"><label>Max. náklady za mesiac (€)</label><input name="max_cost_month_eur" inputmode="decimal" value="<%= limits.maxCostMonthEur %>"></div>
+    </div>
+    <p class="muted" style="font-size:.8rem; margin:-4px 0 6px;">Po prekročení appka ďalšie čítanie odmietne. 0 = bez limitu. Gemini je zadarmo (ráta sa len denný počet).</p>
+    <div class="alert alert-info" style="margin:4px 0 12px;">
+      <b>Spotreba teraz:</b> dnes <%= usage.todayReads %> / <%= usage.maxReadsDay || '∞' %> čítaní ·
+      tento mesiac <%= usage.monthReads %> čítaní, náklady ~<%= usage.monthCostEur.toFixed(2) %> € / <%= usage.maxCostMonthEur || '∞' %> €.
+    </div>
     <button class="btn btn-primary">Uložiť</button>
   </form>
   <p class="muted" style="font-size:.82rem; margin-top:10px;">

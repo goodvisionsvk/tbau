@@ -215,7 +215,10 @@ bezdiakritické tokeny) + stavby (`matchProject`) → review (editovateľné hod
 stavby/KW) → `POST /ai-import/save` zapíše `attendance` (upsert s `shift_sheet_id`) + uloží foto ako
 `shift_sheets`. Fotka sa zmenšuje v prehliadači (`public/js/app.js`, `form[data-ai-resize]`); nginx
 `proxy_read_timeout 180s` (editované na serveri, nie v `deploy/nginx-tbau.conf`). Cena: Claude Sonnet 5.5
-~1 €cent/strana (~3 s). Napojené: **Dopyty** `POST /dopyty/:id/send`
+~1 €cent/strana (~3 s). **Limity nákladov** (`src/ai-usage.js`, tabuľka `ai_usage` po dňoch):
+`checkLimits()` pred každým čítaním (denný limit počtu `ai_max_reads_day` default 30, mesačný limit
+nákladov `ai_max_cost_month_eur` default 3 €), `record()` po úspechu; nastaviteľné v `/nastavenia/ai`.
+Kľúč sa používa výlučne cez `readSmenovka` (pevný prompt) – žiadny iný AI endpoint v appke. Napojené: **Dopyty** `POST /dopyty/:id/send`
 (pošle ponuku na hlavný e-mail kontaktu, status `sent`; tlačidlo len ak `smtpReady`), **žiadosti
 o reset** `notifyAdminsAboutReset()` v `auth.js`. Websupport TBAU: `smtp.m1.websupport.sk:465` SSL,
 schránka `notifikacie@tbau.eu`. `settings-store.set(key,val)`/`get(key,fallback)` je všeobecné úložisko nastavení.

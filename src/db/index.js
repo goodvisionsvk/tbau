@@ -328,6 +328,16 @@ CREATE TABLE IF NOT EXISTS app_settings (
 );
 `);
 
+// Evidencia spotreby AI (čítania smenoviek) po dňoch – pre limity a prehľad nákladov.
+db.exec(`
+CREATE TABLE IF NOT EXISTS ai_usage (
+  day TEXT PRIMARY KEY,                 -- YYYY-MM-DD
+  reads INTEGER NOT NULL DEFAULT 0,
+  cost_usd REAL NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+`);
+
 // Samoobslužné žiadosti o reset hesla (bez SMTP – vybavuje admin, heslo odovzdá mimo systému).
 db.exec(`
 CREATE TABLE IF NOT EXISTS password_reset_requests (

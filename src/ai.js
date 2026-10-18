@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const store = require('./settings-store');
+const usage = require('./ai-usage');
 
 function cfg() {
   return {
@@ -127,11 +128,12 @@ function costUsd(provider, model, usage) {
 async function readSmenovka(filePath) {
   const c = cfg();
   if (!c.apiKey) throw new Error('AI nie je nakonfigurované (chýba API kľúč).');
+  const lim = usage.checkLimits();
+  if (!lim.ok) throw new Error(lim.reason);
   const res = c.provider === 'claude' ? await readClaude(c, filePath) : await readGemini(c, filePath);
-  return {
-    data: res.data,
-    meta: { provider: c.provider, model: c.model, usage: res.usage, costUsd: costUsd(c.provider, c.model, res.usage) },
-  };
+  const meta = { provider: c.provider, model: c.model, usage: res.usage, costUsd: costUsd(c.provider, c.model, res.usage) };
+  try { usage.record(meta.costUsd); } catch (e) { /* evidencia nesmie zhodiť čítanie */ }
+  return { data: res.data, meta };
 }
 
 module.exports = { isConfigured, readSmenovka, cfg };

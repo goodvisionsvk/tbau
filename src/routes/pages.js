@@ -125,6 +125,7 @@ router.get('/majetok', requireAuth, requireFullAccess, (req, res) => {
 });
 
 const ai = require('../ai');
+const aiUsage = require('../ai-usage');
 const { uploadAiImage, tmpDir } = require('../upload');
 
 function renderAi(res, extra) {
@@ -135,6 +136,8 @@ function renderAi(res, extra) {
       model: store.get('ai_model', 'claude-sonnet-5-5'),
     },
     keySet: !!store.get('ai_api_key', ''),
+    limits: { maxReadsDay: aiUsage.maxReadsDay(), maxCostMonthEur: aiUsage.maxCostMonthEur() },
+    usage: aiUsage.stats(),
     saved: false, result: null, meta: null, aiError: null,
   }, extra));
 }
@@ -166,6 +169,9 @@ router.post('/nastavenia/ai', requireAuth, requireFullAccess, (req, res) => {
   store.set('ai_provider', (req.body.provider || 'claude').trim());
   store.set('ai_model', (req.body.model || 'claude-sonnet-5-5').trim());
   if ((req.body.api_key || '').trim()) store.set('ai_api_key', req.body.api_key.trim());
+  // limity (ochrana nákladov)
+  const rd = parseInt(req.body.max_reads_day, 10); if (Number.isFinite(rd) && rd >= 0) store.set('ai_max_reads_day', String(rd));
+  const cm = parseFloat(String(req.body.max_cost_month_eur).replace(',', '.')); if (Number.isFinite(cm) && cm >= 0) store.set('ai_max_cost_month_eur', String(cm));
   res.redirect('/nastavenia/ai?saved=1');
 });
 
