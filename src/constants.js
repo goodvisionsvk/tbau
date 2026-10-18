@@ -114,6 +114,7 @@ module.exports = {
       groups.push({ label: 'HR', items: [
         { key: 'employees', label: 'Zamestnanci', href: '/zamestnanci', icon: 'hardhat' },
         { key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' },
+        { key: 'ai_import', label: 'Import smenovky (AI)', href: '/dochadzka/ai-import', icon: 'beaker' },
         { key: 'leaves', label: 'Dovolenky', href: '/dovolenky', icon: 'calendar' },
         { key: 'reports', label: 'Report dochádzky', href: '/reporty', icon: 'chart' },
         { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
@@ -131,6 +132,7 @@ module.exports = {
     } else if (foreman) {
       groups.push({ label: 'HR', items: [
         { key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' },
+        { key: 'ai_import', label: 'Import smenovky (AI)', href: '/dochadzka/ai-import', icon: 'beaker' },
         { key: 'reports', label: 'Report dochádzky', href: '/reporty', icon: 'chart' },
         { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
         { key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: 'user' },

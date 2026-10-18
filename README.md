@@ -137,6 +137,12 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   pull prebehol). `.env` (SESSION_SECRET, WORKLOG_SECRET) sa pri zálohe **šifruje GPG verejným
   kľúčom** → `backups/db/env.gpg` (na NAS); dešifruje len súkromný kľúč mimo servera/gitu. Postup
   obnovy v `deploy/BACKUP.md`.
+- **2026-10-18** – **Čítanie smenoviek AI → dochádzka**: v HR pribudol **Import smenovky (AI)**
+  (`/dochadzka/ai-import`): nahráš fotku → AI (Claude / Gemini, nastaviteľné v Nastavenia → AI) prečíta
+  mená a hodiny → **napáruje na zamestnancov** a predvyplní týždeň → skontroluješ/opravíš → **uloží do
+  dochádzky** + fotka sa uloží ako doklad (smenovka). Čítač `src/ai.js` (Claude vision aj Gemini),
+  cena/tokeny sa zobrazia (Claude Sonnet 5.5 ~1 €cent/strana, ~3 s). Kľúč aj model nastaviteľné v
+  portáli, kľúč šifrovaný. Fotka sa pred odoslaním zmenšuje v prehliadači (canvas). nginx proxy timeout 180 s.
 - **2026-10-18** – **Navigácia preorganizovaná**: **Nastavenia** a **Zmena hesla** presunuté z ľavého
   menu do **profilového menu v hornej lište** (klik na meno používateľa → Nastavenia / Zmena hesla /
   Odhlásiť). Ľavé **skupiny menu sú teraz rozbaľovacie** (klik na HR/Obchod/Firma rozbalí/zbalí; stav

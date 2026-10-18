@@ -78,10 +78,10 @@
   });
 })();
 
-// AI test smenovky: zmenši fotku v prehliadači pred odoslaním (rýchlejšie, menšia záťaž).
+// AI smenovky: zmenši fotku v prehliadači pred odoslaním (rýchlejšie, menšia záťaž, lacnejšie).
 (function () {
-  var form = document.getElementById('ai-test-form');
-  if (!form) return;
+  var forms = document.querySelectorAll('form[data-ai-resize], #ai-test-form');
+  if (!forms.length) return;
   function resize(file, maxDim, quality) {
     return new Promise(function (resolve, reject) {
       var url = URL.createObjectURL(file);
@@ -99,23 +99,25 @@
       img.src = url;
     });
   }
-  form.addEventListener('submit', async function (e) {
-    var input = form.querySelector('input[type=file]');
-    var file = input && input.files && input.files[0];
-    if (!file || !/^image\//.test(file.type)) return; // PDF alebo nič → normálne odoslanie
-    e.preventDefault();
-    var btn = form.querySelector('button');
-    if (btn) { btn.disabled = true; btn.textContent = 'Čítam…'; }
-    try {
-      var blob = await resize(file, 2000, 0.92);
-      var fd = new FormData(form);
-      fd.set('file', blob, 'smenovka.jpg');
-      var res = await fetch(form.action, { method: 'POST', body: fd });
-      var html = await res.text();
-      document.open(); document.write(html); document.close();
-    } catch (err) {
-      form.submit(); // fallback: pošli originál
-    }
+  forms.forEach(function (form) {
+    form.addEventListener('submit', async function (e) {
+      var input = form.querySelector('input[type=file]');
+      var file = input && input.files && input.files[0];
+      if (!file || !/^image\//.test(file.type)) return; // PDF alebo nič → normálne odoslanie
+      e.preventDefault();
+      var btn = form.querySelector('button[type=submit], button:not([type])');
+      if (btn) { btn.disabled = true; btn.textContent = 'Čítam…'; }
+      try {
+        var blob = await resize(file, 2000, 0.92);
+        var fd = new FormData(form);
+        fd.set('file', blob, 'smenovka.jpg');
+        var res = await fetch(form.action, { method: 'POST', body: fd });
+        var html = await res.text();
+        document.open(); document.write(html); document.close();
+      } catch (err) {
+        form.submit(); // fallback: pošli originál
+      }
+    });
   });
 })();
 

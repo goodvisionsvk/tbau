@@ -205,8 +205,17 @@ host, port, SSL/TLS, používateľ, heslo (ukladá sa len ak je zadané), odosie
 `app_settings`: `smtp_host/port/secure/user/pass/from`. **Citlivé kľúče (`smtp_pass`, `ai_api_key`)
 sú v DB šifrované** (`src/util/secretbox.js`, AES-256-GCM, kľúč `SETTINGS_KEY` v `.env`; `settings-store`
 ich pri `set` zašifruje a pri `get` dešifruje – `SECRET_KEYS`). Bez `SETTINGS_KEY` fallback na plaintext.
-**AI (Gemini) na smenovky:** nastavenie v `/nastavenia/ai` (`views/ai-settings.ejs`) – kľúče `ai_provider`,
-`ai_model`, `ai_api_key` v `app_settings`. Napojené: **Dopyty** `POST /dopyty/:id/send`
+**AI na smenovky** (`src/ai.js`): čítač podporuje **Claude/Anthropic** (vision, default `claude-sonnet-5-5`)
+aj **Gemini**; `readSmenovka(path)` vráti `{data, meta:{provider,model,usage,costUsd}}`. Nastavenie
+`/nastavenia/ai` (`views/ai-settings.ejs`) – kľúče `ai_provider`, `ai_model`, `ai_api_key` v `app_settings`
+(kľúč šifrovaný). Pole „Vyskúšať na smenovke" = náhľad bez ukladania. **Import do dochádzky**
+(`/dochadzka/ai-import`, routy v `src/routes/attendance.js`, views `ai-import.ejs` / `ai-import-review.ejs`):
+nahratie fotky (uploadSheet) → `ai.readSmenovka` → napárovanie mien na zamestnancov (`matchEmployee`,
+bezdiakritické tokeny) + stavby (`matchProject`) → review (editovateľné hodiny Po–Ne, výber zamestnanca/
+stavby/KW) → `POST /ai-import/save` zapíše `attendance` (upsert s `shift_sheet_id`) + uloží foto ako
+`shift_sheets`. Fotka sa zmenšuje v prehliadači (`public/js/app.js`, `form[data-ai-resize]`); nginx
+`proxy_read_timeout 180s` (editované na serveri, nie v `deploy/nginx-tbau.conf`). Cena: Claude Sonnet 5.5
+~1 €cent/strana (~3 s). Napojené: **Dopyty** `POST /dopyty/:id/send`
 (pošle ponuku na hlavný e-mail kontaktu, status `sent`; tlačidlo len ak `smtpReady`), **žiadosti
 o reset** `notifyAdminsAboutReset()` v `auth.js`. Websupport TBAU: `smtp.m1.websupport.sk:465` SSL,
 schránka `notifikacie@tbau.eu`. `settings-store.set(key,val)`/`get(key,fallback)` je všeobecné úložisko nastavení.

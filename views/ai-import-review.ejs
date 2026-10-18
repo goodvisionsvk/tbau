@@ -1,0 +1,69 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/dochadzka/ai-import">&larr; Späť (nahrať inú)</a></p>
+
+<div class="card" style="margin-bottom:18px;">
+  <h2 style="margin-top:0;">Prečítané zo smenovky – skontroluj a potvrď</h2>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px 20px;">
+    <div><div class="muted" style="font-size:12px;">Firma (z fotky)</div><b><%= result.firma || '—' %></b></div>
+    <div><div class="muted" style="font-size:12px;">Stavba (z fotky)</div><b><%= result.stavba || '—' %></b></div>
+    <div><div class="muted" style="font-size:12px;">KW (z fotky)</div><b><%= result.kw || '—' %></b></div>
+    <div><div class="muted" style="font-size:12px;">Obdobie</div><b><%= (result.datum_od||'') %><%= result.datum_do ? ' – ' + result.datum_do : '' %></b></div>
+    <div><div class="muted" style="font-size:12px;">Spolu hodín</div><b><%= result.spolu_hodin != null ? result.spolu_hodin : '—' %></b></div>
+  </div>
+  <% if (typeof meta !== 'undefined' && meta && meta.costUsd != null) { %>
+    <p class="muted" style="font-size:.8rem; margin:10px 0 0;">Prečítané cez <%= meta.provider==='claude'?'Claude':'Gemini' %> (<%= meta.model %>) · cena ~<%= (meta.costUsd*0.92*100).toFixed(2) %> €centa.</p>
+  <% } %>
+</div>
+
+<form method="post" action="/dochadzka/ai-import/save">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <input type="hidden" name="sheet_file" value="<%= sheet.file %>">
+  <input type="hidden" name="sheet_orig" value="<%= sheet.orig %>">
+  <input type="hidden" name="sheet_mime" value="<%= sheet.mime %>">
+  <input type="hidden" name="sheet_size" value="<%= sheet.size %>">
+
+  <div class="card">
+    <div class="form-row">
+      <div class="field"><label>Stavba *</label>
+        <select name="project" required>
+          <option value="">— vyber stavbu —</option>
+          <% projects.forEach(function(p){ %><option value="<%= p.id %>" <%= projectId===p.id?'selected':'' %>><%= p.name %><% if (p.client) { %> (<%= p.client %>)<% } %></option><% }) %>
+        </select>
+      </div>
+      <div class="field" style="max-width:120px;"><label>Rok</label><input name="year" value="<%= year %>" inputmode="numeric"></div>
+      <div class="field" style="max-width:120px;"><label>Týždeň (KW)</label><input name="week" value="<%= week %>" inputmode="numeric"></div>
+    </div>
+    <p class="muted" style="font-size:.82rem; margin-top:-4px;">Dni týždňa KW <%= week %>/<%= year %>: <% days.forEach(function(d,i){ %><%= d.label %> <%= d.day %>.<%= d.month %>.<%= i<6?' · ':'' %><% }) %></p>
+
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th style="min-width:220px;">Zamestnanec (napárovanie)</th>
+          <% days.forEach(function(d){ %><th><%= d.label %></th><% }) %>
+          <th>Spolu</th></tr></thead>
+        <tbody>
+          <% matched.forEach(function(r){ %>
+            <tr>
+              <td>
+                <select name="emp_<%= r.idx %>" style="width:100%;">
+                  <option value="">— nepriradené —</option>
+                  <% employees.forEach(function(e){ %><option value="<%= e.id %>" <%= r.empId===e.id?'selected':'' %>><%= e.last_name %> <%= e.first_name %></option><% }) %>
+                </select>
+                <div class="muted" style="font-size:.78rem; margin-top:2px;">z fotky: <%= r.meno || '—' %><% if (!r.empId) { %> <span style="color:var(--red-fg);">· nenapárované</span><% } %></div>
+              </td>
+              <% for (var j=0;j<7;j++) { %>
+                <td><input name="d<%= j %>_<%= r.idx %>" value="<%= r.hours[j] || 0 %>" inputmode="decimal" style="width:52px; text-align:center;"></td>
+              <% } %>
+              <td class="muted"><%= r.spolu != null ? r.spolu : '' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% if (!matched.length) { %><p class="muted">AI nenašlo žiadnych pracovníkov. Skús inú/ostrejšiu fotku.</p><% } %>
+  </div>
+
+  <div class="actions" style="margin-top:18px;">
+    <button class="btn btn-primary"><%- icon('save', 16) %> Potvrdiť a uložiť do dochádzky</button>
+    <a class="btn btn-ghost" href="/dochadzka/ai-import">Zrušiť</a>
+  </div>
+  <p class="muted" style="font-size:.82rem; margin-top:8px;">Uložia sa hodiny pre napárovaných zamestnancov do zvolenej stavby a týždňa. Nenapárované riadky sa preskočia. Fotka sa uloží ako doklad (smenovka).</p>
+</form>

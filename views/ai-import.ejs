@@ -1,0 +1,17 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/dochadzka">&larr; Späť na dochádzku</a></p>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="card" style="max-width:600px;">
+  <h2 style="margin-top:0;">Načítať dochádzku zo smenovky (AI)</h2>
+  <p class="muted" style="margin-top:0;">Nahraj fotku týždennej smenovky. AI z nej prečíta mená a hodiny, napáruje ich na zamestnancov a predvyplní dochádzku. Pred uložením všetko skontroluješ a potvrdíš.</p>
+  <% if (!aiReady) { %>
+    <div class="alert alert-error">AI nie je nakonfigurované. Doplň API kľúč v <a href="/nastavenia/ai">Nastavenia → AI – smenovky</a>.</div>
+  <% } else { %>
+    <form id="ai-import-form" data-ai-resize method="post" action="/dochadzka/ai-import/read" enctype="multipart/form-data" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="file" name="file" accept="image/jpeg,image/png,application/pdf" required>
+      <button type="submit" class="btn btn-primary"><%- icon('beaker', 16) %> Prečítať smenovku</button>
+    </form>
+    <p class="muted" style="font-size:.82rem; margin-top:10px;">JPG/PNG/PDF. Čítanie trvá ~5 s. Fotka sa zároveň uloží ako doklad (smenovka) k stavbe a týždňu.</p>
+  <% } %>
+</div>
