@@ -247,6 +247,7 @@ Aktualizuje sa po každej práci na projekte.
 - [ ] **Obmedziť/zakázať root SSH login** – po overení admin účtu (`PermitRootLogin no`).
 - [ ] **Nahradiť NOPASSWD sudo** pri účtoch `tbau` a `tomas` za sudo s heslom (aktuálne passwordless).
 - [ ] **Autorizácia / role** – jemnejšie rozdelenie prístupu (admin, účtovník, zamestnanec…).
+- [ ] **NAS zálohovacia úloha beží pod `root`** (Synology Plánovač) – prejsť na menej privilegovaný účet / prísnejšiu politiku.
 - [ ] **Šifrovanie dát v pokoji** – citlivé údaje (osobné, mzdové) šifrované v DB.
 - [ ] **Rate-limiting prihlásenia** – ochrana proti hádaniu hesla (brute-force).
 - [x] **Zálohovanie** – denná automatická záloha DB + rotácia + prírastkovo na NAS Synology; postup obnovy v `deploy/BACKUP.md`. *(ostáva: jednorazové nastavenie na strane NAS)*
