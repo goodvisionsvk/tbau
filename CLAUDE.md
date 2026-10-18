@@ -202,7 +202,11 @@ logické testy cez `logicTest()`. Nové testy pridávaj sem.
 **Edituje sa priamo v portáli**: Nastavenia → **E-mail (SMTP)** (`/nastavenia/smtp`, `views/smtp.ejs`):
 host, port, SSL/TLS, používateľ, heslo (ukladá sa len ak je zadané), odosielateľ + **tlačidlo
 „Poslať testovací e-mail"** (`POST /nastavenia/smtp/test` pošle na e-mail prihláseného). Kľúče v
-`app_settings`: `smtp_host/port/secure/user/pass/from`. Napojené: **Dopyty** `POST /dopyty/:id/send`
+`app_settings`: `smtp_host/port/secure/user/pass/from`. **Citlivé kľúče (`smtp_pass`, `ai_api_key`)
+sú v DB šifrované** (`src/util/secretbox.js`, AES-256-GCM, kľúč `SETTINGS_KEY` v `.env`; `settings-store`
+ich pri `set` zašifruje a pri `get` dešifruje – `SECRET_KEYS`). Bez `SETTINGS_KEY` fallback na plaintext.
+**AI (Gemini) na smenovky:** nastavenie v `/nastavenia/ai` (`views/ai-settings.ejs`) – kľúče `ai_provider`,
+`ai_model`, `ai_api_key` v `app_settings`. Napojené: **Dopyty** `POST /dopyty/:id/send`
 (pošle ponuku na hlavný e-mail kontaktu, status `sent`; tlačidlo len ak `smtpReady`), **žiadosti
 o reset** `notifyAdminsAboutReset()` v `auth.js`. Websupport TBAU: `smtp.m1.websupport.sk:465` SSL,
 schránka `notifikacie@tbau.eu`. `settings-store.set(key,val)`/`get(key,fallback)` je všeobecné úložisko nastavení.

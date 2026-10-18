@@ -277,7 +277,8 @@ Aktualizuje sa po každej práci na projekte.
 - [x] **Blokovanie prihlásenia** – admin vie deaktivovať (zablokovať) konto; zablokovaný sa neprihlási.
 - [x] **Bezpečné session** – HttpOnly + Secure cookies, expirácia 8 h (voliteľne „zapamätať" 30 dní), regenerácia po prihlásení.
 - [x] **Ochrana pred útokmi** – CSRF tokeny, parametrizované SQL (proti injection), CSP proti XSS.
-- [x] **Správa tajomstiev** – žiadne heslá/kľúče v kóde; `.env` mimo gitu (`.gitignore`).
+- [x] **Správa tajomstiev** – žiadne heslá/kľúče v kóde; `.env` mimo gitu (`.gitignore`); `.env` v zálohe GPG-šifrovaný.
+- [x] **Šifrovanie citlivých nastavení** – SMTP heslo a AI API kľúč sú v DB šifrované (AES-256-GCM, kľúč `SETTINGS_KEY` v `.env`).
 - [x] **Audit log** – logovanie požiadaviek (morgan) + systemd/journald.
 - [x] **Riadenie prístupu podľa rolí** – šéf/administratíva/parťák/zamestnanec; parťák vidí len svoje stavby.
 - [x] **Chránené dokumenty** – smenovky sa servírujú len s kontrolou prístupu (nie cez verejné static), mimo gitu.
