@@ -135,7 +135,7 @@ function renderAi(res, extra) {
       model: store.get('ai_model', 'claude-sonnet-5-5'),
     },
     keySet: !!store.get('ai_api_key', ''),
-    saved: false, result: null, aiError: null,
+    saved: false, result: null, meta: null, aiError: null,
   }, extra));
 }
 
@@ -151,8 +151,8 @@ router.post('/nastavenia/ai/test', requireAuth, requireFullAccess, (req, res) =>
     if (!req.file) return renderAi(res, { aiError: 'Vyber súbor smenovky.' });
     const full = require('path').join(tmpDir, req.file.filename);
     try {
-      const result = await ai.readSmenovka(full);
-      renderAi(res, { result });
+      const r = await ai.readSmenovka(full);
+      renderAi(res, { result: r.data, meta: r.meta });
     } catch (e) {
       renderAi(res, { aiError: e.message });
     } finally {

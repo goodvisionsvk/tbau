@@ -84,7 +84,14 @@
           </tbody>
         </table>
       </div>
-      <p class="muted" style="font-size:.82rem; margin-top:8px;">Prečítané cez Gemini. Skontroluj správnosť – pri ručnom písme sa môže AI pomýliť. (Ukladanie do dochádzky dorobíme ako ďalší krok.)</p>
+      <% if (typeof meta !== 'undefined' && meta) { %>
+        <p class="muted" style="font-size:.82rem; margin-top:8px;">
+          Prečítané cez <b><%= meta.provider === 'claude' ? 'Claude' : 'Gemini' %></b> (<%= meta.model %>).
+          <% if (meta.usage) { %>Tokeny: <%= meta.usage.input %> vstup / <%= meta.usage.output %> výstup.<% } %>
+          <% if (meta.costUsd != null) { %>Cena tohto čítania: <b>$<%= meta.costUsd.toFixed(4) %></b> (~<%= (meta.costUsd*0.92*100).toFixed(2) %> €centa).<% } else { %>Cena: zadarmo (Gemini).<% } %>
+        </p>
+      <% } %>
+      <p class="muted" style="font-size:.82rem; margin-top:4px;">Skontroluj správnosť – pri ručnom písme sa môže AI pomýliť. (Ukladanie do dochádzky dorobíme ako ďalší krok.)</p>
     </div>
   <% } %>
 </div>

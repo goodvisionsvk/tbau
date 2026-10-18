@@ -82,7 +82,8 @@ async function readGemini(c, filePath) {
   const out = JSON.parse(txt);
   const part = out && out.candidates && out.candidates[0] && out.candidates[0].content && out.candidates[0].content.parts && out.candidates[0].content.parts[0];
   if (!part || !part.text) throw new Error('API nevrátilo dáta (možno blokované alebo prázdne).');
-  return parseJsonLoose(part.text);
+  const u = out.usageMetadata || {};
+  return { data: parseJsonLoose(part.text), usage: { input: u.promptTokenCount || 0, output: u.candidatesTokenCount || 0 } };
 }
 
 async function readClaude(c, filePath) {
@@ -109,14 +110,28 @@ async function readClaude(c, filePath) {
   const out = JSON.parse(txt);
   const textBlock = (out.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n');
   if (!textBlock) throw new Error('API nevrátilo text (stop: ' + (out.stop_reason || '?') + ').');
-  return parseJsonLoose(textBlock);
+  const u = out.usage || {};
+  return { data: parseJsonLoose(textBlock), usage: { input: u.input_tokens || 0, output: u.output_tokens || 0 } };
+}
+
+// cena za 1M tokenov [vstup, výstup] v USD
+const PRICES = {
+  'claude-sonnet-5-5': [2, 10], 'claude-haiku-5-5': [0.1, 0.5], 'claude-opus-5-5': [4, 20],
+};
+function costUsd(provider, model, usage) {
+  if (provider !== 'claude') return null; // Gemini free tier
+  const p = PRICES[model] || [2, 10];
+  return (usage.input / 1e6) * p[0] + (usage.output / 1e6) * p[1];
 }
 
 async function readSmenovka(filePath) {
   const c = cfg();
   if (!c.apiKey) throw new Error('AI nie je nakonfigurované (chýba API kľúč).');
-  if (c.provider === 'claude') return readClaude(c, filePath);
-  return readGemini(c, filePath);
+  const res = c.provider === 'claude' ? await readClaude(c, filePath) : await readGemini(c, filePath);
+  return {
+    data: res.data,
+    meta: { provider: c.provider, model: c.model, usage: res.usage, costUsd: costUsd(c.provider, c.model, res.usage) },
+  };
 }
 
 module.exports = { isConfigured, readSmenovka, cfg };
