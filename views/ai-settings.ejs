@@ -21,9 +21,8 @@
     </div>
     <div class="field"><label>Model</label>
       <select name="model">
-        <option value="gemini-2.0-flash" <%= cfg.model==='gemini-2.0-flash'?'selected':'' %>>gemini-2.0-flash (rýchly, zadarmo)</option>
-        <option value="gemini-2.5-flash" <%= cfg.model==='gemini-2.5-flash'?'selected':'' %>>gemini-2.5-flash</option>
-        <option value="gemini-1.5-flash" <%= cfg.model==='gemini-1.5-flash'?'selected':'' %>>gemini-1.5-flash</option>
+        <option value="gemini-flash-latest" <%= cfg.model==='gemini-flash-latest'?'selected':'' %>>gemini-flash-latest (odporúčané)</option>
+        <option value="gemini-flash-lite-latest" <%= cfg.model==='gemini-flash-lite-latest'?'selected':'' %>>gemini-flash-lite-latest (lacnejší)</option>
       </select>
     </div>
     <div class="field">
@@ -33,6 +32,46 @@
     <button class="btn btn-primary">Uložiť</button>
   </form>
   <p class="muted" style="font-size:.82rem; margin-top:10px;">
-    Po uložení pridám k smenovkám tlačidlo „Načítať zo smenovky (AI)" – prečítané dáta vždy skontroluješ a potvrdíš pred uložením do dochádzky.
+    Prečítané dáta vždy skontroluješ a potvrdíš pred uložením do dochádzky.
   </p>
+</div>
+
+<div class="card" style="max-width:720px; margin-top:20px;">
+  <h2 style="margin-top:0;">Vyskúšať na smenovke</h2>
+  <p class="muted" style="margin-top:0;">Nahraj fotku smenovky (JPG/PNG/PDF) a AI ju prečíta. Toto je len náhľad – nič sa neukladá.</p>
+  <% if (typeof aiError !== 'undefined' && aiError) { %><div class="alert alert-error"><%= aiError %></div><% } %>
+  <form method="post" action="/nastavenia/ai/test" enctype="multipart/form-data" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <input type="file" name="file" accept="image/jpeg,image/png,application/pdf" required <%= keySet ? '' : 'disabled' %>>
+    <button class="btn btn-dark" <%= keySet ? '' : 'disabled' %>><%- icon('beaker', 16) %> Prečítať</button>
+    <% if (!keySet) { %><span class="muted">Najprv ulož API kľúč.</span><% } %>
+  </form>
+
+  <% if (typeof result !== 'undefined' && result) { %>
+    <div style="margin-top:16px;">
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px 20px; margin-bottom:12px;">
+        <div><div class="muted" style="font-size:12px;">Firma</div><b><%= result.firma || '—' %></b></div>
+        <div><div class="muted" style="font-size:12px;">Stavba</div><b><%= result.stavba || '—' %></b></div>
+        <div><div class="muted" style="font-size:12px;">KW</div><b><%= result.kw || '—' %></b></div>
+        <div><div class="muted" style="font-size:12px;">Obdobie</div><b><%= (result.datum_od||'') %><%= result.datum_do ? ' – ' + result.datum_do : '' %></b></div>
+        <div><div class="muted" style="font-size:12px;">Spolu hodín</div><b><%= result.spolu_hodin != null ? result.spolu_hodin : '—' %></b></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pracovník</th><th>Po</th><th>Ut</th><th>St</th><th>Št</th><th>Pi</th><th>So</th><th>Ne</th><th>Spolu</th></tr></thead>
+          <tbody>
+            <% (result.pracovnici||[]).forEach(function(p){ %>
+              <tr>
+                <td><b><%= p.meno || '—' %></b></td>
+                <td><%= p.po || 0 %></td><td><%= p.ut || 0 %></td><td><%= p.st || 0 %></td><td><%= p.stv || 0 %></td>
+                <td><%= p.pi || 0 %></td><td><%= p.so || 0 %></td><td><%= p.ne || 0 %></td>
+                <td><b><%= p.spolu != null ? p.spolu : '' %></b></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted" style="font-size:.82rem; margin-top:8px;">Prečítané cez Gemini. Skontroluj správnosť – pri ručnom písme sa môže AI pomýliť. (Ukladanie do dochádzky dorobíme ako ďalší krok.)</p>
+    </div>
+  <% } %>
 </div>

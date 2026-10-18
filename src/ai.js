@@ -7,7 +7,7 @@ const store = require('./settings-store');
 function cfg() {
   return {
     apiKey: store.get('ai_api_key', ''),
-    model: store.get('ai_model', 'gemini-2.0-flash'),
+    model: store.get('ai_model', 'gemini-flash-latest'),
     provider: store.get('ai_provider', 'gemini'),
   };
 }

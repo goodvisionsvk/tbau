@@ -75,4 +75,23 @@ const uploadVehicleDoc = multer({
   },
 }).single('file');
 
-module.exports = { uploadSheet, sheetsDir, uploadRefImages, refDir, uploadVehicleDoc, vehDir };
+// --- Dočasné nahratie pre AI test (smenovka na prečítanie) ---
+const tmpDir = path.join(config.uploadsDir, 'tmp');
+fs.mkdirSync(tmpDir, { recursive: true });
+
+const uploadAiImage = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, tmpDir),
+    filename: (req, file, cb) => {
+      const ext = ALLOWED[file.mimetype] || path.extname(file.originalname) || '';
+      cb(null, 'ai_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex') + ext);
+    },
+  }),
+  limits: { fileSize: 15 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED[file.mimetype]) return cb(null, true);
+    cb(new Error('Povolené sú len súbory JPG, PNG alebo PDF.'));
+  },
+}).single('file');
+
+module.exports = { uploadSheet, sheetsDir, uploadRefImages, refDir, uploadVehicleDoc, vehDir, uploadAiImage, tmpDir };

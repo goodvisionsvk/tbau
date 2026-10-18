@@ -124,23 +124,47 @@ router.get('/majetok', requireAuth, requireFullAccess, (req, res) => {
   });
 });
 
-// GET /nastavenia/ai – nastavenie AI na čítanie smenoviek (Gemini)
-router.get('/nastavenia/ai', requireAuth, requireFullAccess, (req, res) => {
-  res.render('ai-settings', {
+const ai = require('../ai');
+const { uploadAiImage, tmpDir } = require('../upload');
+
+function renderAi(res, extra) {
+  res.render('ai-settings', Object.assign({
     title: 'AI – čítanie smenoviek', active: 'settings',
     cfg: {
       provider: store.get('ai_provider', 'gemini'),
-      model: store.get('ai_model', 'gemini-2.0-flash'),
+      model: store.get('ai_model', 'gemini-flash-latest'),
     },
     keySet: !!store.get('ai_api_key', ''),
-    saved: req.query.saved === '1',
+    saved: false, result: null, aiError: null,
+  }, extra));
+}
+
+// GET /nastavenia/ai – nastavenie AI na čítanie smenoviek (Gemini)
+router.get('/nastavenia/ai', requireAuth, requireFullAccess, (req, res) => {
+  renderAi(res, { saved: req.query.saved === '1' });
+});
+
+// POST /nastavenia/ai/test – nahraj smenovku a prečítaj ju (len náhľad, neukladá)
+router.post('/nastavenia/ai/test', requireAuth, requireFullAccess, (req, res) => {
+  uploadAiImage(req, res, async (err) => {
+    if (err) return renderAi(res, { aiError: err.message });
+    if (!req.file) return renderAi(res, { aiError: 'Vyber súbor smenovky.' });
+    const full = require('path').join(tmpDir, req.file.filename);
+    try {
+      const result = await ai.readSmenovka(full);
+      renderAi(res, { result });
+    } catch (e) {
+      renderAi(res, { aiError: e.message });
+    } finally {
+      try { require('fs').unlinkSync(full); } catch (x) {}
+    }
   });
 });
 
 // POST /nastavenia/ai – uloženie
 router.post('/nastavenia/ai', requireAuth, requireFullAccess, (req, res) => {
   store.set('ai_provider', (req.body.provider || 'gemini').trim());
-  store.set('ai_model', (req.body.model || 'gemini-2.0-flash').trim());
+  store.set('ai_model', (req.body.model || 'gemini-flash-latest').trim());
   if ((req.body.api_key || '').trim()) store.set('ai_api_key', req.body.api_key.trim());
   res.redirect('/nastavenia/ai?saved=1');
 });
