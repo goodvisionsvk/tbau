@@ -127,9 +127,7 @@ module.exports = {
         { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },
         { key: 'assets', label: 'Majetok', href: '/majetok', icon: 'box' },
       ] });
-      groups.push({ label: 'Systém', items: [
-        { key: 'settings', label: 'Nastavenia', href: '/nastavenia', icon: 'settings' },
-      ] });
+      // Nastavenia sa presunuli do profilového menu v hornej lište (topbar).
     } else if (foreman) {
       groups.push({ label: 'HR', items: [
         { key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' },

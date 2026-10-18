@@ -158,13 +158,20 @@ uctovnik, majster, robotnik; pri robotníkovi aj **druh** (`employees.trade`, na
 Zateplovač…). Číselníky v `constants.employeePositions` / `constants.workerTrades`.
 
 **Menu je zoskupené** (`constants.buildNav` vracia skupiny `{label, items}`): **HR** (Zamestnanci,
-Dochádzka, Report dochádzky, Žiadosti), **Projekty** (Stavby), **Systém** (Nastavenia). Hlavičky
-skupín = `.nav-group`. Zamestnanec vidí len Moja dochádzka.
+Dochádzka, Dovolenky, Report dochádzky, Žiadosti), **Obchod**, **Firma** (Stavby, Majetok).
+Skupiny sú **rozbaľovacie** (klik na nadpis skupiny `.nav-group` = button; obaľovač `.nav-grp`,
+položky v `.nav-group-items`; stav sa pamätá v `localStorage['tbau_nav_open']`, skupina s aktívnou
+položkou je vždy otvorená – JS v `public/js/app.js`). Zamestnanec vidí len Moja dochádzka.
 
-**Menu (Nastavenia):** sekcie Používatelia, Aplikácie, Úlohy, Testy sú zoskupené pod položkou
-**Nastavenia** (`/nastavenia`, rozcestník `views/settings.ejs`, len plný prístup). Tieto routy
-(`/users`, `/apps`, `/tasks`, `/tests`) sú chránené `requireAdmin` (= plný prístup) a nastavujú
-`active: 'settings'`.
+**Profilové menu (horná lišta):** v topbare je `#profile` dropdown (`.profile-btn` → `.profile-menu`,
+toggle v `public/js/app.js`) s položkami **Nastavenia** (len plný prístup), **Zmena hesla**,
+**Odhlásiť**. Nastavenia aj Zmena hesla sa **presunuli zo sidebaru do tohto menu** (skupina „Systém"
+už v sidebare nie je).
+
+**Nastavenia (rozcestník):** sekcie Používatelia, Aplikácie, Úlohy, Testy + E-mail (SMTP), Vykázaná
+práca, Zálohovanie sú na stránke **Nastavenia** (`/nastavenia`, `views/settings.ejs`, len plný prístup;
+otvára sa z profilového menu). Routy `/users`, `/apps`, `/tasks`, `/tests` sú chránené `requireAdmin`
+a nastavujú `active: 'settings'` (v sidebare sa už nič nezvýrazní – Nastavenia sú v profile).
 
 Nahraté smenovky (JPG/PNG/PDF) sú mimo gitu v `data/uploads/` a servírujú sa chránene
 cez `/dochadzka/smenovka/:id/subor` (kontrola prístupu k stavbe).

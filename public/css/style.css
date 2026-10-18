@@ -59,6 +59,19 @@ h2{font-size:19px;margin:0;font-weight:600;letter-spacing:-.01em}
 .brand-logo{height:28px;width:auto;display:block}
 .topbar-right{display:flex;align-items:center;gap:12px}
 .user-chip{font-weight:600;font-size:.9rem;color:var(--ink)}
+.profile{position:relative}
+.profile-btn{display:flex;align-items:center;gap:8px;background:none;border:1px solid transparent;
+  border-radius:10px;padding:5px 9px;cursor:pointer;color:var(--ink);font-weight:600;font-size:.9rem;max-width:230px}
+.profile-btn:hover{background:var(--sel)}
+.profile-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-caret{display:flex;color:var(--muted);transition:transform .15s ease;flex-shrink:0}
+.profile.open .profile-caret{transform:rotate(180deg)}
+.profile-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:210px;background:var(--surface);
+  border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 34px rgba(0,0,0,.16);padding:6px;z-index:50}
+.profile-menu form{margin:0}
+.profile-item{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:8px;
+  color:var(--ink);font-size:14px;background:none;border:0;text-align:left;cursor:pointer;font-weight:500}
+.profile-item:hover{background:var(--sel);text-decoration:none;color:var(--ink)}
 .badge{background:var(--grey-bg);color:var(--grey-fg);font-size:.66rem;font-weight:700;
   padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
 .nav-toggle{display:none;background:transparent;border:1px solid var(--line);border-radius:8px;
@@ -70,8 +83,15 @@ h2{font-size:19px;margin:0;font-weight:600;letter-spacing:-.01em}
 .sidebar{width:230px;background:var(--surface-2);color:var(--ink);display:flex;flex-direction:column;
   flex-shrink:0;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto;border-right:1px solid var(--line-soft)}
 .sidebar nav{padding:10px 10px;display:flex;flex-direction:column;gap:2px}
-.nav-group{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--muted);padding:14px 12px 5px}
+.nav-grp{display:flex;flex-direction:column}
+.nav-group{display:flex;align-items:center;justify-content:space-between;width:100%;
+  font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);padding:14px 12px 6px;background:none;border:0;cursor:pointer;text-align:left}
+.nav-group:hover{color:var(--ink)}
+.nav-caret{display:flex;opacity:.6;transition:transform .15s ease}
+.nav-grp:not(.open) .nav-caret{transform:rotate(-90deg)}
+.nav-grp:not(.open) .nav-group-items{display:none}
+.nav-group-items{display:flex;flex-direction:column;gap:2px}
 .nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border-radius:8px;
   color:var(--ink);font-size:14.5px;min-height:40px;background:none;border:0;text-align:left;cursor:pointer}
 .nav-item:hover{background:var(--sel);text-decoration:none;color:var(--ink)}

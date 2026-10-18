@@ -17,15 +17,22 @@
     </div>
     <div class="topbar-right">
       <% if (currentUser) { %>
-        <span class="user-chip">
-          <%= currentUser.full_name || currentUser.email %>
-          <% if (currentUser.role === 'admin') { %><span class="badge">admin</span><% } %>
-        </span>
-        <a class="btn-link hide-mobile" href="/account/password">Zmena hesla</a>
-        <form class="inline" method="post" action="/logout">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <button class="btn btn-ghost btn-sm">Odhlásiť</button>
-        </form>
+        <% var isFull = ['sef','admin'].indexOf(currentUser.role) >= 0; %>
+        <div class="profile" id="profile">
+          <button class="profile-btn" type="button" aria-haspopup="true" aria-expanded="false">
+            <span class="profile-name"><%= currentUser.full_name || currentUser.email %></span>
+            <% if (isFull) { %><span class="badge"><%= currentUser.role === 'sef' ? 'šéf' : 'admin' %></span><% } %>
+            <span class="profile-caret"><%- icon('chevron', 16) %></span>
+          </button>
+          <div class="profile-menu" hidden>
+            <% if (isFull) { %><a class="profile-item" href="/nastavenia"><%- icon('settings', 16) %> Nastavenia</a><% } %>
+            <a class="profile-item" href="/account/password"><%- icon('key', 16) %> Zmena hesla</a>
+            <form method="post" action="/logout">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="profile-item" type="submit"><%- icon('logout', 16) %> Odhlásiť</button>
+            </form>
+          </div>
+        </div>
       <% } else { %>
         <a class="btn btn-primary btn-sm" href="/login">Prihlásiť sa</a>
       <% } %>
@@ -36,17 +43,34 @@
     <aside class="sidebar" id="sidebar">
       <nav>
         <% nav.forEach(function(group){ %>
-          <% if (group.label) { %><div class="nav-group"><%= group.label %></div><% } %>
-          <% group.items.forEach(function(item){ %>
-            <a class="nav-item <%= active === item.key ? 'active' : '' %>" href="<%= item.href %>">
-              <span class="nav-ico"><%- icon(item.icon) %></span><%= item.label %>
-            </a>
-          <% }) %>
+          <% if (group.label) { %>
+            <% var grpOpen = group.items.some(function(it){ return it.key === active; }); %>
+            <div class="nav-grp<%= grpOpen ? ' open' : '' %>" data-grp="<%= group.label %>">
+              <button type="button" class="nav-group" aria-expanded="<%= grpOpen ? 'true' : 'false' %>">
+                <span><%= group.label %></span>
+                <span class="nav-caret"><%- icon('chevron', 16) %></span>
+              </button>
+              <div class="nav-group-items">
+                <% group.items.forEach(function(item){ %>
+                  <a class="nav-item <%= active === item.key ? 'active' : '' %>" href="<%= item.href %>">
+                    <span class="nav-ico"><%- icon(item.icon) %></span><%= item.label %>
+                  </a>
+                <% }) %>
+              </div>
+            </div>
+          <% } else { %>
+            <div class="nav-grp open">
+              <div class="nav-group-items">
+                <% group.items.forEach(function(item){ %>
+                  <a class="nav-item <%= active === item.key ? 'active' : '' %>" href="<%= item.href %>">
+                    <span class="nav-ico"><%- icon(item.icon) %></span><%= item.label %>
+                  </a>
+                <% }) %>
+              </div>
+            </div>
+          <% } %>
         <% }) %>
       </nav>
-      <div class="sidebar-account">
-        <a class="nav-item" href="/account/password"><span class="nav-ico"><%- icon('key') %></span>Zmena hesla</a>
-      </div>
       <div class="sidebar-foot"><%= company.name %><br>IČO <%= company.ico %></div>
     </aside>
     <div class="nav-backdrop" hidden></div>
