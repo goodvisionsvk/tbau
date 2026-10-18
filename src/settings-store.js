@@ -2,17 +2,24 @@
 // Prednosť má hodnota z DB; ak chýba, použije sa hodnota z .env (config).
 const db = require('./db');
 const config = require('./config');
+const secretbox = require('./util/secretbox');
+
+// kľúče, ktorých hodnota sa v DB šifruje (tajomstvá)
+const SECRET_KEYS = new Set(['smtp_pass', 'ai_api_key']);
 
 function get(key, fallback = null) {
   const r = db.prepare('SELECT value FROM app_settings WHERE key = ?').get(key);
-  return r && r.value != null ? r.value : fallback;
+  if (!r || r.value == null) return fallback;
+  return secretbox.decrypt(r.value); // dešifruje len enc: hodnoty, inak vráti ako je
 }
 
 function set(key, value) {
+  let v = value == null ? null : String(value);
+  if (v != null && SECRET_KEYS.has(key)) v = secretbox.encrypt(v);
   db.prepare(
     `INSERT INTO app_settings (key, value, updated_at) VALUES (?,?,datetime('now'))
      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')`
-  ).run(key, value == null ? null : String(value));
+  ).run(key, v);
 }
 
 // Aktuálna SMTP konfigurácia (DB má prednosť pred .env).
@@ -28,4 +35,4 @@ function getSmtp() {
   };
 }
 
-module.exports = { get, set, getSmtp };
+module.exports = { get, set, getSmtp, SECRET_KEYS, secretbox };
