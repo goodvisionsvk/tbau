@@ -119,12 +119,12 @@ module.exports = {
         { key: 'reports', label: 'Report dochádzky', href: '/reporty', icon: 'chart' },
         { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
       ] });
-      groups.push({ label: 'Obchod', icon: 'briefcase', items: [
+      groups.push({ label: 'Obchod', icon: 'receipt', items: [
         { key: 'customers', label: 'Zákazníci', href: '/zakaznici', icon: 'briefcase' },
         { key: 'inquiries', label: 'Dopyty', href: '/dopyty', icon: 'send' },
         { key: 'references', label: 'Referenčné stavby', href: '/referencie', icon: 'building' },
       ] });
-      groups.push({ label: 'Firma', icon: 'building', items: [
+      groups.push({ label: 'Firma', icon: 'grid', items: [
         { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },
         { key: 'assets', label: 'Majetok', href: '/majetok', icon: 'box' },
       ] });
@@ -137,7 +137,7 @@ module.exports = {
         { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
         { key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: 'user' },
       ] });
-      groups.push({ label: 'Firma', icon: 'building', items: [
+      groups.push({ label: 'Firma', icon: 'grid', items: [
         { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },
       ] });
     }
