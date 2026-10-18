@@ -40,7 +40,7 @@
   <h2 style="margin-top:0;">Vyskúšať na smenovke</h2>
   <p class="muted" style="margin-top:0;">Nahraj fotku smenovky (JPG/PNG/PDF) a AI ju prečíta. Toto je len náhľad – nič sa neukladá.</p>
   <% if (typeof aiError !== 'undefined' && aiError) { %><div class="alert alert-error"><%= aiError %></div><% } %>
-  <form method="post" action="/nastavenia/ai/test" enctype="multipart/form-data" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+  <form id="ai-test-form" method="post" action="/nastavenia/ai/test" enctype="multipart/form-data" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <input type="file" name="file" accept="image/jpeg,image/png,application/pdf" required <%= keySet ? '' : 'disabled' %>>
     <button class="btn btn-dark" <%= keySet ? '' : 'disabled' %>><%- icon('beaker', 16) %> Prečítať</button>

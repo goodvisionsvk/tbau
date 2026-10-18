@@ -78,6 +78,47 @@
   });
 })();
 
+// AI test smenovky: zmenši fotku v prehliadači pred odoslaním (rýchlejšie, menšia záťaž).
+(function () {
+  var form = document.getElementById('ai-test-form');
+  if (!form) return;
+  function resize(file, maxDim, quality) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        c.toBlob(function (b) { b ? resolve(b) : reject(new Error('resize')); }, 'image/jpeg', quality);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('load')); };
+      img.src = url;
+    });
+  }
+  form.addEventListener('submit', async function (e) {
+    var input = form.querySelector('input[type=file]');
+    var file = input && input.files && input.files[0];
+    if (!file || !/^image\//.test(file.type)) return; // PDF alebo nič → normálne odoslanie
+    e.preventDefault();
+    var btn = form.querySelector('button');
+    if (btn) { btn.disabled = true; btn.textContent = 'Čítam…'; }
+    try {
+      var blob = await resize(file, 1600, 0.85);
+      var fd = new FormData(form);
+      fd.set('file', blob, 'smenovka.jpg');
+      var res = await fetch(form.action, { method: 'POST', body: fd });
+      var html = await res.text();
+      document.open(); document.write(html); document.close();
+    } catch (err) {
+      form.submit(); // fallback: pošli originál
+    }
+  });
+})();
+
 // Pole "Druh robotníka" sa zobrazí len pri pozícii Robotník.
 (function () {
   document.querySelectorAll('select[data-position]').forEach(function (sel) {
