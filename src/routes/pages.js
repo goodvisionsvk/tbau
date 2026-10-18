@@ -59,6 +59,7 @@ router.get('/nastavenia', requireAuth, requireFullAccess, (req, res) => {
       { label: 'Úlohy', href: '/tasks', icon: 'tasks', desc: 'Úlohy pri budovaní portálu.' },
       { label: 'Testy', href: '/tests', icon: 'beaker', desc: 'Automatické testy portálu.' },
       { label: 'Vykázaná práca', href: '/praca', icon: 'receipt', desc: 'Čas, tokeny a odhadovaná cena práce na projekte.' },
+      { label: 'AI – smenovky', href: '/nastavenia/ai', icon: 'beaker', desc: 'Čítanie smenoviek z fotky (Gemini) – API kľúč a model.' },
       { label: 'O systéme', href: '/nastavenia/system', icon: 'grid', desc: 'Technický prehľad: verzia, úložiská, zálohy, štatistiky.' },
     ],
   });
@@ -121,6 +122,27 @@ router.get('/majetok', requireAuth, requireFullAccess, (req, res) => {
         count: db.prepare('SELECT COUNT(*) c FROM vehicles WHERE active = 1').get().c },
     ],
   });
+});
+
+// GET /nastavenia/ai – nastavenie AI na čítanie smenoviek (Gemini)
+router.get('/nastavenia/ai', requireAuth, requireFullAccess, (req, res) => {
+  res.render('ai-settings', {
+    title: 'AI – čítanie smenoviek', active: 'settings',
+    cfg: {
+      provider: store.get('ai_provider', 'gemini'),
+      model: store.get('ai_model', 'gemini-2.0-flash'),
+    },
+    keySet: !!store.get('ai_api_key', ''),
+    saved: req.query.saved === '1',
+  });
+});
+
+// POST /nastavenia/ai – uloženie
+router.post('/nastavenia/ai', requireAuth, requireFullAccess, (req, res) => {
+  store.set('ai_provider', (req.body.provider || 'gemini').trim());
+  store.set('ai_model', (req.body.model || 'gemini-2.0-flash').trim());
+  if ((req.body.api_key || '').trim()) store.set('ai_api_key', req.body.api_key.trim());
+  res.redirect('/nastavenia/ai?saved=1');
 });
 
 // GET /nastavenia/system – technický prehľad systému (len plný prístup)

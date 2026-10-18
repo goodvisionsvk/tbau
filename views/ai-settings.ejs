@@ -1,0 +1,38 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/nastavenia">&larr; Späť na nastavenia</a></p>
+<% if (saved) { %><div class="alert alert-info">Nastavenia AI boli uložené.</div><% } %>
+
+<div class="card" style="max-width:560px;">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div class="app-ico"><%- icon('beaker', 22) %></div>
+    <div>
+      <h2 style="margin:0;">AI – čítanie smenoviek</h2>
+      <span class="pill <%= keySet ? 'active' : 'paused' %>"><%= keySet ? 'API kľúč nastavený' : 'API kľúč chýba' %></span>
+    </div>
+  </div>
+  <p class="muted" style="margin:10px 0 0;">
+    Služba, ktorá z fotky smenovky prečíta mená a odpracované hodiny. Kľúč získaš zadarmo na
+    <b>aistudio.google.com/apikey</b> (Google AI Studio → Create API key). Ukladá sa na serveri, nie v gite.
+  </p>
+
+  <form method="post" action="/nastavenia/ai" style="margin-top:14px;">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="field"><label>Poskytovateľ</label>
+      <select name="provider"><option value="gemini" <%= cfg.provider==='gemini'?'selected':'' %>>Google Gemini (zadarmo)</option></select>
+    </div>
+    <div class="field"><label>Model</label>
+      <select name="model">
+        <option value="gemini-2.0-flash" <%= cfg.model==='gemini-2.0-flash'?'selected':'' %>>gemini-2.0-flash (rýchly, zadarmo)</option>
+        <option value="gemini-2.5-flash" <%= cfg.model==='gemini-2.5-flash'?'selected':'' %>>gemini-2.5-flash</option>
+        <option value="gemini-1.5-flash" <%= cfg.model==='gemini-1.5-flash'?'selected':'' %>>gemini-1.5-flash</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>API kľúč <% if (keySet) { %><span class="muted">(uložený – nechaj prázdne pre ponechanie)</span><% } %></label>
+      <input name="api_key" type="password" value="" placeholder="<%= keySet ? '•••••••• (nezmenené)' : 'AIza…' %>" autocomplete="new-password">
+    </div>
+    <button class="btn btn-primary">Uložiť</button>
+  </form>
+  <p class="muted" style="font-size:.82rem; margin-top:10px;">
+    Po uložení pridám k smenovkám tlačidlo „Načítať zo smenovky (AI)" – prečítané dáta vždy skontroluješ a potvrdíš pred uložením do dochádzky.
+  </p>
+</div>
