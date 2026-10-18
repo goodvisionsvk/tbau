@@ -131,8 +131,8 @@ function renderAi(res, extra) {
   res.render('ai-settings', Object.assign({
     title: 'AI – čítanie smenoviek', active: 'settings',
     cfg: {
-      provider: store.get('ai_provider', 'gemini'),
-      model: store.get('ai_model', 'gemini-3.8-flash'),
+      provider: store.get('ai_provider', 'claude'),
+      model: store.get('ai_model', 'claude-sonnet-5-5'),
     },
     keySet: !!store.get('ai_api_key', ''),
     saved: false, result: null, aiError: null,
@@ -163,8 +163,8 @@ router.post('/nastavenia/ai/test', requireAuth, requireFullAccess, (req, res) =>
 
 // POST /nastavenia/ai – uloženie
 router.post('/nastavenia/ai', requireAuth, requireFullAccess, (req, res) => {
-  store.set('ai_provider', (req.body.provider || 'gemini').trim());
-  store.set('ai_model', (req.body.model || 'gemini-3.8-flash').trim());
+  store.set('ai_provider', (req.body.provider || 'claude').trim());
+  store.set('ai_model', (req.body.model || 'claude-sonnet-5-5').trim());
   if ((req.body.api_key || '').trim()) store.set('ai_api_key', req.body.api_key.trim());
   res.redirect('/nastavenia/ai?saved=1');
 });
