@@ -84,12 +84,11 @@ h2{font-size:19px;margin:0;font-weight:600;letter-spacing:-.01em}
   flex-shrink:0;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto;border-right:1px solid var(--line-soft)}
 .sidebar nav{padding:10px 10px;display:flex;flex-direction:column;gap:2px}
 .nav-grp{display:flex;flex-direction:column}
-.nav-group{display:flex;align-items:center;justify-content:space-between;width:100%;
+.nav-group{display:flex;align-items:center;gap:10px;width:100%;
   font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   color:var(--muted);padding:14px 12px 6px;background:none;border:0;cursor:pointer;text-align:left}
 .nav-group:hover{color:var(--ink)}
-.nav-caret{display:flex;opacity:.6;transition:transform .15s ease}
-.nav-grp:not(.open) .nav-caret{transform:rotate(-90deg)}
+.nav-grp-ico{width:22px;display:flex;align-items:center;justify-content:center;opacity:.75}
 .nav-grp:not(.open) .nav-group-items{display:none}
 .nav-group-items{display:flex;flex-direction:column;gap:2px}
 .nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border-radius:8px;

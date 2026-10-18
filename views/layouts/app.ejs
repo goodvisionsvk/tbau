@@ -47,8 +47,8 @@
             <% var grpOpen = group.items.some(function(it){ return it.key === active; }); %>
             <div class="nav-grp<%= grpOpen ? ' open' : '' %>" data-grp="<%= group.label %>">
               <button type="button" class="nav-group" aria-expanded="<%= grpOpen ? 'true' : 'false' %>">
+                <% if (group.icon) { %><span class="nav-grp-ico"><%- icon(group.icon, 16) %></span><% } %>
                 <span><%= group.label %></span>
-                <span class="nav-caret"><%- icon('chevron', 16) %></span>
               </button>
               <div class="nav-group-items">
                 <% group.items.forEach(function(item){ %>

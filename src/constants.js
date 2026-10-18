@@ -111,7 +111,7 @@ module.exports = {
     const groups = [{ label: '', items: [{ key: 'dashboard', label: 'Prehľad', href: '/dashboard', icon: 'home' }] }];
 
     if (full) {
-      groups.push({ label: 'HR', items: [
+      groups.push({ label: 'HR', icon: 'users', items: [
         { key: 'employees', label: 'Zamestnanci', href: '/zamestnanci', icon: 'hardhat' },
         { key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' },
         { key: 'ai_import', label: 'Import smenovky (AI)', href: '/dochadzka/ai-import', icon: 'beaker' },
@@ -119,25 +119,25 @@ module.exports = {
         { key: 'reports', label: 'Report dochádzky', href: '/reporty', icon: 'chart' },
         { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
       ] });
-      groups.push({ label: 'Obchod', items: [
+      groups.push({ label: 'Obchod', icon: 'briefcase', items: [
         { key: 'customers', label: 'Zákazníci', href: '/zakaznici', icon: 'briefcase' },
         { key: 'inquiries', label: 'Dopyty', href: '/dopyty', icon: 'send' },
         { key: 'references', label: 'Referenčné stavby', href: '/referencie', icon: 'building' },
       ] });
-      groups.push({ label: 'Firma', items: [
+      groups.push({ label: 'Firma', icon: 'building', items: [
         { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },
         { key: 'assets', label: 'Majetok', href: '/majetok', icon: 'box' },
       ] });
       // Nastavenia sa presunuli do profilového menu v hornej lište (topbar).
     } else if (foreman) {
-      groups.push({ label: 'HR', items: [
+      groups.push({ label: 'HR', icon: 'users', items: [
         { key: 'attendance', label: 'Dochádzka', href: '/dochadzka', icon: 'clock' },
         { key: 'ai_import', label: 'Import smenovky (AI)', href: '/dochadzka/ai-import', icon: 'beaker' },
         { key: 'reports', label: 'Report dochádzky', href: '/reporty', icon: 'chart' },
         { key: 'requests', label: 'Žiadosti', href: '/ziadosti', icon: 'inbox' },
         { key: 'myattendance', label: 'Moja dochádzka', href: '/moja-dochadzka', icon: 'user' },
       ] });
-      groups.push({ label: 'Firma', items: [
+      groups.push({ label: 'Firma', icon: 'building', items: [
         { key: 'projects', label: 'Stavby', href: '/projects', icon: 'building' },
       ] });
     }
