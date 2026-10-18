@@ -128,6 +128,10 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-18** – **Nastavenia → O systéme** (`/nastavenia/system`): technický prehľad pre admina –
+  verzia aplikácie (+ git commit), technológie, domény; kde sa čo ukladá (DB veľkosť, uploads po
+  priečinkoch, nastavenia, tajomstvá); čo a kam sa zálohuje (+ stav poslednej zálohy); živé štatistiky
+  (počty zákazníkov/zamestnancov/stavieb/vozidiel…); stručná bezpečnosť.
 - **2026-10-18** – **NAS zálohovanie spustené + šifrovaná záloha tajomstiev**: Synology DS220+
   (úloha „BackUP pull TBAU", denne 03:30) prírastkovo ťahá zálohy + uploads z VPS (overené – prvý
   pull prebehol). `.env` (SESSION_SECRET, WORKLOG_SECRET) sa pri zálohe **šifruje GPG verejným

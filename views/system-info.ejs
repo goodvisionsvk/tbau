@@ -1,0 +1,79 @@
+<p style="margin-top:-8px;"><a class="btn-link" href="/nastavenia">&larr; Späť na nastavenia</a></p>
+<p class="muted" style="margin-top:0;">Technický prehľad – čo a kde beží, kde sa čo ukladá a zálohuje. Podrobnosti pre vývojára sú v <code>README.md</code> a <code>CLAUDE.md</code> v repozitári.</p>
+
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px;">
+
+  <div class="card">
+    <h2 style="margin-top:0;">Aplikácia</h2>
+    <table class="kv">
+      <tr><td>Názov</td><td><b><%= app.name %></b> – firemný portál</td></tr>
+      <tr><td>Verzia</td><td><b><%= app.version %></b><% if (app.commit) { %> <span class="muted">(<%= app.commit %>)</span><% } %></td></tr>
+      <tr><td>Technológie</td><td>Node.js <%= app.node %> · Express · EJS · SQLite</td></tr>
+      <tr><td>Prostredie</td><td><%= app.env %></td></tr>
+      <tr><td>Doména</td><td><%= app.domainPrimary %> <span class="muted">(záloha <%= app.domainBackup %>)</span></td></tr>
+      <tr><td>Kód (repo)</td><td><%= app.repo %></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Kde sa čo ukladá</h2>
+    <table class="kv">
+      <tr><td>Databáza (SQLite)</td><td><b><%= fmtMB(storage.dbSize) %></b><br><span class="muted" style="font-size:.82rem;"><%= storage.dbPath %></span></td></tr>
+      <tr><td>Nahraté súbory</td><td><b><%= fmtMB(storage.uploadsTotal) %></b> spolu</td></tr>
+      <tr><td>· smenovky</td><td class="muted"><%= storage.up.smenovky.files %> súb. · <%= fmtMB(storage.up.smenovky.bytes) %></td></tr>
+      <tr><td>· referencie (fotky)</td><td class="muted"><%= storage.up.references.files %> súb. · <%= fmtMB(storage.up.references.bytes) %></td></tr>
+      <tr><td>· doklady vozidiel</td><td class="muted"><%= storage.up.vehicles.files %> súb. · <%= fmtMB(storage.up.vehicles.bytes) %></td></tr>
+      <tr><td>Nastavenia (SMTP…)</td><td>v databáze (tabuľka <code>app_settings</code>)</td></tr>
+      <tr><td>Tajomstvá (.env)</td><td>len na serveri, mimo gitu (šifrované v zálohe)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Zálohovanie</h2>
+    <table class="kv">
+      <tr><td>Databáza + súbory</td><td>denne <b>02:30</b> → <code>backups/</code> (gzip, rotácia 30 dní)</td></tr>
+      <tr><td>NAS Synology</td><td>denne <b>03:30</b> ťahá na <code>ZALOHY/tbau-backup</code></td></tr>
+      <tr><td>Tajomstvá (.env)</td><td>šifrované (GPG) v zálohe – <code>env.gpg</code></td></tr>
+      <tr><td>Kód</td><td>v gite (GitHub) – vlastná záloha</td></tr>
+      <tr><td>Posledná záloha</td><td>
+        <% if (backup && backup.last) { %><span class="pill active"><%= new Date(backup.last).toLocaleString('sk-SK') %></span> <span class="muted"><%= backup.count %> záloh</span>
+        <% } else { %><span class="pill paused">zatiaľ žiadna</span><% } %>
+      </td></tr>
+    </table>
+    <p class="muted" style="font-size:.82rem; margin:8px 0 0;">Dáta sú na dvoch miestach: server (VPS) + NAS v sídle firmy.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Štatistiky (živé)</h2>
+    <table class="kv">
+      <tr><td>Používatelia</td><td><b><%= counts.users %></b></td></tr>
+      <tr><td>Zamestnanci</td><td><b><%= counts.employees %></b></td></tr>
+      <tr><td>Zákazníci</td><td><b><%= counts.customers %></b> <span class="muted">(<%= counts.contacts %> kontaktov)</span></td></tr>
+      <tr><td>Stavby</td><td><b><%= counts.projects %></b></td></tr>
+      <tr><td>Vozidlá</td><td><b><%= counts.vehicles %></b></td></tr>
+      <tr><td>Dopyty</td><td><b><%= counts.inquiries %></b></td></tr>
+      <tr><td>Referenčné stavby</td><td><b><%= counts.references %></b></td></tr>
+      <tr><td>Dovolenky (záznamy)</td><td><b><%= counts.leaves %></b></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Bezpečnosť (stručne)</h2>
+    <ul style="margin:0; padding-left:18px; line-height:1.9;">
+      <li>HTTPS (Let's Encrypt), vynútené; firewall len SSH + 80/443</li>
+      <li>Heslá hashované (bcrypt), politika sily + obmena 1×/rok</li>
+      <li>Role a prístupy (šéf/admin/parťák/zamestnanec)</li>
+      <li>CSRF ochrana, parametrizované SQL, CSP; audit log požiadaviek</li>
+      <li>Denné zálohy + šifrované tajomstvá; prístup na server len cez SSH kľúč</li>
+      <li>E-mail: <%= storage.smtp ? 'SMTP nakonfigurované' : 'SMTP zatiaľ nenastavené' %></li>
+    </ul>
+    <p class="muted" style="font-size:.82rem; margin:10px 0 0;">Úplný stav bezpečnosti a ISO 27000 je v <code>README.md</code>.</p>
+  </div>
+
+</div>
+
+<style>
+  .kv{width:100%; border-collapse:collapse}
+  .kv td{padding:7px 0; vertical-align:top; border-bottom:1px solid var(--line-soft); font-size:14px}
+  .kv td:first-child{color:var(--muted); width:42%; padding-right:12px}
+</style>

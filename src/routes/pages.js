@@ -1,15 +1,32 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 const db = require('../db');
+const config = require('../config');
 const constants = require('../constants');
 const perm = require('../permissions');
 const dates = require('../util/dates');
 const store = require('../settings-store');
 const mailer = require('../mailer');
+const pkg = require('../../package.json');
 const { requireAuth, requireFullAccess } = require('../middleware/auth');
 
 const router = express.Router();
+
+// veľkosť + počet súborov v priečinku (rekurzívne)
+function dirStats(dir) {
+  let bytes = 0, files = 0;
+  try {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) { const s = dirStats(full); bytes += s.bytes; files += s.files; }
+      else { try { bytes += fs.statSync(full).size; files++; } catch (x) {} }
+    }
+  } catch (x) {}
+  return { bytes, files };
+}
+function fmtMB(b) { return (b / 1048576).toFixed(1) + ' MB'; }
 
 // Prehľad stavu zálohovania (číta adresár backups/ vytváraný denným timerom).
 function backupStatus() {
@@ -42,6 +59,7 @@ router.get('/nastavenia', requireAuth, requireFullAccess, (req, res) => {
       { label: 'Úlohy', href: '/tasks', icon: 'tasks', desc: 'Úlohy pri budovaní portálu.' },
       { label: 'Testy', href: '/tests', icon: 'beaker', desc: 'Automatické testy portálu.' },
       { label: 'Vykázaná práca', href: '/praca', icon: 'receipt', desc: 'Čas, tokeny a odhadovaná cena práce na projekte.' },
+      { label: 'O systéme', href: '/nastavenia/system', icon: 'grid', desc: 'Technický prehľad: verzia, úložiská, zálohy, štatistiky.' },
     ],
   });
 });
@@ -102,6 +120,47 @@ router.get('/majetok', requireAuth, requireFullAccess, (req, res) => {
       { label: 'Vozidlá', href: '/vozidla', icon: 'truck', desc: 'Evidencia vozidiel, pridelenie vodičom a stavbám, doklady.',
         count: db.prepare('SELECT COUNT(*) c FROM vehicles WHERE active = 1').get().c },
     ],
+  });
+});
+
+// GET /nastavenia/system – technický prehľad systému (len plný prístup)
+router.get('/nastavenia/system', requireAuth, requireFullAccess, (req, res) => {
+  let commit = null;
+  try { commit = execSync('git rev-parse --short HEAD', { cwd: path.join(__dirname, '..', '..') }).toString().trim(); } catch (e) {}
+  const uploadsDir = config.uploadsDir;
+  const dbSize = (() => { try { return fs.statSync(config.dbPath).size; } catch (e) { return 0; } })();
+  const up = {
+    smenovky: dirStats(path.join(uploadsDir, 'smenovky')),
+    references: dirStats(path.join(uploadsDir, 'references')),
+    vehicles: dirStats(path.join(uploadsDir, 'vehicles')),
+  };
+  const count = (sql) => { try { return db.prepare(sql).get().c; } catch (e) { return '—'; } };
+  res.render('system-info', {
+    title: 'O systéme', active: 'settings',
+    app: {
+      name: constants.company.name, version: pkg.version, commit,
+      node: process.version, env: config.env,
+      domainPrimary: 'portal.tbau.eu', domainBackup: 'tbau.goodvision.sk',
+      repo: 'github.com/goodvisionsvk/tbau',
+    },
+    storage: {
+      dbPath: config.dbPath, dbSize, uploadsDir, up,
+      uploadsTotal: up.smenovky.bytes + up.references.bytes + up.vehicles.bytes,
+      smtp: mailer.isConfigured(),
+    },
+    backup: backupStatus(),
+    counts: {
+      users: count('SELECT COUNT(*) c FROM users'),
+      employees: count('SELECT COUNT(*) c FROM employees'),
+      customers: count('SELECT COUNT(*) c FROM customers'),
+      contacts: count('SELECT COUNT(*) c FROM contacts'),
+      projects: count('SELECT COUNT(*) c FROM projects'),
+      vehicles: count('SELECT COUNT(*) c FROM vehicles'),
+      inquiries: count('SELECT COUNT(*) c FROM inquiries'),
+      references: count('SELECT COUNT(*) c FROM reference_sites'),
+      leaves: count('SELECT COUNT(*) c FROM leaves'),
+    },
+    fmtMB,
   });
 });
 

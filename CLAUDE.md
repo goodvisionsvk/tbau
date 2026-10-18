@@ -169,8 +169,10 @@ toggle v `public/js/app.js`) s položkami **Nastavenia** (len plný prístup), *
 už v sidebare nie je).
 
 **Nastavenia (rozcestník):** sekcie Používatelia, Aplikácie, Úlohy, Testy + E-mail (SMTP), Vykázaná
-práca, Zálohovanie sú na stránke **Nastavenia** (`/nastavenia`, `views/settings.ejs`, len plný prístup;
-otvára sa z profilového menu). Routy `/users`, `/apps`, `/tasks`, `/tests` sú chránené `requireAdmin`
+práca, **O systéme** sú na stránke **Nastavenia** (`/nastavenia`, `views/settings.ejs`, len plný prístup;
+otvára sa z profilového menu). **O systéme** (`/nastavenia/system`, `views/system-info.ejs`) = technický
+prehľad: verzia (`package.json` + git commit), technológie, domény, úložiská (DB veľkosť, uploads po
+priečinkoch cez `dirStats()`), zálohy (`backupStatus()`), živé počty, stručná bezpečnosť. Routy `/users`, `/apps`, `/tasks`, `/tests` sú chránené `requireAdmin`
 a nastavujú `active: 'settings'` (v sidebare sa už nič nezvýrazní – Nastavenia sú v profile).
 
 Nahraté smenovky (JPG/PNG/PDF) sú mimo gitu v `data/uploads/` a servírujú sa chránene
