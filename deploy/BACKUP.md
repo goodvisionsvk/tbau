@@ -78,6 +78,24 @@ rsync -rtz -e "$SSH" nasbackup@80.211.202.23:uploads/ /volume1/tbau-backup/uploa
 > držal aj staršiu históriu, než má server (server rotuje 30 dní, NAS môže viac).
 > Prenesie sa vždy len to, čo je nové/zmenené.
 
+## Tajomstvá (.env) – šifrovaná záloha
+
+Súbor `.env` (obsahuje `SESSION_SECRET`, `WORKLOG_SECRET`) sa pri každej zálohe **zašifruje
+verejným GPG kľúčom** (`deploy/secrets-pubkey.asc`, je v gite – verejný kľúč je bezpečný) do
+`backups/db/env.gpg`. Ten putuje na NAS spolu s `db/`. **Server vie len šifrovať** – dešifrovať
+sa dá iba **súkromným kľúčom**, ktorý je mimo servera aj gitu (u správcu, v správcovi hesiel).
+
+Obnova `.env` (na stroji so súkromným kľúčom, napr. Mac s `gpg`):
+
+```bash
+gpg --import tbau-secrets-PRIVATE.asc     # jednorazovo (ak kľúč ešte nemáš)
+gpg --decrypt env.gpg > .env              # env.gpg stiahneš z NAS (ZALOHY/tbau-backup/db/)
+```
+
+Po kompletnej strate servera: nasadiť kód z gitu, obnoviť DB (nižšie), obnoviť `uploads/`,
+a `.env` dešifrovať z `env.gpg` (alebo zadať tajomstvá nanovo – `SESSION_SECRET` sa dá vygenerovať,
+SMTP heslo je aj v DB). Súkromný kľúč drž v správcovi hesiel; keby sa stratil, vygenerujeme nový pár.
+
 ## Obnova zo zálohy
 
 ```bash

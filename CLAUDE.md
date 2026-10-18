@@ -182,6 +182,11 @@ do `backups/` (mimo gitu) cez systemd timer o 02:30. NAS Synology si zálohy + `
 **prírastkovo ťahá z VPS** (rsync/Hyper Backup, read-only účet `backup`). Stav poslednej zálohy
 ukazuje `/nastavenia` (funkcia `backupStatus()` v `pages.js`, odsek v `views/settings.ejs`).
 Inštalácia timera na serveri podľa `deploy/BACKUP.md` (nie je súčasťou `deploy.sh`).
+**Tajomstvá:** `.env` sa pri zálohe **šifruje GPG verejným kľúčom** (`deploy/secrets-pubkey.asc`, v gite)
+do `backups/db/env.gpg` (ide na NAS s `db/`). Dešifruje len **súkromný kľúč** (mimo servera/gitu, u
+správcu): `gpg --import tbau-secrets-PRIVATE.asc && gpg -d env.gpg > .env`. Server vie len šifrovať.
+NAS zálohovanie je **nastavené a otestované** (Synology DS220+ „BackUP pull TBAU", denne 03:30,
+rsync z `nasbackup@` do `ZALOHY/tbau-backup/{db,uploads}`). TODO: NAS úlohu z root na menej privilegovaný účet.
 
 Health check: `GET /health` (verejný, server + DB) — používa ho sekcia **Testy** a je vhodný aj na monitoring.
 **Testy** (`/tests`, `src/routes/tests.js`, 8 testov): „Stránka funguje" (self /health), **CRUD

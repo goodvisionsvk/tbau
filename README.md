@@ -128,6 +128,11 @@ Sekcia, ktorá sa dopĺňa po každej pracovnej session – čo sa spravilo a č
   Token-hook prepnutý na portal.tbau.eu. Appka je bezdoménová (relatívne URL), kód netreba meniť.
 - **2026-10-01** – Dochádzka: prepínač **Týždeň/Mesiac** (týždeň editovateľný, mesiac prehľad celého mesiaca),
   filter podľa stavby; Reporty: filter podľa stavby + mesačný **export pre mzdy** (CSV).
+- **2026-10-18** – **NAS zálohovanie spustené + šifrovaná záloha tajomstiev**: Synology DS220+
+  (úloha „BackUP pull TBAU", denne 03:30) prírastkovo ťahá zálohy + uploads z VPS (overené – prvý
+  pull prebehol). `.env` (SESSION_SECRET, WORKLOG_SECRET) sa pri zálohe **šifruje GPG verejným
+  kľúčom** → `backups/db/env.gpg` (na NAS); dešifruje len súkromný kľúč mimo servera/gitu. Postup
+  obnovy v `deploy/BACKUP.md`.
 - **2026-10-18** – **Navigácia preorganizovaná**: **Nastavenia** a **Zmena hesla** presunuté z ľavého
   menu do **profilového menu v hornej lište** (klik na meno používateľa → Nastavenia / Zmena hesla /
   Odhlásiť). Ľavé **skupiny menu sú teraz rozbaľovacie** (klik na HR/Obchod/Firma rozbalí/zbalí; stav
